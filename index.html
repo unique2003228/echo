@@ -636,8 +636,8 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 <script>
 'use strict';
 const GOOGLE_CLIENT_ID='951107600780-q37rrqjcsopotjpqjuhikvofoersv19n.apps.googleusercontent.com';
-const GRACE_SECONDS=150, HEARTBEAT_MS=5000, PRUNE_MS=20000, PING_MS=5000, SWEEP_MS=10000, STALE_MS=12000;
-const MAXIMG=1000000; /* 1 ميقابايت */
+const GRACE_SECONDS=150, HEARTBEAT_MS=3000, HEALTH_MS=3000, PRUNE_MS=20000, PING_MS=5000, STALE_MS=12000;
+const MAXIMG=1000000;
 
 const $=s=>document.querySelector(s);
 const IDS=['authView','lobbyView','roomView','insecure','gWrap','gHint','lobbyAv','lobbyName','lobbyHandle','userChip','logoutBtn',
@@ -655,7 +655,22 @@ const el={};IDS.forEach(id=>{el[id]=$('#'+id);});
 const icon=(n,cls='')=>'<svg class="ic '+cls+'" aria-hidden="true"><use href="#i-'+n+'"/></svg>';
 
 const DIR_T='sada12/dir', ROOM_T=c=>'sada12/r/'+c, HANDLES='sada-handles-v1', PREFIX='sada8-';
-const ICE={config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:stun2.l.google.com:19302'}]}};
+
+/* ═══ TURN servers — ضروري لتجاوز NAT الصارم ═══ */
+const ICE={
+  config:{
+    iceServers:[
+      {urls:'stun:stun.l.google.com:19302'},
+      {urls:'stun:stun1.l.google.com:19302'},
+      {urls:'stun:stun2.l.google.com:19302'},
+      {urls:'turn:openrelay.metered.ca:80',username:'openrelayproject',credential:'openrelayproject'},
+      {urls:'turn:openrelay.metered.ca:443',username:'openrelayproject',credential:'openrelayproject'},
+      {urls:'turn:openrelay.metered.ca:443?transport=tcp',username:'openrelayproject',credential:'openrelayproject'}
+    ],
+    iceCandidatePoolSize:10
+  }
+};
+
 const COLORS=['#ff4d3d','#ffc24b','#5ad48a','#4dc9ff','#ff8fab','#c0a3ff','#7ce0c3','#ffb02e'];
 const BG_NAMES=['سماء الليل','غروب البث','شبكة ذهبية','أستوديو أحمر','أعماق البحر','رمال دافئة','غابة ليلية','أضواء ذهبية'];
 const rnd=n=>Math.floor(Math.random()*n);
@@ -708,14 +723,42 @@ document.addEventListener('pointerdown',()=>ensureCtx(),{once:true});
 for(let i=0;i<26;i++){const s=document.createElement('span');s.style.height=(30+rnd(70))+'%';s.style.animationDuration=(1.1+Math.random()*1.8)+'s';s.style.animationDelay=(-Math.random()*2)+'s';el.amb.appendChild(s);}
 
 /* ═══════════════════════════════════════════
-   ناقل MQTT مصغّر (بديل ntfy للنبضات — بدون حدود خانقة)
+   Peer ID ثابت — ليعود المضيف بنفس الهوية
+   ═══════════════════════════════════════════ */
+function getPersistentPeerId(){
+  // لكل تبويب معرف جلسة — يحل تعارض التبويبين
+  let tabId=sessionStorage.getItem('sada-peer-id');
+  if(tabId)return tabId;
+  let pid=localStorage.getItem('sada-peer-id');
+  if(!pid){
+    pid=PREFIX+genCode()+rnd(99);
+    localStorage.setItem('sada-peer-id',pid);
+  }
+  sessionStorage.setItem('sada-peer-id',pid);
+  return pid;
+}
+function regenerateSessionPeerId(){
+  const newId=PREFIX+genCode()+rnd(99);
+  sessionStorage.setItem('sada-peer-id',newId);
+  return newId;
+}
+
+/* ═══════════════════════════════════════════
+   ناقل MQTT مصغّر + طابور رسائل
    ═══════════════════════════════════════════ */
 const MQ_URLS=['wss://broker.hivemq.com:8884/mqtt','wss://broker.emqx.io:8084/mqtt','wss://test.mosquitto.org:8081/mqtt'];
 let mqWS=null,mqOK=false,mqUrlI=0,mqPing=null,mqReT=null,mqPidN=1;
 const mqCbs=new Map();
+const mqQueue=[];
 const enc=new TextEncoder(),dec=new TextDecoder();
 function mqRem(n){const o=[];do{let b=n%128;n=Math.floor(n/128);if(n>0)b|=128;o.push(b);}while(n>0);return o;}
 function mqStr(s){const b=enc.encode(s);return [b.length>>8,b.length&255,...b];}
+function mqRawSend(topic,obj){
+  const p=enc.encode(JSON.stringify(obj));
+  const t=mqStr(topic);
+  const body=[...t,...p];
+  mqWS.send(new Uint8Array([0x30,...mqRem(body.length),...body]));
+}
 function mqConnect(){
   if(mqWS&&(mqWS.readyState===0||mqWS.readyState===1))return;
   const url=MQ_URLS[mqUrlI%MQ_URLS.length];
@@ -738,8 +781,20 @@ function mqConnect(){
       const type=buf[0]>>4;
       const body=buf.subarray(idx,idx+rem);
       buf=buf.slice(idx+rem);
-      if(type===2){if(!mqOK){mqOK=true;el.dirErr.style.display='none';}mqResub();mqStartPing();}
-      else if(type===3){
+      if(type===2){
+        if(!mqOK){
+          mqOK=true;
+          el.dirErr.style.display='none';
+          // اسحب الطابور
+          const now=Date.now();
+          while(mqQueue.length){
+            const item=mqQueue.shift();
+            if(now-item.ts<60000){try{mqRawSend(item.topic,item.obj);}catch(e){}}
+          }
+        }
+        mqResub();
+        mqStartPing();
+      }else if(type===3){
         const tl=(body[0]<<8)|body[1];
         const topic=dec.decode(body.subarray(2,2+tl));
         const cb=mqCbs.get(topic);
@@ -755,16 +810,13 @@ function mqNext(){mqUrlI++;clearTimeout(mqReT);mqReT=setTimeout(mqConnect,1800);
 function mqStartPing(){mqStopPing();mqPing=setInterval(()=>{if(mqWS&&mqWS.readyState===1){try{mqWS.send(new Uint8Array([0xC0,0x00]));}catch(e){}}},30000);}
 function mqStopPing(){clearInterval(mqPing);mqPing=null;}
 function mqPub(topic,obj){
-  if(!mqOK||!mqWS||mqWS.readyState!==1)return false;
-  const p=enc.encode(JSON.stringify(obj));
-  const t=mqStr(topic);
-  const body=[...t,...p];
-  try{mqWS.send(new Uint8Array([0x30,...mqRem(body.length),...body]));return true;}catch(e){return false;}
+  if(!mqOK||!mqWS||mqWS.readyState!==1){
+    if(mqQueue.length<100)mqQueue.push({topic,obj,ts:Date.now()});
+    return false;
+  }
+  try{mqRawSend(topic,obj);return true;}catch(e){return false;}
 }
-function mqSub(topic,cb){
-  mqCbs.set(topic,cb);
-  mqSendSub(topic);
-}
+function mqSub(topic,cb){mqCbs.set(topic,cb);mqSendSub(topic);}
 function mqSendSub(topic){
   if(mqOK&&mqWS&&mqWS.readyState===1){
     const body=[mqPidN>>8,mqPidN&255,...mqStr(topic),0];
@@ -775,7 +827,6 @@ function mqSendSub(topic){
 function mqResub(){mqCbs.forEach((cb,t)=>mqSendSub(t));}
 function mqUnsub(topic){mqCbs.delete(topic);}
 mqConnect();
-/* احتياطي ntfy مخفّف جدًا إذا فشل MQTT */
 const ntfyLast={};
 function ntfyPost(topic,obj){fetch('https://ntfy.sh/'+topic,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(obj)}).catch(()=>{});}
 function ntfySlow(topic,obj,min){const n=Date.now();if(n-(ntfyLast[topic]||0)<min)return;ntfyLast[topic]=n;ntfyPost(topic,obj);}
@@ -786,23 +837,23 @@ async function ntfyPoll(topic){
   catch(e){msgs=txt.split('\n').filter(Boolean).map(l=>{try{return JSON.parse(l);}catch(_){return null;}}).filter(Boolean);}
   return msgs.map(m=>{try{return JSON.parse(m.message);}catch(e){return null;}}).filter(Boolean);
 }
-/* نشر موحّد: MQTT أولًا ثم احتياطي مخفّف */
 function pubDir(obj){if(!mqPub(DIR_T,obj))ntfySlow(DIR_T,obj,20000);}
 function pubRoom(obj){if(inRoom&&!mqPub(ROOM_T(roomCode),obj))ntfySlow(ROOM_T(roomCode),obj,20000);}
 
 /* ══════════ حالة ══════════ */
 const sessionTs=Date.now();
-let user=null, peer=null, myPid=null, inRoom=false, intentional=false;
-let roomCode=null, roomMeta={name:'',owner:''}, myJoinTs=0;
+let user=null,peer=null,myPid=null,inRoom=false,intentional=false;
+let roomCode=null,roomMeta={name:'',owner:''},myJoinTs=0;
 let state={slots:Array(8).fill(null),bg:{v:1,ts:0},bans:[],chatBans:[]};
-let roster=new Map(), conns=new Map(), callsOut=new Map(), callsIn=new Map(), remotes=new Map();
-let kicked=new Set(), seenMsg=new Set(), connFails=new Map();
-let handlesMap=new Map(), handleKeepInt=null;
-let micStream=null, micTrack=null, micAn=null, micData=null, pendingSlot=-1, slotEls=[], editGender='', pendingAvatar='', pendingBanner='', editPriv=false;
-let dirTimer=null, hereInt=null, pruneInt=null, lvlInt=null, graceInt=null, graceEnd=0, ownerPrompted=false, ownerPidSeen=null;
-let pendingPreMic=null, lastSig='', pfTargetPid=null, pfTargetUser=null, listKind='', listTarget=null;
-let wakeLock=null, dirMap=new Map(), dirRenderQ=false, ntfyFallbackInt=null;
-let FK='sada-follows', SK='sada-followers-seen';
+let roster=new Map(),conns=new Map(),callsOut=new Map(),callsIn=new Map(),remotes=new Map();
+let kicked=new Set(),seenMsg=new Set(),connFails=new Map();
+let handlesMap=new Map(),handleKeepInt=null;
+let micStream=null,micTrack=null,micAn=null,micData=null,pendingSlot=-1,slotEls=[],editGender='',pendingAvatar='',pendingBanner='',editPriv=false;
+let dirTimer=null,hereInt=null,pruneInt=null,lvlInt=null,pingInt=null,graceInt=null,graceEnd=0,ownerPrompted=false,ownerPidSeen=null;
+let healthInt=null,firstOpen=true,recreateLock=false,reconnectAttempts=0;
+let pendingPreMic=null,lastSig='',pfTargetPid=null,pfTargetUser=null,listKind='',listTarget=null;
+let wakeLock=null,dirMap=new Map(),dirRenderQ=false,ntfyFallbackInt=null;
+let FK='sada-follows',SK='sada-followers-seen';
 function setStorageKeys(){const uk=user?(user.handle||user.gid||user.name):'x';FK='sada-follows:'+uk;SK='sada-followers-seen:'+uk;}
 
 /* ══════════ المتابعة ══════════ */
@@ -841,6 +892,12 @@ function resolveByKey(key){
   if(entry)return entry[1].user;
   const seen=loadJSON('sada-seen-users',{});
   if(seen[key])return sanitizeUser(seen[key].u);
+  const hu=handlesMap.get(key);
+  if(hu&&validHandle(key)){
+    const u=sanitizeUser({name:key,handle:key});
+    if(hu.av)u.avatar=hu.av;
+    return u;
+  }
   return sanitizeUser({name:key,handle:validHandle(key)?key:''});
 }
 function rememberUser(u,room){
@@ -852,7 +909,27 @@ function rememberUser(u,room){
   saveJSON('sada-seen-users',m);
 }
 
-/* ══════════ سجل اليوزرات (ntfy — أحداث نادرة فقط) ══════════ */
+/* ══════════ الصور المصغرة ══════════ */
+function makeThumb(dataUrl,size=48){
+  return new Promise(resolve=>{
+    if(!dataUrl){resolve('');return;}
+    const img=new Image();
+    img.onload=()=>{
+      try{
+        const c=document.createElement('canvas');c.width=size;c.height=size;
+        const ctx=c.getContext('2d');
+        const s=Math.min(img.naturalWidth,img.naturalHeight);
+        const sx=(img.naturalWidth-s)/2, sy=(img.naturalHeight-s)/2;
+        ctx.drawImage(img,sx,sy,s,s,0,0,size,size);
+        resolve(c.toDataURL('image/jpeg',0.55));
+      }catch(e){resolve('');}
+    };
+    img.onerror=()=>resolve('');
+    img.src=dataUrl;
+  });
+}
+
+/* ══════════ سجل اليوزرات ══════════ */
 async function loadHandles(){
   const local=loadJSON('sada-handles-seen',{});
   const merged=new Map();
@@ -862,7 +939,7 @@ async function loadHandles(){
     for(const d of msgs){
       if(!d||!d.h||!d.gid||!validHandle(d.h))continue;
       const cur=merged.get(d.h);
-      if(!cur||(d.ts||0)<(cur.ts||0))merged.set(d.h,{gid:d.gid,ts:d.ts||0});
+      if(!cur||(d.ts||0)<(cur.ts||0))merged.set(d.h,{gid:d.gid,ts:d.ts||0,av:d.av||''});
     }
   }catch(e){}
   handlesMap=merged;
@@ -873,7 +950,11 @@ async function loadHandles(){
 function startHandleKeepalive(){
   clearInterval(handleKeepInt);
   if(!user||!user.handle)return;
-  handleKeepInt=setSafe(()=>{if(user&&user.handle)ntfyPost(HANDLES,{h:user.handle,gid:user.gid,ts:Date.now()});},600000);
+  handleKeepInt=setSafe(async()=>{
+    if(!user||!user.handle)return;
+    const thumb=user.avatar?await makeThumb(user.avatar,48):'';
+    ntfyPost(HANDLES,{h:user.handle,gid:user.gid,ts:Date.now(),av:thumb});
+  },600000);
 }
 async function claimHandle(raw){
   const h=cleanHandle(raw);
@@ -884,9 +965,10 @@ async function claimHandle(raw){
     if(ex.gid===user.gid){user.handle=h;saveJSON('sada-user',user);afterHandle();return true;}
     toast('اليوزر @'+h+' محجوز لشخص آخر');return false;
   }
-  ntfyPost(HANDLES,{h:h,gid:user.gid,ts:Date.now()});
-  handlesMap.set(h,{gid:user.gid,ts:Date.now()});
-  const local=loadJSON('sada-handles-seen',{});local[h]={gid:user.gid,ts:Date.now()};saveJSON('sada-handles-seen',local);
+  const thumb=user.avatar?await makeThumb(user.avatar,48):'';
+  ntfyPost(HANDLES,{h:h,gid:user.gid,ts:Date.now(),av:thumb});
+  handlesMap.set(h,{gid:user.gid,ts:Date.now(),av:thumb});
+  const local=loadJSON('sada-handles-seen',{});local[h]={gid:user.gid,ts:Date.now(),av:thumb};saveJSON('sada-handles-seen',local);
   user.handle=h;saveJSON('sada-user',user);
   afterHandle();
   return true;
@@ -908,7 +990,7 @@ el.handleClaim.addEventListener('click',async()=>{
   await claimHandle(el.handleInput.value);
 });
 
-/* ══════════ الدخول (قوقل فقط) ══════════ */
+/* ══════════ الدخول ══════════ */
 (function initGoogle(){
   if(!GOOGLE_CLIENT_ID){el.gHint.classList.remove('hidden');return;}
   const tryInit=()=>{
@@ -955,7 +1037,7 @@ function enterLobby(){
 }
 el.userChip.addEventListener('click',()=>openProfile(user,false,null));
 
-/* ══════════ اللوبي + الدليل عبر MQTT ══════════ */
+/* ══════════ اللوبي ══════════ */
 let dirSubbed=false;
 function startDirPolling(){
   if(!dirSubbed){dirSubbed=true;mqSub(DIR_T,onDirMsg);}
@@ -1031,8 +1113,11 @@ el.searchInput.addEventListener('input',()=>{
   arr.forEach(k=>{
     const rec=seen[k];
     const hu=handlesMap.get(k);
-    let u=rec?sanitizeUser(rec.u):sanitizeUser({name:k});
-    if(hu&&validHandle(k))u.handle=k;
+    let u=rec?sanitizeUser(rec.u):sanitizeUser({name:k,handle:validHandle(k)?k:''});
+    if(hu&&validHandle(k)){
+      u.handle=k;
+      if(!u.avatar&&hu.av)u.avatar=hu.av;
+    }
     const key=userKey(u);
     const row=document.createElement('button');row.type='button';row.className='ppl-row';
     const av=document.createElement('span');av.className='av';setAv(av,u);
@@ -1055,7 +1140,7 @@ el.searchInput.addEventListener('input',()=>{
   });
 });
 
-/* ══════════ الروم (Mesh + حضور MQTT لحظي) ══════════ */
+/* ══════════ الروم ══════════ */
 function iAmOwner(){return !!roomMeta.owner&&user.name===roomMeta.owner;}
 function ownerEntry(){for(const [pid,r] of roster){if(r.user.name===roomMeta.owner)return [pid,r];}return null;}
 function ownerPresent(){
@@ -1109,6 +1194,7 @@ function startRoom(code,meta,isCreator,preMic){
   roster.clear();conns.clear();callsOut.clear();callsIn.clear();remotes.clear();
   kicked.clear();seenMsg.clear();connFails.clear();
   graceEnd=0;ownerPrompted=false;ownerPidSeen=null;pendingPreMic=preMic||null;lastSig='';
+  firstOpen=true;reconnectAttempts=0;recreateLock=false;
   el.chatList.innerHTML='';
   const ph=document.createElement('li');ph.className='msg ph';ph.textContent='لا رسائل بعد — ابدأ الحديث';
   el.chatList.appendChild(ph);
@@ -1119,17 +1205,44 @@ function startRoom(code,meta,isCreator,preMic){
   loadHandles();
   renderAll();
   myJoinTs=Date.now();
-  /* حضور لحظي: اشتراك + استعلام فوري */
   mqSub(ROOM_T(roomCode),onRoomMsg);
-  pubRoom({w:1});
-  publishHere();
-  peer=new Peer(PREFIX+genCode()+rnd(99),ICE);
-  peer.on('open',id=>{
-    myPid=id;
-    roster.set(myPid,{user:user,joinTs:myJoinTs,seen:Date.now(),sess:sessionTs,lastMsgTs:0});
-    if(iAmOwner())ownerPidSeen=myPid;
-    setConn('ok','متصل');
-    requestWake();
+  // إعلان الحضور عدة مرات — يضمن الاكتشاف حتى لو MQTT متأخر
+  [300,1500,3000,6000].forEach(t=>setTimeout(()=>{pubRoom({w:1});publishHere();},t));
+  
+  // إنشاء Peer بمعرف ثابت
+  peer=new Peer(getPersistentPeerId(),ICE);
+  bindPeerEvents(peer);
+  
+  // فحص الاتصال كل 3 ثوانٍ
+  clearInterval(healthInt);
+  healthInt=setSafe(healthCheck,HEALTH_MS);
+}
+
+function bindPeerEvents(p){
+  p.on('open',onPeerOpen);
+  p.on('connection',onPeerConnection);
+  p.on('call',onPeerCall);
+  p.on('disconnected',onPeerDisconnected);
+  p.on('error',onPeerError);
+}
+
+function onPeerOpen(id){
+  myPid=id;
+  reconnectAttempts=0;
+  connFails.clear();
+  roster.set(myPid,{user:user,joinTs:myJoinTs,seen:Date.now(),sess:sessionTs,lastMsgTs:0});
+  if(iAmOwner())ownerPidSeen=myPid;
+  setConn('ok','متصل');
+  requestWake();
+  
+  // ابدأ المؤقتات إن لم تكن تعمل
+  if(!hereInt)hereInt=setSafe(publishHere,HEARTBEAT_MS);
+  if(!pruneInt)pruneInt=setSafe(pruneTick,4000);
+  if(!lvlInt)lvlInt=setSafe(drawLevels,200);
+  if(!pingInt)pingInt=setSafe(()=>broadcastMesh({t:'ping'}),PING_MS);
+  
+  if(firstOpen){
+    firstOpen=false;
     if(pendingPreMic){
       micStream=pendingPreMic;pendingPreMic=null;
       initMicAnalyser(micStream);
@@ -1151,35 +1264,100 @@ function startRoom(code,meta,isCreator,preMic){
         el.micModal.classList.remove('hidden');
       }
     }
-    publishHere();hereInt=setSafe(publishHere,HEARTBEAT_MS);
-    pruneInt=setSafe(pruneTick,4000);
-    lvlInt=setSafe(drawLevels,200);
-    pingInt=setSafe(()=>broadcastMesh({t:'ping'}),PING_MS);
-    sweepInt=setSafe(connSweep,SWEEP_MS);
     sysLocal('دخلت الروم');
-    renderAll();
+  }
+  
+  // أعلن نفسي وأعد الاتصال بمن أعرفه
+  publishHere();
+  roster.forEach((r,pid)=>{
+    if(pid!==myPid&&!kicked.has(pid)){
+      const c=conns.get(pid);
+      if(!c||!c.open)connectTo(pid);
+    }
   });
-  peer.on('disconnected',()=>{try{if(peer&&!peer.destroyed)peer.reconnect();}catch(e){}});
-  peer.on('connection',conn=>{
-    const pid=conn.peer;
-    if(kicked.has(pid)){try{conn.close();}catch(e){}return;}
-    const ex=conns.get(pid);
-    if(ex&&ex.open&&myPid<pid){try{conn.close();}catch(e){}return;}
-    if(ex){try{ex.close();}catch(e){}}
-    conns.set(pid,conn);wireConn(conn,pid);
-  });
-  peer.on('call',call=>{
-    const pid=call.peer;
-    if(kicked.has(pid)){try{call.close();}catch(e){}return;}
-    const ex=callsIn.get(pid);
-    if(ex&&ex.open){try{call.close();}catch(e){}return;}
-    callsIn.set(pid,call);
-    call.answer();
-    call.on('stream',s=>addRemote(pid,s));
-    call.on('close',()=>{removeRemote(pid);if(callsIn.get(pid)===call)callsIn.delete(pid);});
-  });
-  peer.on('error',err=>{if(err.type==='network')setConn('err','مشكلة شبكة');});
+  renderAll();
 }
+
+function onPeerConnection(conn){
+  const pid=conn.peer;
+  if(kicked.has(pid)){try{conn.close();}catch(e){}return;}
+  const ex=conns.get(pid);
+  if(ex&&ex.open&&myPid<pid){try{conn.close();}catch(e){}return;}
+  if(ex){try{ex.close();}catch(e){}}
+  conns.set(pid,conn);wireConn(conn,pid);
+}
+
+function onPeerCall(call){
+  const pid=call.peer;
+  if(kicked.has(pid)){try{call.close();}catch(e){}return;}
+  const ex=callsIn.get(pid);
+  if(ex&&ex.open){try{call.close();}catch(e){}return;}
+  callsIn.set(pid,call);
+  call.answer();
+  call.on('stream',s=>addRemote(pid,s));
+  call.on('close',()=>{removeRemote(pid);if(callsIn.get(pid)===call)callsIn.delete(pid);});
+}
+
+function onPeerDisconnected(){
+  setConn('err','انقطع — جارٍ الإرجاع…');
+  if(intentional||!inRoom)return;
+  try{peer.reconnect();}catch(e){setTimeout(recreatePeer,1000);}
+}
+
+function onPeerError(err){
+  if(err.type==='network'){setConn('err','مشكلة شبكة');}
+  else if(err.type==='unavailable-id'){
+    // تبويب آخر يستخدم نفس المعرف — جدّد معرف الجلسة
+    console.warn('[Sada] ID taken, regenerating session ID');
+    regenerateSessionPeerId();
+    setTimeout(recreatePeer,1000);
+  }
+}
+
+function recreatePeer(){
+  if(!inRoom||intentional||recreateLock)return;
+  recreateLock=true;
+  try{if(peer)peer.destroy();}catch(e){}
+  peer=null;
+  setTimeout(()=>{
+    recreateLock=false;
+    if(!inRoom||intentional)return;
+    try{
+      peer=new Peer(getPersistentPeerId(),ICE);
+      bindPeerEvents(peer);
+    }catch(e){console.error('[Sada] peer recreate failed:',e);}
+  },800);
+}
+
+/* فحص صحة الاتصال كل 3 ثوانٍ */
+function healthCheck(){
+  if(!inRoom||intentional)return;
+  if(!peer||peer.destroyed){recreatePeer();return;}
+  if(peer.disconnected){
+    setConn('err','انقطع — جارٍ الإرجاع…');
+    try{peer.reconnect();}catch(e){recreatePeer();}
+    return;
+  }
+  if(!peer.open)return; // لسه يفتح
+  
+  setConn('ok','متصل');
+  
+  // أعد تشغيل أي مؤقت توقف
+  if(!hereInt){hereInt=setSafe(publishHere,HEARTBEAT_MS);publishHere();}
+  if(!pruneInt)pruneInt=setSafe(pruneTick,4000);
+  if(!lvlInt)lvlInt=setSafe(drawLevels,200);
+  if(!pingInt)pingInt=setSafe(()=>broadcastMesh({t:'ping'}),PING_MS);
+  
+  // أعد الاتصال بمن انقطع
+  roster.forEach((r,pid)=>{
+    if(pid===myPid||kicked.has(pid))return;
+    const c=conns.get(pid);
+    if(!c||!c.open){
+      if((connFails.get(pid)||0)<5)connectTo(pid);
+    }
+  });
+}
+
 function publishHere(){
   if(!inRoom||!myPid)return;
   const u=Object.assign({},user,{avatar:'',banner:''});
@@ -1188,6 +1366,7 @@ function publishHere(){
   if(iAmOwner())pubDir({id:roomCode,name:roomMeta.name,owner:roomMeta.owner,bg:state.bg.v,
     sp:state.slots.filter(Boolean).length,ls:roster.size,ts:Date.now()});
 }
+
 function onRoomMsg(d){
   if(!inRoom||!d)return;
   if(d.w){publishHere();return;}
@@ -1209,6 +1388,7 @@ function onRoomMsg(d){
     else handleOwnerPresence();
   }
 }
+
 function pruneTick(){
   if(!inRoom)return;
   const now=Date.now();let changed=false;
@@ -1219,13 +1399,7 @@ function pruneTick(){
   handleOwnerPresence();
   if(changed){rememberFollowers();renderAll();}else renderBar();
 }
-function connSweep(){
-  if(!inRoom||intentional)return;
-  roster.forEach((r,pid)=>{
-    if(pid===myPid||kicked.has(pid))return;
-    if(!conns.has(pid)&&(connFails.get(pid)||0)<3)connectTo(pid);
-  });
-}
+
 function handleOwnerPresence(){
   if(!inRoom||iAmOwner())return;
   if(ownerPresent()){
@@ -1285,8 +1459,8 @@ function wireConn(conn,pid){
     if(conns.get(pid)===conn)conns.delete(pid);
     if(kicked.has(pid))return;
     const f=(connFails.get(pid)||0)+1;connFails.set(pid,f);
-    if(inRoom&&!intentional&&roster.has(pid)&&f<3){
-      setTimeout(()=>{if(inRoom&&!intentional&&roster.has(pid)&&!conns.has(pid)&&!kicked.has(pid))connectTo(pid);},1500);
+    if(inRoom&&!intentional&&roster.has(pid)&&f<5){
+      setTimeout(()=>{if(inRoom&&!intentional&&roster.has(pid)&&!conns.has(pid)&&!kicked.has(pid))connectTo(pid);},1800);
     }
   });
 }
@@ -1847,7 +2021,7 @@ el.pfBanKick.addEventListener('click',()=>{
   el.profileModal.classList.add('hidden');
 });
 
-/* ══════════ الصور: قص + GIF حتى 1MB + بانر ══════════ */
+/* ══════════ الصور: قص + GIF + بانر ══════════ */
 let cropState={zoom:1,tx:0,ty:0,base:1,natW:1,natH:1,V:240};
 function openCropper(dataUrl){
   const img=el.cropImg;
@@ -1967,7 +2141,7 @@ el.gF.addEventListener('click',()=>{editGender='f';syncGenderPills();});
 el.gN.addEventListener('click',()=>{editGender='';syncGenderPills();});
 el.privPill.addEventListener('click',()=>{editPriv=!editPriv;syncPrivPill();});
 el.editCancel.addEventListener('click',()=>el.editModal.classList.add('hidden'));
-el.editForm.addEventListener('submit',e=>{
+el.editForm.addEventListener('submit',async e=>{
   e.preventDefault();
   user.gender=editGender;
   user.birth=el.birthInput.value||'';
@@ -1983,6 +2157,12 @@ el.editForm.addEventListener('submit',e=>{
   const r=roster.get(myPid);if(r)r.user=user;
   const s=state.slots.find(x=>x&&x.pid===myPid);if(s)s.user=user;
   if(inRoom)broadcastMesh({t:'profile',id:mid(),pid:myPid,user:user,ts:Date.now()});
+  // حدّث الصورة المصغرة في سجل اليوزر
+  if(user.handle){
+    const thumb=user.avatar?await makeThumb(user.avatar,48):'';
+    ntfyPost(HANDLES,{h:user.handle,gid:user.gid,ts:Date.now(),av:thumb});
+    const rec=handlesMap.get(user.handle);if(rec)rec.av=thumb;
+  }
   lastSig='';renderAll();
   toast('تم حفظ ملفك');
 });
@@ -2030,8 +2210,8 @@ document.addEventListener('click',e=>{
   if(e.target&&e.target.closest&&e.target.closest('#leaveBtn'))leaveRoom();
 });
 function cleanupRoom(){
-  [hereInt,pruneInt,lvlInt,pingInt,sweepInt].forEach(clearInterval);
-  hereInt=pruneInt=lvlInt=pingInt=sweepInt=null;
+  [hereInt,pruneInt,lvlInt,pingInt,healthInt].forEach(clearInterval);
+  hereInt=pruneInt=lvlInt=pingInt=healthInt=null;
   stopGraceTick();graceEnd=0;
   broadcastMesh({t:'slotLeave',id:mid(),pid:myPid,ts:Date.now()});
   callsOut.forEach(c=>{try{c.close();}catch(e){}});
@@ -2056,7 +2236,7 @@ window.addEventListener('pagehide',()=>{
   if(iAmOwner()||roster.size<=1){mqPub(DIR_T,{id:roomCode,closed:true,ts:Date.now()});ntfyPost(DIR_T,{id:roomCode,closed:true,ts:Date.now()});}
 });
 document.addEventListener('visibilitychange',()=>{
-  if(document.visibilityState==='visible'&&inRoom){requestWake();publishHere();pruneTick();}
+  if(document.visibilityState==='visible'&&inRoom){requestWake();publishHere();pruneTick();healthCheck();}
 });
 
 /* ══════════ الإقلاع ══════════ */
