@@ -113,18 +113,22 @@ textarea{width:100%;background:#120d0a;border:1px solid var(--line);border-radiu
 
 /* ═══ الروم ═══ */
 #roomView{flex:1;min-height:0;display:flex;flex-direction:column;gap:11px}
-.room-bar{display:flex;align-items:center;gap:11px;flex-wrap:wrap;padding:10px 14px;flex-shrink:0}
+.room-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;flex-shrink:0}
 .title-box{display:flex;flex-direction:column;gap:3px;min-width:0}
 .title-box h2{font-size:1.12rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
 .host-chip{display:inline-flex;align-items:center;gap:6px;font-size:.7rem;color:var(--muted);background:none;border:none;
   cursor:pointer;font-family:inherit;padding:0;transition:.2s;min-width:0}
 .host-chip:hover{color:var(--gold)}
 .host-chip .av{width:18px;height:18px;border-width:1.5px}
-.host-chip b{color:#d8c8ae;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
-.count{display:inline-flex;align-items:center;gap:7px;font-size:.82rem;color:#d8c8ae;background:#120d0a;border:1px solid var(--line);
+.host-chip b{color:#d8c8ae;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px}
+.count{display:inline-flex;align-items:center;gap:7px;font-size:.8rem;color:#d8c8ae;background:#120d0a;border:1px solid var(--line);
   padding:6px 12px;border-radius:99px;cursor:pointer;transition:.2s;font-family:inherit}
 .count:hover{border-color:var(--gold)}
 .count .ic{width:14px;height:14px;color:var(--gold)}
+.count.static{cursor:default}
+.cdot{width:8px;height:8px;border-radius:50%;background:var(--gold);animation:blink 1.2s infinite;flex-shrink:0}
+.conn.ok .cdot{background:var(--green);animation:none}
+.conn.err .cdot{background:var(--red)}
 .live-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,77,61,.14);border:1px solid rgba(255,77,61,.5);
   color:var(--red);font-family:'Changa';font-weight:700;font-size:.76rem;padding:4px 12px;border-radius:99px}
 .room-grid{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:11px}
@@ -162,7 +166,6 @@ textarea{width:100%;background:#120d0a;border:1px solid var(--line);border-radiu
 #lsLabel:hover{color:var(--gold)}
 #lsLabel .ic{width:14px;height:14px;color:var(--gold)}
 
-/* زر الخلفية الجديد (داخل المسرح) */
 .bg-fab{position:absolute;bottom:14px;inset-inline-start:14px;z-index:5;min-height:44px;border-radius:99px;padding:0 20px;
   background:linear-gradient(135deg,var(--gold),#ff8f3d);color:#2b1c05;font-family:'Changa';font-weight:800;font-size:.92rem;
   border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 10px 26px rgba(255,143,61,.35);transition:.2s}
@@ -220,7 +223,6 @@ textarea{width:100%;background:#120d0a;border:1px solid var(--line);border-radiu
 .modal-card ul.tips{text-align:right;margin:0 auto 16px;max-width:350px;display:flex;flex-direction:column;gap:7px;list-style:none}
 .modal-card ul.tips li{font-size:.8rem;color:#efe3cf;line-height:1.8;background:#120d0a;border-radius:9px;padding:8px 12px;border-inline-start:3px solid var(--gold)}
 
-/* الموجودون */
 .ppl{max-height:min(56vh,420px);overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-top:12px}
 .ppl-row{display:flex;align-items:center;gap:10px;background:#120d0a;border:1px solid var(--line);border-radius:11px;
   padding:8px 12px;cursor:pointer;transition:.2s;width:100%;font-family:inherit;color:var(--text)}
@@ -229,7 +231,6 @@ textarea{width:100%;background:#120d0a;border:1px solid var(--line);border-radiu
 .ppl-row .nm{font-weight:700;font-size:.88rem;flex:1;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .role{font-size:.68rem;color:var(--muted);font-family:'Changa';white-space:nowrap}
 
-/* البروفايل */
 .pf-av{width:76px;height:76px;margin:0 auto 12px;display:grid;place-items:center;border-radius:50%;
   border:3px solid var(--c);background:color-mix(in srgb, var(--c) 18%, #120d0a);color:var(--c)}
 .pf-av .ic{width:48%;height:48%}
@@ -238,7 +239,6 @@ textarea{width:100%;background:#120d0a;border:1px solid var(--line);border-radiu
 .pf-row .ic{color:var(--gold);width:16px;height:16px}
 .pf-bio{margin-top:14px;background:#120d0a;border-radius:10px;padding:11px 14px;font-size:.84rem;line-height:1.9;color:#efe3cf;text-align:right}
 
-/* تعديل الملف */
 .edit-field{text-align:right;margin-bottom:14px}
 .edit-field label{display:block;font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:7px}
 .pill-row{display:flex;gap:8px}
@@ -337,6 +337,7 @@ textarea{width:100%;background:#120d0a;border:1px solid var(--line);border-radiu
           المضيف: <b id="hostName"></b>
         </button>
       </div>
+      <span class="count conn" id="connChip"><span class="cdot" id="connDot"></span><span id="connText">…</span></span>
       <button class="count" id="lsCount" type="button" title="الموجودون في الروم">
         <svg class="ic"><use href="#i-users"/></svg><span id="lsNum">0</span>
       </button>
@@ -463,17 +464,17 @@ textarea{width:100%;background:#120d0a;border:1px solid var(--line);border-radiu
 /* ══════════ العناصر ══════════ */
 const $=s=>document.querySelector(s);
 const IDS=['authView','lobbyView','roomView','insecure','authForm','nameInput','lobbyAv','lobbyName','userChip','logoutBtn',
-'createForm','roomNameInput','roomsGrid','noRooms','dirErr','roomTitle','hostChip','hostAv','hostName','lsCount','lsNum','lsNum2',
-'leaveBtn','stage','slots','stageCtrls','muteToggle','muteIc','muteLbl','downBtn','lsAvatars','lsLabel','bgBtn','bgPicker',
-'swatches','chatList','chatForm','chatInput','onlineCount','micModal','micAllow','micCancel','micErrModal','micErrTitle',
-'micErrTips','micErrClose','peopleModal','peopleCount','peopleList','peopleClose','profileModal','pfAv','pfName','pfBadge',
-'pfRows','pfBio','pfEdit','pfClose','editModal','editForm','gM','gF','gN','birthInput','bioInput','editCancel','audioBtn',
-'toast','remoteAudio','monitorAudio','amb'];
+'createForm','roomNameInput','roomsGrid','noRooms','dirErr','roomTitle','hostChip','hostAv','hostName','connChip','connText',
+'lsCount','lsNum','lsNum2','leaveBtn','stage','slots','stageCtrls','muteToggle','muteIc','muteLbl','downBtn','lsAvatars',
+'lsLabel','bgBtn','bgPicker','swatches','chatList','chatForm','chatInput','onlineCount','micModal','micAllow','micCancel',
+'micErrModal','micErrTitle','micErrTips','micErrClose','peopleModal','peopleCount','peopleList','peopleClose','profileModal',
+'pfAv','pfName','pfBadge','pfRows','pfBio','pfEdit','pfClose','editModal','editForm','gM','gF','gN','birthInput','bioInput',
+'editCancel','audioBtn','toast','remoteAudio','monitorAudio','amb'];
 const el={};IDS.forEach(id=>el[id]=$('#'+id));
 const icon=(n,cls='')=>'<svg class="ic '+cls+'" aria-hidden="true"><use href="#i-'+n+'"/></svg>';
 
 /* ══════════ ثوابت وأدوات ══════════ */
-const TOPIC='sada-rooms-ar-v3', PREFIX='sada8-';
+const TOPIC='sada-rooms-ar-v4', PREFIX='sada8-';
 const ICE={config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}};
 const COLORS=['#ff4d3d','#ffc24b','#5ad48a','#4dc9ff','#ff8fab','#c0a3ff','#7ce0c3','#ffb02e'];
 const BG_NAMES=['سماء الليل','غروب البث','شبكة ذهبية','أستوديو أحمر','أعماق البحر','رمال دافئة','غابة ليلية','أضواء ذهبية'];
@@ -484,6 +485,7 @@ const genCode=()=>{const A='abcdefghjkmnpqrstuvwxyz23456789';let s='';for(let i=
 let toastT=null;
 function toast(msg){el.toast.textContent=msg;el.toast.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.toast.classList.remove('show'),2600);}
 function showView(v){[el.authView,el.lobbyView,el.roomView].forEach(x=>x.classList.add('hidden'));v.classList.remove('hidden');}
+function setConn(cls,text){el.connChip.className='count conn static '+cls;el.connText.textContent=text;}
 function sanitizeUser(u){
   const name=String(u&&u.name||'زائر').trim().slice(0,16)||'زائر';
   const color=COLORS.includes(u&&u.color)?u.color:COLORS[hash(name)%COLORS.length];
@@ -519,17 +521,17 @@ let user=null, mode=null, peer=null, hostConn=null, myPid=null, roomCode=null, r
 let participants=new Map(), slots=Array(8).fill(null), listenerCalls=new Map(), speakerNodes=new Map();
 let mixCtx=null, broadcastDest=null, monitorDest=null, mixStream=null;
 let micStream=null, micCall=null, micTrack=null, pendingSlot=-1, slotEls=[];
-let heartbeatInt=null, levelsInt=null, dirTimer=null;
-let welcomed=false, helloTries=0, helloTimer=null, reconnTries=0, intentional=false, editGender='';
+let heartbeatInt=null, levelsInt=null, dirTimer=null, stateInt=null, stateTimer=null;
+let welcomed=false, gotState=false, helloTries=0, helloTimer=null, reconnTries=0, intentional=false, editGender='';
 
 /* ══════════ الدخول ══════════ */
 el.authForm.addEventListener('submit',e=>{
   e.preventDefault();
   const name=el.nameInput.value.trim();
   if(name.length<2){toast('اكتب اسمًا من حرفين على الأقل');el.nameInput.focus();return;}
-  user=Object.assign(sanitizeUser({name}),{gender:'',birth:'',bio:''});
+  user=sanitizeUser({name});
   const saved=localStorage.getItem('sada-user');
-  if(saved){try{const o=JSON.parse(saved);user.gender=o.gender||'';user.birth=o.birth||'';user.bio=o.bio||'';}catch(e){}}
+  if(saved){try{const o=JSON.parse(saved);user.gender=o.gender||'';user.birth=o.birth||'';user.bio=o.bio||'';if(o.color&&COLORS.includes(o.color))user.color=o.color;}catch(e){}}
   saveUser();
   enterLobby();
 });
@@ -629,21 +631,26 @@ el.createForm.addEventListener('submit',e=>{
 });
 function openRoomAsHost(name){
   if(typeof Peer==='undefined'){toast('تعذر تحميل مكتبة الاتصال — تحقق من الإنترنت');return;}
-  mode='host';roomCode=genCode();roomName=name;bgId=1;
+  mode='host';roomCode=genCode();roomName=name;bgId=1;gotState=true;
   participants.clear();slots=Array(8).fill(null);listenerCalls.clear();
   el.chatList.innerHTML='';
   showView(el.roomView);el.bgBtn.classList.remove('hidden');
+  setConn('','جارٍ فتح الروم…');
   setupMixer();
-  renderRoom(buildState());
+  renderSafe(buildState());
   peer=new Peer(PREFIX+roomCode,ICE);
   peer.on('open',()=>{
+    setConn('ok','أنت المضيف — متصل');
     toast('افتُتح الروم');
-    announce(false);heartbeatInt=setInterval(()=>announce(false),12000);
+    announce(false);
+    heartbeatInt=setInterval(()=>announce(false),12000);
     levelsInt=setInterval(broadcastLevels,200);
+    stateInt=setInterval(()=>{if(participants.size)broadcastState();},4000);
   });
   peer.on('connection',conn=>{
-    conn.on('data',d=>handleClientMsg(conn,d));
-    conn.on('close',()=>dropParticipant(conn.peer));
+    conn.on('data',d=>{try{handleClientMsg(conn,d);}catch(err){console.error('host data',err);}});
+    conn.on('close',()=>dropParticipant(conn.peer,conn));
+    conn.on('error',()=>dropParticipant(conn.peer,conn));
   });
   peer.on('call',call=>{
     call.answer();
@@ -659,7 +666,7 @@ function openRoomAsHost(name){
   });
   peer.on('error',err=>{
     if(err.type==='unavailable-id'){toast('حدث تعارض — أعد المحاولة');exitToLobby();}
-    else if(err.type==='network')toast('مشكلة في الشبكة');
+    else if(err.type==='network'){toast('مشكلة في الشبكة');setConn('err','مشكلة شبكة');}
   });
   sysChat('افتُتح الروم');
 }
@@ -669,21 +676,31 @@ function buildState(){
     listeners:[...participants.values()].map(p=>sanitizeUser(p.user))};
 }
 function broadcast(msg){participants.forEach(p=>{try{p.conn.send(msg);}catch(e){}});}
-function broadcastState(){const st=buildState();broadcast(st);renderRoom(st);}
+function broadcastState(){const st=buildState();broadcast(st);renderSafe(st);}
+function renderSafe(st){try{renderRoom(st);}catch(err){console.error('render',err);}}
 function slotOf(pid){return slots.findIndex(s=>s&&s.pid===pid);}
 function handleClientMsg(conn,d){
   const p=participants.get(conn.peer);
   switch(d.t){
     case 'hello':{
       const isNew=!participants.has(conn.peer);
-      participants.set(conn.peer,{conn,user:sanitizeUser(d.user),slot:-1});
-      conn.send({t:'welcome',pid:conn.peer});
-      if(mixStream){
-        const c=peer.call(conn.peer,mixStream,{metadata:{t:'mix'}});
-        if(c){listenerCalls.set(conn.peer,c);c.on('close',()=>listenerCalls.delete(conn.peer));}
-      }
+      const old=participants.get(conn.peer);
+      if(old&&old.conn!==conn){try{old.conn.close();}catch(e){}}
+      participants.set(conn.peer,{conn,user:sanitizeUser(d.user),slot:old?old.slot:-1});
+      try{conn.send({t:'welcome',pid:conn.peer});}catch(e){}
       if(isNew)sysChat('انضم '+sanitizeUser(d.user).name);
-      broadcastState();break;
+      broadcastState();
+      try{
+        if(mixStream){
+          const c=peer.call(conn.peer,mixStream,{metadata:{t:'mix'}});
+          if(c){listenerCalls.set(conn.peer,c);c.on('close',()=>listenerCalls.delete(conn.peer));}
+        }
+      }catch(e){console.error('mix call',e);}
+      break;
+    }
+    case 'reqState':{
+      try{conn.send(buildState());}catch(e){}
+      break;
     }
     case 'chat':{
       if(!p)break;
@@ -693,7 +710,7 @@ function handleClientMsg(conn,d){
     }
     case 'take':{
       if(!p)break;const i=+d.i;
-      if(i<0||i>7||slots[i]||slotOf(conn.peer)>=0){conn.send({t:'deny'});break;}
+      if(i<0||i>7||slots[i]||slotOf(conn.peer)>=0){try{conn.send({t:'deny'});}catch(e){}break;}
       slots[i]={pid:conn.peer,user:sanitizeUser(p.user),muted:false};p.slot=i;
       sysChat('اعتلى '+p.user.name+' المسرح');
       broadcastState();break;
@@ -722,8 +739,9 @@ function freeSlot(i){
   sysChat('نزل '+s.user.name+' من المسرح');
   broadcastState();
 }
-function dropParticipant(pid){
+function dropParticipant(pid,conn){
   const p=participants.get(pid);if(!p)return;
+  if(conn&&p.conn!==conn)return;
   const i=slotOf(pid);if(i>=0){removeSpeaker(pid);slots[i]=null;}
   const c=listenerCalls.get(pid);if(c){try{c.close();}catch(e){}listenerCalls.delete(pid);}
   participants.delete(pid);
@@ -737,17 +755,27 @@ function announce(closed){
   fetch('https://ntfy.sh/'+TOPIC,{method:'POST',headers:{'Content-Type':'text/plain'},body}).catch(()=>{});
 }
 
-/* ══════════ الانضمام (مع إعادة اتصال) ══════════ */
+/* ══════════ الانضمام (مع مراقبة وإعادة اتصال) ══════════ */
+function placeholderState(){
+  return {t:'state',code:roomCode,name:'…',bg:1,
+    host:{name:'…',color:'#a8977f',gender:'',birth:'',bio:''},
+    slots:Array(8).fill(null),listeners:[]};
+}
 function openRoomAsClient(code){
   if(typeof Peer==='undefined'){toast('تعذر تحميل مكتبة الاتصال — تحقق من الإنترنت');return;}
   mode='client';roomCode=code;myPid=null;pendingSlot=-1;
-  welcomed=false;helloTries=0;reconnTries=0;intentional=false;lastState=null;
+  welcomed=false;gotState=false;helloTries=0;reconnTries=0;intentional=false;lastState=null;
   el.chatList.innerHTML='';el.bgBtn.classList.add('hidden');
   stopDirectoryPolling();showView(el.roomView);
+  renderSafe(placeholderState());
+  setConn('','جارٍ الاتصال…');
+  armStateWatchdog();
   peer=new Peer(PREFIX+'u'+genCode(),ICE);
   peer.on('open',()=>{
-    hostConn=peer.connect(PREFIX+code,{reliable:true});
-    attachHostConn();
+    try{
+      hostConn=peer.connect(PREFIX+code,{reliable:true});
+      attachHostConn();
+    }catch(e){toast('تعذر بدء الاتصال');exitToLobby();}
   });
   peer.on('call',call=>{
     call.answer();
@@ -755,15 +783,20 @@ function openRoomAsClient(code){
   });
   peer.on('error',err=>{
     if(err.type==='peer-unavailable'){toast('الروم غير موجود أو أُغلق');exitToLobby();}
+    else if(err.type==='network'){setConn('err','مشكلة شبكة');}
   });
 }
 function attachHostConn(){
-  hostConn.on('open',()=>{helloTries=0;sendHello();});
-  hostConn.on('data',onHostData);
+  hostConn.on('open',()=>{setConn('','جارٍ الاتصال…');helloTries=0;sendHello();});
+  hostConn.on('data',d=>{try{onHostData(d);}catch(err){console.error('client data',err);}});
   hostConn.on('close',()=>{
     if(mode!=='client'||intentional)return;
-    if(welcomed)toast('انقطع الاتصال — إعادة المحاولة…');
+    setConn('err','انقطع — إعادة الاتصال…');
     tryReconnect();
+  });
+  hostConn.on('error',()=>{
+    if(mode!=='client'||intentional)return;
+    setConn('err','خطأ بالاتصال…');
   });
 }
 function sendHello(){
@@ -773,8 +806,20 @@ function sendHello(){
   }
   helloTries++;
   clearTimeout(helloTimer);
-  if(helloTries>=8){if(!welcomed){toast('تعذر الاتصال بالروم');exitToLobby();}return;}
+  if(helloTries>=10){if(!welcomed){toast('تعذر الاتصال بالروم');exitToLobby();}return;}
   helloTimer=setTimeout(()=>{if(!welcomed)sendHello();},1800);
+}
+function armStateWatchdog(){
+  clearTimeout(stateTimer);
+  stateTimer=setTimeout(()=>{
+    if(mode!=='client'||gotState||intentional)return;
+    quietSend({t:'reqState'});
+    armStateWatchdog();
+  },3000);
+}
+function quietSend(o){
+  if(mode!=='client'||!hostConn||!hostConn.open)return false;
+  try{hostConn.send(o);return true;}catch(e){return false;}
 }
 function tryReconnect(){
   if(intentional||mode!=='client')return;
@@ -790,13 +835,23 @@ function tryReconnect(){
 }
 function safeSend(o){
   if(mode!=='client')return false;
-  if(!hostConn||!hostConn.open){toast('الاتصال بالروم مفقوع…');return false;}
+  if(!hostConn||!hostConn.open){toast('الاتصال بالروم مفقود…');return false;}
   try{hostConn.send(o);return true;}catch(e){toast('فشل الإرسال — أعد المحاولة');return false;}
 }
 function onHostData(d){
   switch(d.t){
-    case 'welcome':welcomed=true;clearTimeout(helloTimer);myPid=d.pid;break;
-    case 'state':renderRoom(d);break;
+    case 'welcome':
+      welcomed=true;clearTimeout(helloTimer);myPid=d.pid;
+      if(!gotState)setConn('','بانتظار بيانات الروم…');
+      quietSend({t:'reqState'});
+      break;
+    case 'state':{
+      const first=!gotState;
+      gotState=true;clearTimeout(stateTimer);
+      if(first){setConn('ok','متصل');toast('تم الاتصال بالروم');}
+      renderSafe(d);
+      break;
+    }
     case 'chat':appendChat(d);break;
     case 'levels':d.arr.forEach((v,i)=>{if(slotEls[i])slotEls[i].style.setProperty('--lvl',v||0);});break;
     case 'deny':toast('تعذر أخذ الخانة — سُبقت إليها');stopMicLocal();pendingSlot=-1;break;
@@ -859,7 +914,7 @@ function renderRoom(st){
   checkAudio();
 }
 
-/* ══════════ صوت المستمع (زر التفعيل) ══════════ */
+/* ══════════ صوت المستمع ══════════ */
 function checkAudio(){
   const a=el.remoteAudio;
   const need=(mode==='client')&&a.srcObject&&a.paused;
@@ -1006,7 +1061,7 @@ el.chatForm.addEventListener('submit',e=>{
   }
 });
 
-/* ══════════ الموجودون في الروم ══════════ */
+/* ══════════ الموجودون ══════════ */
 function openPeople(){
   const st=lastState||(mode==='host'?buildState():null);
   if(!st)return;
@@ -1117,14 +1172,14 @@ el.leaveBtn.addEventListener('click',()=>{
 });
 function exitToLobby(){
   intentional=true;
-  clearTimeout(helloTimer);
+  clearTimeout(helloTimer);clearTimeout(stateTimer);
   cleanupRoom();
   showView(el.lobbyView);
   startDirectoryPolling();
 }
 function cleanupRoom(){
-  clearInterval(heartbeatInt);clearInterval(levelsInt);
-  heartbeatInt=levelsInt=null;
+  clearInterval(heartbeatInt);clearInterval(levelsInt);clearInterval(stateInt);
+  heartbeatInt=levelsInt=stateInt=null;
   stopMicLocal();
   if(mode==='host'){
     try{broadcast({t:'closed'});}catch(e){}
@@ -1134,7 +1189,7 @@ function cleanupRoom(){
   if(peer){try{peer.destroy();}catch(e){}}
   peer=null;hostConn=null;listenerCalls.clear();participants.clear();
   slots=Array(8).fill(null);micStream=null;pendingSlot=-1;mode=null;lastState=null;
-  welcomed=false;
+  welcomed=false;gotState=false;
   el.remoteAudio.srcObject=null;el.monitorAudio.srcObject=null;
   el.bgPicker.classList.add('hidden');el.stageCtrls.classList.add('hidden');
   el.audioBtn.classList.add('hidden');
