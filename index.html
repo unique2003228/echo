@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Changa:wght@600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root{
   --bg:#14100d; --card:#221a15; --line:#3d2f24;
@@ -58,21 +59,26 @@ input::placeholder,textarea::placeholder{color:#6d5c48}
 textarea{width:100%;background:#120d0a;border:1px solid var(--line);border-radius:11px;color:var(--text);
   font-family:inherit;font-size:.92rem;padding:11px 15px;outline:none;resize:none;height:76px;line-height:1.8}
 .card{background:linear-gradient(180deg,rgba(34,26,21,.94),rgba(27,21,17,.94));border:1px solid var(--line);border-radius:15px;transition:border-color .25s}
-.av{width:42px;height:42px;border-radius:50%;display:inline-grid;place-items:center;flex-shrink:0;cursor:pointer;
+.av{width:42px;height:42px;border-radius:50%;display:inline-grid;place-items:center;flex-shrink:0;cursor:pointer;overflow:hidden;
   background:color-mix(in srgb, var(--c) 20%, #120d0a);border:2px solid var(--c);color:var(--c);transition:transform .15s}
 .av:hover{transform:scale(1.07)}
 .av .ic{width:55%;height:55%;pointer-events:none}
+.av img{width:100%;height:100%;border-radius:50%;object-fit:cover;pointer-events:none}
 .host-tag{font-size:.62rem;background:rgba(255,194,75,.16);color:var(--gold);border:1px solid rgba(255,194,75,.4);border-radius:99px;padding:2px 9px;font-family:'Changa';white-space:nowrap}
 
 /* ═══ الدخول ═══ */
 #authView{flex:1;min-height:0;display:flex}
 .auth-wrap{flex:1;min-height:0;display:grid;place-items:center}
-.auth-card{width:min(390px,100%);padding:32px 30px}
-.logo{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:24px}
+.auth-card{width:min(390px,100%);padding:30px 28px}
+.logo{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:22px}
 .logo .cast{color:var(--red);filter:drop-shadow(0 0 12px rgba(255,77,61,.5))}
 .logo h1{font-size:1.85rem;font-weight:800}
 .auth-card label{display:block;font-weight:700;margin-bottom:8px;font-size:.88rem}
-.auth-card .field{margin-bottom:16px}
+.auth-card .field{margin-bottom:14px}
+.or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.75rem;margin:14px 0}
+.or::before,.or::after{content:'';flex:1;height:1px;background:var(--line)}
+#gWrap{display:flex;justify-content:center;min-height:40px}
+.ghint{font-size:.7rem;color:var(--muted);text-align:center;line-height:1.7;margin-top:8px}
 
 /* ═══ اللوبي ═══ */
 #lobbyView{flex:1;min-height:0;display:flex;flex-direction:column;gap:11px}
@@ -219,7 +225,7 @@ textarea{width:100%;background:#120d0a;border:1px solid var(--line);border-radiu
 .modal-card .big-ic{width:50px;height:50px;color:var(--gold);margin:0 auto 12px;display:block}
 .modal-card h3{font-size:1.25rem;font-weight:700;margin-bottom:8px}
 .modal-card>p{color:var(--muted);font-size:.86rem;line-height:1.9;margin-bottom:16px}
-.modal-card .row{display:flex;gap:10px;justify-content:center}
+.modal-card .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .modal-card ul.tips{text-align:right;margin:0 auto 16px;max-width:350px;display:flex;flex-direction:column;gap:7px;list-style:none}
 .modal-card ul.tips li{font-size:.8rem;color:#efe3cf;line-height:1.8;background:#120d0a;border-radius:9px;padding:8px 12px;border-inline-start:3px solid var(--gold)}
 
@@ -231,9 +237,10 @@ textarea{width:100%;background:#120d0a;border:1px solid var(--line);border-radiu
 .ppl-row .nm{font-weight:700;font-size:.88rem;flex:1;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .role{font-size:.68rem;color:var(--muted);font-family:'Changa';white-space:nowrap}
 
-.pf-av{width:76px;height:76px;margin:0 auto 12px;display:grid;place-items:center;border-radius:50%;
+.pf-av{width:76px;height:76px;margin:0 auto 12px;display:grid;place-items:center;border-radius:50%;overflow:hidden;
   border:3px solid var(--c);background:color-mix(in srgb, var(--c) 18%, #120d0a);color:var(--c)}
 .pf-av .ic{width:48%;height:48%}
+.pf-av img{width:100%;height:100%;object-fit:cover}
 .pf-name{font-family:'Changa';font-size:1.4rem;font-weight:800;display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap}
 .pf-row{display:flex;align-items:center;gap:9px;color:#d8c8ae;font-size:.85rem;margin-top:10px;justify-content:center}
 .pf-row .ic{color:var(--gold);width:16px;height:16px}
@@ -245,6 +252,11 @@ textarea{width:100%;background:#120d0a;border:1px solid var(--line);border-radiu
 .pill{flex:1;background:#120d0a;border:1px solid var(--line);color:var(--muted);border-radius:99px;padding:10px 0;
   font-family:'Changa';font-weight:700;cursor:pointer;transition:.2s;font-size:.9rem}
 .pill.active{background:rgba(255,194,75,.15);border-color:var(--gold);color:var(--gold)}
+.avpick{display:flex;align-items:center;gap:12px}
+.avpick .av{width:62px;height:62px}
+.avpick .col{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.mini{font-size:.72rem;color:var(--muted);background:none;border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer;font-family:inherit;transition:.2s}
+.mini:hover{border-color:var(--gold);color:var(--gold)}
 
 #toast{position:fixed;bottom:22px;inset-inline:0;margin-inline:auto;width:max-content;max-width:88vw;z-index:70;
   background:#2a201a;border:1px solid var(--gold);color:var(--text);padding:11px 22px;border-radius:12px;
@@ -271,6 +283,7 @@ textarea{width:100%;background:#120d0a;border:1px solid var(--line);border-radiu
   <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2.5 20h19z"/><path d="M12 9.5V14"/><path d="M12 16.8v.2"/></symbol>
   <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 9.5h17"/><path d="M8 3v4M16 3v4"/></symbol>
   <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4l10-10a2.1 2.1 0 0 0-3-3L5 17z"/><path d="M13.5 6.5l3 3"/></symbol>
+  <symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.4"/></symbol>
 </svg>
 
 <div class="amb" id="amb"></div>
@@ -296,6 +309,9 @@ textarea{width:100%;background:#120d0a;border:1px solid var(--line);border-radiu
         <button class="btn primary" style="width:100%" type="submit">
           <svg class="ic"><use href="#i-exit"/></svg> دخول
         </button>
+        <div class="or">أو</div>
+        <div id="gWrap"></div>
+        <p class="ghint hidden" id="gHint">لدخول قوقل: أنشئ Client ID مجاني من Google Cloud Console وضعه في ثابت GOOGLE_CLIENT_ID أعلى الكود</p>
       </form>
     </div>
   </section>
@@ -334,7 +350,7 @@ textarea{width:100%;background:#120d0a;border:1px solid var(--line);border-radiu
         <h2 id="roomTitle"></h2>
         <button class="host-chip" id="hostChip" type="button">
           <span class="av" id="hostAv"><svg class="ic"><use href="#i-user"/></svg></span>
-          المضيف: <b id="hostName"></b>
+          المدير: <b id="hostName"></b>
         </button>
       </div>
       <span class="count conn" id="connChip"><span class="cdot" id="connDot"></span><span id="connText">…</span></span>
@@ -415,7 +431,7 @@ textarea{width:100%;background:#120d0a;border:1px solid var(--line);border-radiu
 <div class="modal hidden" id="profileModal">
   <div class="modal-card">
     <div class="pf-av" id="pfAv"><svg class="ic"><use href="#i-user"/></svg></div>
-    <div class="pf-name"><span id="pfName"></span><span class="host-tag hidden" id="pfBadge">المضيف</span></div>
+    <div class="pf-name"><span id="pfName"></span><span class="host-tag hidden" id="pfBadge">المدير</span></div>
     <div id="pfRows"></div>
     <div class="pf-bio hidden" id="pfBio"></div>
     <div class="row" style="margin-top:16px">
@@ -431,6 +447,17 @@ textarea{width:100%;background:#120d0a;border:1px solid var(--line);border-radiu
     <h3>ملفي التعريفي</h3>
     <p>كل الحقول اختيارية</p>
     <form id="editForm" style="text-align:right">
+      <div class="edit-field">
+        <label>الصورة الشخصية</label>
+        <div class="avpick">
+          <span class="av" id="avPrev"><svg class="ic"><use href="#i-user"/></svg></span>
+          <div class="col">
+            <button type="button" class="mini" id="avPick"><svg class="ic sm" style="vertical-align:-3px"><use href="#i-cam"/></svg> اختيار صورة</button>
+            <button type="button" class="mini" id="avRemove">إزالة الصورة</button>
+          </div>
+        </div>
+        <input type="file" id="avFile" accept="image/*" class="hidden">
+      </div>
       <div class="edit-field">
         <label>الجنس</label>
         <div class="pill-row">
@@ -456,25 +483,24 @@ textarea{width:100%;background:#120d0a;border:1px solid var(--line);border-radiu
 </div>
 
 <div id="toast"></div>
-<audio id="remoteAudio" autoplay playsinline></audio>
-<audio id="monitorAudio" autoplay playsinline class="hidden"></audio>
 
 <script>
 'use strict';
-/* ══════════ العناصر ══════════ */
+/* ═══ Client ID لتسجيل الدخول عبر قوقل ═══ */
+const GOOGLE_CLIENT_ID='951107600780-q37rrqjcsopotjpqjuhikvofoersv19n.apps.googleusercontent.com';
+
 const $=s=>document.querySelector(s);
-const IDS=['authView','lobbyView','roomView','insecure','authForm','nameInput','lobbyAv','lobbyName','userChip','logoutBtn',
-'createForm','roomNameInput','roomsGrid','noRooms','dirErr','roomTitle','hostChip','hostAv','hostName','connChip','connText',
-'lsCount','lsNum','lsNum2','leaveBtn','stage','slots','stageCtrls','muteToggle','muteIc','muteLbl','downBtn','lsAvatars',
-'lsLabel','bgBtn','bgPicker','swatches','chatList','chatForm','chatInput','onlineCount','micModal','micAllow','micCancel',
-'micErrModal','micErrTitle','micErrTips','micErrClose','peopleModal','peopleCount','peopleList','peopleClose','profileModal',
-'pfAv','pfName','pfBadge','pfRows','pfBio','pfEdit','pfClose','editModal','editForm','gM','gF','gN','birthInput','bioInput',
-'editCancel','audioBtn','toast','remoteAudio','monitorAudio','amb'];
-const el={};IDS.forEach(id=>el[id]=$('#'+id));
+const IDS=['authView','lobbyView','roomView','insecure','authForm','nameInput','gWrap','gHint','lobbyAv','lobbyName','userChip',
+'logoutBtn','createForm','roomNameInput','roomsGrid','noRooms','dirErr','roomTitle','hostChip','hostAv','hostName','connChip',
+'connText','lsCount','lsNum','lsNum2','leaveBtn','stage','slots','stageCtrls','muteToggle','muteIc','muteLbl','downBtn',
+'lsAvatars','lsLabel','bgBtn','bgPicker','swatches','chatList','chatForm','chatInput','onlineCount','micModal','micAllow',
+'micCancel','micErrModal','micErrTitle','micErrTips','micErrClose','peopleModal','peopleCount','peopleList','peopleClose',
+'profileModal','pfAv','pfName','pfBadge','pfRows','pfBio','pfEdit','pfClose','editModal','editForm','avPrev','avPick','avRemove',
+'avFile','gM','gF','gN','birthInput','bioInput','editCancel','audioBtn','toast','amb'];
+const el={};IDS.forEach(id=>{el[id]=$('#'+id);});
 const icon=(n,cls='')=>'<svg class="ic '+cls+'" aria-hidden="true"><use href="#i-'+n+'"/></svg>';
 
-/* ══════════ ثوابت وأدوات ══════════ */
-const TOPIC='sada-rooms-ar-v4', PREFIX='sada8-';
+const DIR='sada-dir-v6', ROOMPRE='sada-room-v6-', PREFIX='sada8-';
 const ICE={config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}};
 const COLORS=['#ff4d3d','#ffc24b','#5ad48a','#4dc9ff','#ff8fab','#c0a3ff','#7ce0c3','#ffb02e'];
 const BG_NAMES=['سماء الليل','غروب البث','شبكة ذهبية','أستوديو أحمر','أعماق البحر','رمال دافئة','غابة ليلية','أضواء ذهبية'];
@@ -482,85 +508,105 @@ const rnd=n=>Math.floor(Math.random()*n);
 const hash=s=>[...String(s)].reduce((a,c)=>a+c.charCodeAt(0),0);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const genCode=()=>{const A='abcdefghjkmnpqrstuvwxyz23456789';let s='';for(let i=0;i<5;i++)s+=A[rnd(A.length)];return s;};
+const mid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
 let toastT=null;
-function toast(msg){el.toast.textContent=msg;el.toast.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.toast.classList.remove('show'),2600);}
+function toast(m){el.toast.textContent=m;el.toast.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.toast.classList.remove('show'),2600);}
 function showView(v){[el.authView,el.lobbyView,el.roomView].forEach(x=>x.classList.add('hidden'));v.classList.remove('hidden');}
 function setConn(cls,text){el.connChip.className='count conn static '+cls;el.connText.textContent=text;}
 function sanitizeUser(u){
-  const name=String(u&&u.name||'زائر').trim().slice(0,16)||'زائر';
-  const color=COLORS.includes(u&&u.color)?u.color:COLORS[hash(name)%COLORS.length];
-  const gender=(u&&(u.gender==='m'||u.gender==='f'))?u.gender:'';
-  const birth=(u&&/^\d{4}-\d{2}-\d{2}$/.test(u.birth||''))?u.birth:'';
-  const bio=String(u&&u.bio||'').slice(0,120);
-  return {name,color,gender,birth,bio};
+  u=u||{};
+  const name=String(u.name||'زائر').trim().slice(0,16)||'زائر';
+  const color=COLORS.includes(u.color)?u.color:COLORS[hash(name)%COLORS.length];
+  const gender=(u.gender==='m'||u.gender==='f')?u.gender:'';
+  const birth=/^\d{4}-\d{2}-\d{2}$/.test(u.birth||'')?u.birth:'';
+  const bio=String(u.bio||'').slice(0,120);
+  const avatar=(typeof u.avatar==='string'&&(u.avatar.startsWith('data:image/')||u.avatar.startsWith('https://')))?u.avatar.slice(0,6000):'';
+  return {name,color,gender,birth,bio,avatar};
 }
-function ageOf(birth){
-  if(!birth)return null;
-  const b=new Date(birth),n=new Date();
-  let a=n.getFullYear()-b.getFullYear();
-  const m=n.getMonth()-b.getMonth();
-  if(m<0||(m===0&&n.getDate()<b.getDate()))a--;
-  return (a>=0&&a<120)?a:null;
+function setAv(span,u){
+  span.style.setProperty('--c',u.color);
+  span.innerHTML=u.avatar?'<img src="'+esc(u.avatar)+'" alt="">':icon('user');
 }
+function ageOf(b){if(!b)return null;const d=new Date(b),n=new Date();let a=n.getFullYear()-d.getFullYear();const m=n.getMonth()-d.getMonth();if(m<0||(m===0&&n.getDate()<d.getDate()))a--;return(a>=0&&a<120)?a:null;}
 const fmtDate=b=>{try{return new Date(b).toLocaleDateString('ar',{year:'numeric',month:'long',day:'numeric'});}catch(e){return b;}};
 let actx=null;
-function resumeAudio(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();}catch(e){}}
-document.addEventListener('pointerdown',resumeAudio,{once:true});
-document.addEventListener('click',()=>{[el.remoteAudio,el.monitorAudio].forEach(a=>{if(a.srcObject&&a.paused)a.play().catch(()=>{});});});
+function ensureCtx(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();}catch(e){}return actx;}
+document.addEventListener('pointerdown',()=>ensureCtx(),{once:true});
+for(let i=0;i<26;i++){const s=document.createElement('span');s.style.height=(30+rnd(70))+'%';s.style.animationDuration=(1.1+Math.random()*1.8)+'s';s.style.animationDelay=(-Math.random()*2)+'s';el.amb.appendChild(s);}
 
-for(let i=0;i<26;i++){
-  const s=document.createElement('span');
-  s.style.height=(30+rnd(70))+'%';
-  s.style.animationDuration=(1.1+Math.random()*1.8)+'s';
-  s.style.animationDelay=(-Math.random()*2)+'s';
-  el.amb.appendChild(s);
+/* ══════════ حالة عامة (Mesh) ══════════ */
+let user=null, peer=null, myPid=null, inRoom=false, intentional=false;
+let roomCode=null, roomMeta={name:'',owner:''}, myJoinTs=0;
+let state={slots:Array(8).fill(null),bg:{v:1,ts:0}};
+let roster=new Map(), conns=new Map(), callsOut=new Map(), callsIn=new Map(), remotes=new Map();
+let kicked=new Set(), seenMsg=new Set(), connFails=new Map();
+let micStream=null, micTrack=null, micAn=null, micData=null, pendingSlot=-1, slotEls=[], editGender='', pendingAvatar='';
+let dirTimer=null, hereInt=null, roomPollInt=null, lvlInt=null;
+
+/* ══════════ ntfy ══════════ */
+function ntfyPost(topic,obj){fetch('https://ntfy.sh/'+topic,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(obj)}).catch(()=>{});}
+async function ntfyPoll(topic){
+  const r=await fetch('https://ntfy.sh/'+topic+'/json?poll=1',{cache:'no-store'});
+  const txt=await r.text();let msgs=[];
+  try{const j=JSON.parse(txt);msgs=Array.isArray(j)?j:[j];}
+  catch(e){msgs=txt.split('\n').filter(Boolean).map(l=>{try{return JSON.parse(l);}catch(_){return null;}}).filter(Boolean);}
+  return msgs.map(m=>{try{return JSON.parse(m.message);}catch(e){return null;}}).filter(Boolean);
 }
 
-/* ══════════ حالة عامة ══════════ */
-let user=null, mode=null, peer=null, hostConn=null, myPid=null, roomCode=null, roomName='', bgId=1, lastState=null;
-let participants=new Map(), slots=Array(8).fill(null), listenerCalls=new Map(), speakerNodes=new Map();
-let mixCtx=null, broadcastDest=null, monitorDest=null, mixStream=null;
-let micStream=null, micCall=null, micTrack=null, pendingSlot=-1, slotEls=[];
-let heartbeatInt=null, levelsInt=null, dirTimer=null, stateInt=null, stateTimer=null;
-let welcomed=false, gotState=false, helloTries=0, helloTimer=null, reconnTries=0, intentional=false, editGender='';
-
-/* ══════════ الدخول ══════════ */
+/* ══════════ الدخول + قوقل ══════════ */
 el.authForm.addEventListener('submit',e=>{
   e.preventDefault();
   const name=el.nameInput.value.trim();
   if(name.length<2){toast('اكتب اسمًا من حرفين على الأقل');el.nameInput.focus();return;}
-  user=sanitizeUser({name});
-  const saved=localStorage.getItem('sada-user');
-  if(saved){try{const o=JSON.parse(saved);user.gender=o.gender||'';user.birth=o.birth||'';user.bio=o.bio||'';if(o.color&&COLORS.includes(o.color))user.color=o.color;}catch(e){}}
-  saveUser();
-  enterLobby();
+  loginUser({name});
 });
-function saveUser(){localStorage.setItem('sada-user',JSON.stringify(user));}
+function loginUser(u){
+  let extra={};
+  const saved=localStorage.getItem('sada-user');
+  if(saved){try{const o=JSON.parse(saved);if(o.name===u.name)extra=o;}catch(e){}}
+  user=sanitizeUser(Object.assign({gender:extra.gender||'',birth:extra.birth||'',bio:extra.bio||'',avatar:extra.avatar||''},u));
+  localStorage.setItem('sada-user',JSON.stringify(user));
+  enterLobby();
+}
 el.logoutBtn.addEventListener('click',()=>{localStorage.removeItem('sada-user');location.reload();});
 function enterLobby(){
   showView(el.lobbyView);
-  el.lobbyAv.style.setProperty('--c',user.color);
+  setAv(el.lobbyAv,user);
   el.lobbyName.textContent=user.name;
-  startDirectoryPolling();
+  startDirPolling();
 }
 el.userChip.addEventListener('click',()=>openProfile(user,false));
 
-/* ══════════ دليل الرومات ══════════ */
-function startDirectoryPolling(){stopDirectoryPolling();pollDirectory();dirTimer=setInterval(pollDirectory,7000);}
-function stopDirectoryPolling(){clearInterval(dirTimer);dirTimer=null;}
-async function pollDirectory(){
+(function initGoogle(){
+  if(!GOOGLE_CLIENT_ID){el.gHint.classList.remove('hidden');return;}
+  const tryInit=()=>{
+    if(!window.google||!window.google.accounts){setTimeout(tryInit,700);return;}
+    try{
+      google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:onGoogle});
+      google.accounts.id.renderButton(el.gWrap,{theme:'filled_black',size:'large',text:'continue_with',shape:'pill',locale:'ar'});
+    }catch(e){el.gHint.classList.remove('hidden');}
+  };
+  tryInit();
+})();
+function onGoogle(resp){
   try{
-    const r=await fetch('https://ntfy.sh/'+TOPIC+'/json?poll=1',{cache:'no-store'});
-    const txt=await r.text();
-    let msgs=[];
-    try{const j=JSON.parse(txt);msgs=Array.isArray(j)?j:[j];}
-    catch(err){msgs=txt.split('\n').filter(Boolean).map(l=>{try{return JSON.parse(l);}catch(_){return null;}}).filter(Boolean);}
+    const payload=JSON.parse(atob(resp.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+    loginUser({name:String(payload.name||'مستخدم').slice(0,16),avatar:payload.picture||''});
+    toast('مرحبًا '+user.name);
+  }catch(e){toast('تعذر دخول قوقل');}
+}
+
+/* ══════════ اللوبي ══════════ */
+function startDirPolling(){stopDirPolling();pollDir();dirTimer=setInterval(pollDir,7000);}
+function stopDirPolling(){clearInterval(dirTimer);dirTimer=null;}
+async function pollDir(){
+  try{
+    const msgs=await ntfyPoll(DIR);
     const map=new Map();
-    for(const m of msgs){try{const d=JSON.parse(m.message);if(!d||!d.id)continue;const p=map.get(d.id);if(!p||(d.ts||0)>(p.ts||0))map.set(d.id,d);}catch(_){}}
+    for(const d of msgs){if(!d||!d.id)continue;const p=map.get(d.id);if(!p||(d.ts||0)>(p.ts||0))map.set(d.id,d);}
     const now=Date.now();
     const rooms=[...map.values()].filter(d=>!d.closed&&now-(d.ts||0)<45000).sort((a,b)=>(b.ls||0)-(a.ls||0)).slice(0,12);
-    renderRooms(rooms);
-    el.dirErr.style.display='none';
+    renderRooms(rooms);el.dirErr.style.display='none';
   }catch(e){el.dirErr.style.display='inline';}
 }
 function renderRooms(rooms){
@@ -573,369 +619,255 @@ function renderRooms(rooms){
     bgd.appendChild(live);
     const body=document.createElement('div');body.className='rc-body';
     const h=document.createElement('h3');h.textContent=r.name||'روم';
-    const hc=COLORS[hash(String(r.host||''))%COLORS.length];
     const host=document.createElement('div');host.className='rc-host';
-    host.innerHTML='<span class="av" style="--c:'+hc+'">'+icon('user')+'</span><span>'+esc(r.host||'')+'</span>';
+    const av=document.createElement('span');av.className='av';setAv(av,{color:COLORS[hash(String(r.owner||''))%COLORS.length]});
+    const tx=document.createElement('span');tx.textContent='المالك: '+(r.owner||'');
+    host.append(av,tx);
     const meta=document.createElement('div');meta.className='rc-meta';
     meta.innerHTML='<span>'+icon('mic')+(r.sp||0)+'</span><span>'+icon('users')+(r.ls||0)+'</span>';
     const btn=document.createElement('button');btn.className='btn primary';btn.style.width='100%';btn.type='button';
     btn.innerHTML=icon('head')+' انضم للبث';
-    btn.onclick=()=>openRoomAsClient(String(r.id));
+    btn.onclick=()=>startRoom(String(r.id),{name:r.name||'روم',owner:r.owner||''},false);
     body.append(h,host,meta,btn);card.append(bgd,body);el.roomsGrid.appendChild(card);
   });
 }
-
-/* ══════════ الخلاط (للمضيف) ══════════ */
-function setupMixer(){
-  mixCtx=new (window.AudioContext||window.webkitAudioContext)();
-  broadcastDest=mixCtx.createMediaStreamDestination();
-  monitorDest=mixCtx.createMediaStreamDestination();
-  mixStream=broadcastDest.stream;
-  el.monitorAudio.srcObject=monitorDest.stream;
-  el.monitorAudio.play().catch(()=>{});
-}
-function addSpeaker(pid,stream,isSelf,call){
-  if(!mixCtx)return;
-  if(mixCtx.state==='suspended')mixCtx.resume();
-  removeSpeaker(pid);
-  const src=mixCtx.createMediaStreamSource(stream);
-  const gain=mixCtx.createGain();
-  const an=mixCtx.createAnalyser();an.fftSize=256;
-  src.connect(gain);gain.connect(an);an.connect(broadcastDest);
-  if(!isSelf)an.connect(monitorDest);
-  const s=slots.find(x=>x&&x.pid===pid);
-  if(s&&s.muted)gain.gain.value=0;
-  speakerNodes.set(pid,{src,gain,an,data:new Uint8Array(an.frequencyBinCount),call});
-}
-function removeSpeaker(pid){
-  const n=speakerNodes.get(pid);if(!n)return;
-  try{n.src.disconnect();n.gain.disconnect();n.an.disconnect();if(n.call)n.call.close();}catch(e){}
-  speakerNodes.delete(pid);
-}
-function broadcastLevels(){
-  if(mode!=='host'||!mixCtx)return;
-  const arr=slots.map(s=>{
-    if(!s)return 0;const n=speakerNodes.get(s.pid);if(!n)return 0;
-    n.an.getByteFrequencyData(n.data);
-    let sum=0;for(let i=2;i<40;i++)sum+=n.data[i];
-    const v=(sum/38/255)*1.7;return v<.07?0:Math.min(1,v);
-  });
-  broadcast({t:'levels',arr});
-  slotEls.forEach((elm,i)=>{if(elm)elm.style.setProperty('--lvl',arr[i]||0);});
-}
-
-/* ══════════ فتح روم كمضيف ══════════ */
 el.createForm.addEventListener('submit',e=>{
   e.preventDefault();
-  openRoomAsHost(el.roomNameInput.value.trim()||('روم '+user.name));
+  const code=genCode();
+  startRoom(code,{name:el.roomNameInput.value.trim()||('روم '+user.name),owner:user.name},true);
 });
-function openRoomAsHost(name){
-  if(typeof Peer==='undefined'){toast('تعذر تحميل مكتبة الاتصال — تحقق من الإنترنت');return;}
-  mode='host';roomCode=genCode();roomName=name;bgId=1;gotState=true;
-  participants.clear();slots=Array(8).fill(null);listenerCalls.clear();
+
+/* ══════════ دخول الروم (Mesh) ══════════ */
+function startRoom(code,meta,isCreator){
+  if(typeof Peer==='undefined'){toast('تعذر تحميل مكتبة الاتصال');return;}
+  inRoom=true;intentional=false;
+  roomCode=code;
+  roomMeta={name:String((meta&&meta.name)||('روم '+code)).slice(0,40),owner:String((meta&&meta.owner)||'')};
+  if(isCreator||!roomMeta.owner)roomMeta.owner=user.name;
+  state={slots:Array(8).fill(null),bg:{v:1,ts:0}};
+  roster.clear();conns.clear();callsOut.clear();callsIn.clear();remotes.clear();
+  kicked.clear();seenMsg.clear();connFails.clear();
   el.chatList.innerHTML='';
-  showView(el.roomView);el.bgBtn.classList.remove('hidden');
-  setConn('','جارٍ فتح الروم…');
-  setupMixer();
-  renderSafe(buildState());
-  peer=new Peer(PREFIX+roomCode,ICE);
-  peer.on('open',()=>{
-    setConn('ok','أنت المضيف — متصل');
-    toast('افتُتح الروم');
-    announce(false);
-    heartbeatInt=setInterval(()=>announce(false),12000);
-    levelsInt=setInterval(broadcastLevels,200);
-    stateInt=setInterval(()=>{if(participants.size)broadcastState();},4000);
+  stopDirPolling();showView(el.roomView);
+  setConn('','جارٍ الاتصال…');
+  renderAll();
+  myJoinTs=Date.now();
+  peer=new Peer(PREFIX+genCode()+rnd(99),ICE);
+  peer.on('open',id=>{
+    myPid=id;
+    roster.set(myPid,{user:user,joinTs:myJoinTs,last:Date.now()});
+    setConn('ok','متصل');
+    publishHere();hereInt=setInterval(publishHere,8000);
+    pollRoom();roomPollInt=setInterval(pollRoom,4000);
+    lvlInt=setInterval(drawLevels,200);
+    sysLocal('دخلت الروم');
+    renderAll();
   });
   peer.on('connection',conn=>{
-    conn.on('data',d=>{try{handleClientMsg(conn,d);}catch(err){console.error('host data',err);}});
-    conn.on('close',()=>dropParticipant(conn.peer,conn));
-    conn.on('error',()=>dropParticipant(conn.peer,conn));
+    const pid=conn.peer;
+    if(kicked.has(pid)){try{conn.close();}catch(e){}return;}
+    const ex=conns.get(pid);
+    if(ex&&ex.open&&myPid<pid){try{conn.close();}catch(e){}return;}
+    if(ex){try{ex.close();}catch(e){}}
+    conns.set(pid,conn);wireConn(conn,pid);
   });
   peer.on('call',call=>{
-    call.answer();
     const pid=call.peer;
-    call.on('stream',s=>{
-      if(slotOf(pid)<0){try{call.close();}catch(e){}return;}
-      addSpeaker(pid,s,false,call);
-    });
-    call.on('close',()=>{
-      const i=slotOf(pid);
-      if(i>=0)freeSlot(i);
-    });
+    if(kicked.has(pid)){try{call.close();}catch(e){}return;}
+    const ex=callsIn.get(pid);
+    if(ex&&ex.open){try{call.close();}catch(e){}return;}
+    callsIn.set(pid,call);
+    call.answer();
+    call.on('stream',s=>addRemote(pid,s));
+    call.on('close',()=>{removeRemote(pid);if(callsIn.get(pid)===call)callsIn.delete(pid);});
   });
-  peer.on('error',err=>{
-    if(err.type==='unavailable-id'){toast('حدث تعارض — أعد المحاولة');exitToLobby();}
-    else if(err.type==='network'){toast('مشكلة في الشبكة');setConn('err','مشكلة شبكة');}
+  peer.on('error',err=>{if(err.type==='network')setConn('err','مشكلة شبكة');});
+}
+function publishHere(){
+  if(!inRoom||!myPid)return;
+  let u=user;
+  const full=JSON.stringify({pid:myPid,user:user,joinTs:myJoinTs,meta:roomMeta,ts:Date.now()});
+  if(full.length>3800)u=Object.assign({},user,{avatar:''});
+  ntfyPost(ROOMPRE+roomCode,{pid:myPid,user:u,joinTs:myJoinTs,meta:roomMeta,ts:Date.now()});
+  ntfyPost(DIR,{id:roomCode,name:roomMeta.name,owner:roomMeta.owner,bg:state.bg.v,
+    sp:state.slots.filter(Boolean).length,ls:roster.size,ts:Date.now()});
+}
+async function pollRoom(){
+  if(!inRoom)return;
+  try{
+    const msgs=await ntfyPoll(ROOMPRE+roomCode);
+    const now=Date.now();
+    for(const d of msgs){
+      if(!d||!d.pid||d.pid===myPid||kicked.has(d.pid))continue;
+      const cur=roster.get(d.pid);
+      if(!cur||d.ts>cur.last){
+        roster.set(d.pid,{user:sanitizeUser(d.user),joinTs:d.joinTs||now,last:d.ts||now});
+        connFails.delete(d.pid);
+        if(d.meta&&d.meta.name&&(!roomMeta.name||roomMeta.name.startsWith('روم ')))roomMeta=d.meta;
+        if(!cur){onPeerSeen(d.pid);renderAll();}
+      }
+    }
+    let changed=false;
+    for(const [pid] of [...roster]){
+      if(pid!==myPid&&now-roster.get(pid).last>22000){roster.delete(pid);onPeerGone(pid);changed=true;}
+    }
+    if(changed)renderAll();else renderBar();
+  }catch(e){}
+}
+function onPeerSeen(pid){
+  if(conns.has(pid)||kicked.has(pid))return;
+  connectTo(pid);
+}
+function connectTo(pid){
+  try{
+    const c=peer.connect(pid,{reliable:true});
+    conns.set(pid,c);wireConn(c,pid);
+  }catch(e){}
+}
+function wireConn(conn,pid){
+  conn.on('open',()=>{
+    connFails.delete(pid);
+    try{
+      conn.send({t:'hi',user:user,joinTs:myJoinTs,meta:roomMeta});
+      conn.send({t:'sync',slots:state.slots,bg:state.bg,meta:roomMeta});
+      if(mySlotIndex()>=0&&micStream)callPeerWithMic(pid);
+    }catch(e){}
   });
-  sysChat('افتُتح الروم');
+  conn.on('data',d=>{try{applyMsg(d,pid);}catch(e){console.error(e);}});
+  conn.on('close',()=>{
+    if(conns.get(pid)===conn)conns.delete(pid);
+    const f=(connFails.get(pid)||0)+1;connFails.set(pid,f);
+    if(inRoom&&!intentional&&roster.has(pid)&&f<3){
+      setTimeout(()=>{if(inRoom&&!intentional&&roster.has(pid)&&!conns.has(pid))connectTo(pid);},1500);
+    }
+  });
 }
-function buildState(){
-  return {t:'state',code:roomCode,name:roomName,bg:bgId,host:sanitizeUser(user),
-    slots:slots.map(s=>s?{pid:s.pid,user:s.user,muted:s.muted}:null),
-    listeners:[...participants.values()].map(p=>sanitizeUser(p.user))};
+function onPeerGone(pid){
+  const c=conns.get(pid);if(c){try{c.close();}catch(e){}conns.delete(pid);}
+  const co=callsOut.get(pid);if(co){try{co.close();}catch(e){}callsOut.delete(pid);}
+  removeRemote(pid);callsIn.delete(pid);
+  const i=state.slots.findIndex(s=>s&&s.pid===pid);
+  if(i>=0){const u=state.slots[i].user;state.slots[i]=null;sysLocal('غادر '+u.name+' الروم');}
 }
-function broadcast(msg){participants.forEach(p=>{try{p.conn.send(msg);}catch(e){}});}
-function broadcastState(){const st=buildState();broadcast(st);renderSafe(st);}
-function renderSafe(st){try{renderRoom(st);}catch(err){console.error('render',err);}}
-function slotOf(pid){return slots.findIndex(s=>s&&s.pid===pid);}
-function handleClientMsg(conn,d){
-  const p=participants.get(conn.peer);
-  switch(d.t){
-    case 'hello':{
-      const isNew=!participants.has(conn.peer);
-      const old=participants.get(conn.peer);
-      if(old&&old.conn!==conn){try{old.conn.close();}catch(e){}}
-      participants.set(conn.peer,{conn,user:sanitizeUser(d.user),slot:old?old.slot:-1});
-      try{conn.send({t:'welcome',pid:conn.peer});}catch(e){}
-      if(isNew)sysChat('انضم '+sanitizeUser(d.user).name);
-      broadcastState();
-      try{
-        if(mixStream){
-          const c=peer.call(conn.peer,mixStream,{metadata:{t:'mix'}});
-          if(c){listenerCalls.set(conn.peer,c);c.on('close',()=>listenerCalls.delete(conn.peer));}
-        }
-      }catch(e){console.error('mix call',e);}
-      break;
+function broadcastMesh(o){conns.forEach(c=>{if(c.open){try{c.send(o);}catch(e){}}});}
+
+/* ══════════ رسائل Mesh (LWW) ══════════ */
+function applyMsg(m,pid){
+  if(!m||kicked.has(pid))return;
+  if(m.id){if(seenMsg.has(m.id))return;seenMsg.add(m.id);if(seenMsg.size>600)seenMsg.clear();}
+  switch(m.t){
+    case 'hi':{
+      if(!roster.has(pid))roster.set(pid,{user:sanitizeUser(m.user),joinTs:m.joinTs||Date.now(),last:Date.now()});
+      if(m.meta&&m.meta.name&&(!roomMeta.name||roomMeta.name.startsWith('روم ')))roomMeta=m.meta;
+      renderAll();break;
     }
-    case 'reqState':{
-      try{conn.send(buildState());}catch(e){}
-      break;
+    case 'sync':{
+      if(m.meta&&m.meta.name&&(!roomMeta.name||roomMeta.name.startsWith('روم ')))roomMeta=m.meta;
+      (m.slots||[]).forEach((s,i)=>{if(i<8&&s)applyClaim({i:i,pid:s.pid,user:s.user,ts:s.ts,muted:s.muted},true);});
+      if(m.bg&&m.bg.ts>state.bg.ts)state.bg=m.bg;
+      renderAll();break;
     }
-    case 'chat':{
-      if(!p)break;
-      const text=String(d.text||'').slice(0,200).trim();if(!text)break;
-      const m=Object.assign({},sanitizeUser(p.user),{host:false,text});
-      appendChat(m);broadcast({t:'chat',...m});break;
+    case 'claim':applyClaim(m,false);renderAll();break;
+    case 'slotLeave':{
+      const i=state.slots.findIndex(s=>s&&s.pid===m.pid);
+      if(i>=0){
+        const u=state.slots[i].user;state.slots[i]=null;removeRemote(m.pid);
+        const co=callsOut.get(m.pid);if(co){try{co.close();}catch(e){}callsOut.delete(m.pid);}
+        sysLocal('نزل '+u.name+' من المسرح');
+      }
+      renderAll();break;
     }
-    case 'take':{
-      if(!p)break;const i=+d.i;
-      if(i<0||i>7||slots[i]||slotOf(conn.peer)>=0){try{conn.send({t:'deny'});}catch(e){}break;}
-      slots[i]={pid:conn.peer,user:sanitizeUser(p.user),muted:false};p.slot=i;
-      sysChat('اعتلى '+p.user.name+' المسرح');
-      broadcastState();break;
-    }
-    case 'leave':{const i=slotOf(conn.peer);if(i>=0)freeSlot(i);break;}
     case 'mute':{
-      const i=slotOf(conn.peer);if(i<0)break;
-      slots[i].muted=!!d.m;
-      const n=speakerNodes.get(conn.peer);if(n)n.gain.gain.value=d.m?0:1;
-      broadcastState();break;
+      const s=state.slots.find(x=>x&&x.pid===m.pid);
+      if(s){s.muted=!!m.m;renderAll();}
+      break;
+    }
+    case 'bg':{
+      if(m.ts>state.bg.ts){state.bg={v:m.v,ts:m.ts};sysLocal('تغيّرت خلفية الروم');renderAll();}
+      break;
+    }
+    case 'kick':{
+      if(managerPid()!==pid)break;
+      if(m.pid===myPid){toast('أخرجك المدير من الروم');leaveRoom();}
+      else{kicked.add(m.pid);onPeerGone(m.pid);renderAll();}
+      break;
     }
     case 'profile':{
-      if(!p)break;
-      p.user=sanitizeUser(d.user);
-      const i=slotOf(conn.peer);
-      if(i>=0)slots[i].user=p.user;
-      broadcastState();break;
+      const r=roster.get(m.pid);if(r)r.user=sanitizeUser(m.user);
+      const s=state.slots.find(x=>x&&x.pid===m.pid);if(s)s.user=sanitizeUser(m.user);
+      renderAll();break;
     }
+    case 'chat':appendChat(m);break;
   }
 }
-function freeSlot(i){
-  const s=slots[i];if(!s)return;
-  removeSpeaker(s.pid);
-  const p=participants.get(s.pid);if(p)p.slot=-1;
-  slots[i]=null;
-  sysChat('نزل '+s.user.name+' من المسرح');
-  broadcastState();
+function applyClaim(m,fromSync){
+  if(m.i<0||m.i>7)return;
+  const cur=state.slots[m.i];
+  if(!cur){
+    state.slots[m.i]={pid:m.pid,user:sanitizeUser(m.user),ts:m.ts,muted:!!m.muted};
+    if(!fromSync)sysLocal('اعتلى '+sanitizeUser(m.user).name+' المسرح');
+  }else if(cur.pid===m.pid){
+    cur.user=sanitizeUser(m.user);cur.ts=Math.max(cur.ts,m.ts);cur.muted=!!m.muted;
+  }else if(m.ts<cur.ts-800){
+    if(cur.pid===myPid)yieldSlot();
+    state.slots[m.i]={pid:m.pid,user:sanitizeUser(m.user),ts:m.ts,muted:!!m.muted};
+  }
 }
-function dropParticipant(pid,conn){
-  const p=participants.get(pid);if(!p)return;
-  if(conn&&p.conn!==conn)return;
-  const i=slotOf(pid);if(i>=0){removeSpeaker(pid);slots[i]=null;}
-  const c=listenerCalls.get(pid);if(c){try{c.close();}catch(e){}listenerCalls.delete(pid);}
-  participants.delete(pid);
-  sysChat('غادر '+sanitizeUser(p.user).name);
-  broadcastState();
-}
-function announce(closed){
-  if(mode!=='host'||!roomCode)return;
-  const body=JSON.stringify({id:roomCode,name:roomName,host:user.name,bg:bgId,closed:!!closed,
-    sp:slots.filter(Boolean).length,ls:participants.size+1,ts:Date.now()});
-  fetch('https://ntfy.sh/'+TOPIC,{method:'POST',headers:{'Content-Type':'text/plain'},body}).catch(()=>{});
+function mySlotIndex(){return state.slots.findIndex(s=>s&&s.pid===myPid);}
+function yieldSlot(){
+  callsOut.forEach(c=>{try{c.close();}catch(e){}});callsOut.clear();
+  stopMicLocal();toast('سُبقت إلى الخانة');
 }
 
-/* ══════════ الانضمام (مع مراقبة وإعادة اتصال) ══════════ */
-function placeholderState(){
-  return {t:'state',code:roomCode,name:'…',bg:1,
-    host:{name:'…',color:'#a8977f',gender:'',birth:'',bio:''},
-    slots:Array(8).fill(null),listeners:[]};
+/* ══════════ الصوت (Mesh) ══════════ */
+function callPeerWithMic(pid){
+  if(callsOut.has(pid)||!micStream)return;
+  try{
+    const c=peer.call(pid,micStream,{metadata:{t:'mic'}});
+    callsOut.set(pid,c);
+    c.on('close',()=>{if(callsOut.get(pid)===c)callsOut.delete(pid);});
+  }catch(e){}
 }
-function openRoomAsClient(code){
-  if(typeof Peer==='undefined'){toast('تعذر تحميل مكتبة الاتصال — تحقق من الإنترنت');return;}
-  mode='client';roomCode=code;myPid=null;pendingSlot=-1;
-  welcomed=false;gotState=false;helloTries=0;reconnTries=0;intentional=false;lastState=null;
-  el.chatList.innerHTML='';el.bgBtn.classList.add('hidden');
-  stopDirectoryPolling();showView(el.roomView);
-  renderSafe(placeholderState());
-  setConn('','جارٍ الاتصال…');
-  armStateWatchdog();
-  peer=new Peer(PREFIX+'u'+genCode(),ICE);
-  peer.on('open',()=>{
-    try{
-      hostConn=peer.connect(PREFIX+code,{reliable:true});
-      attachHostConn();
-    }catch(e){toast('تعذر بدء الاتصال');exitToLobby();}
-  });
-  peer.on('call',call=>{
-    call.answer();
-    call.on('stream',s=>{el.remoteAudio.srcObject=s;el.remoteAudio.play().catch(()=>{});checkAudio();});
-  });
-  peer.on('error',err=>{
-    if(err.type==='peer-unavailable'){toast('الروم غير موجود أو أُغلق');exitToLobby();}
-    else if(err.type==='network'){setConn('err','مشكلة شبكة');}
-  });
-}
-function attachHostConn(){
-  hostConn.on('open',()=>{setConn('','جارٍ الاتصال…');helloTries=0;sendHello();});
-  hostConn.on('data',d=>{try{onHostData(d);}catch(err){console.error('client data',err);}});
-  hostConn.on('close',()=>{
-    if(mode!=='client'||intentional)return;
-    setConn('err','انقطع — إعادة الاتصال…');
-    tryReconnect();
-  });
-  hostConn.on('error',()=>{
-    if(mode!=='client'||intentional)return;
-    setConn('err','خطأ بالاتصال…');
-  });
-}
-function sendHello(){
-  if(welcomed||mode!=='client')return;
-  if(hostConn&&hostConn.open){
-    try{hostConn.send({t:'hello',user});}catch(e){}
-  }
-  helloTries++;
-  clearTimeout(helloTimer);
-  if(helloTries>=10){if(!welcomed){toast('تعذر الاتصال بالروم');exitToLobby();}return;}
-  helloTimer=setTimeout(()=>{if(!welcomed)sendHello();},1800);
-}
-function armStateWatchdog(){
-  clearTimeout(stateTimer);
-  stateTimer=setTimeout(()=>{
-    if(mode!=='client'||gotState||intentional)return;
-    quietSend({t:'reqState'});
-    armStateWatchdog();
-  },3000);
-}
-function quietSend(o){
-  if(mode!=='client'||!hostConn||!hostConn.open)return false;
-  try{hostConn.send(o);return true;}catch(e){return false;}
-}
-function tryReconnect(){
-  if(intentional||mode!=='client')return;
-  if(reconnTries>=3){toast('تعذر الوصول للروم');exitToLobby();return;}
-  reconnTries++;
-  setTimeout(()=>{
-    if(intentional||mode!=='client'||!peer||peer.destroyed)return;
-    try{
-      hostConn=peer.connect(PREFIX+roomCode,{reliable:true});
-      attachHostConn();
-    }catch(e){tryReconnect();}
-  },1200);
-}
-function safeSend(o){
-  if(mode!=='client')return false;
-  if(!hostConn||!hostConn.open){toast('الاتصال بالروم مفقود…');return false;}
-  try{hostConn.send(o);return true;}catch(e){toast('فشل الإرسال — أعد المحاولة');return false;}
-}
-function onHostData(d){
-  switch(d.t){
-    case 'welcome':
-      welcomed=true;clearTimeout(helloTimer);myPid=d.pid;
-      if(!gotState)setConn('','بانتظار بيانات الروم…');
-      quietSend({t:'reqState'});
-      break;
-    case 'state':{
-      const first=!gotState;
-      gotState=true;clearTimeout(stateTimer);
-      if(first){setConn('ok','متصل');toast('تم الاتصال بالروم');}
-      renderSafe(d);
-      break;
-    }
-    case 'chat':appendChat(d);break;
-    case 'levels':d.arr.forEach((v,i)=>{if(slotEls[i])slotEls[i].style.setProperty('--lvl',v||0);});break;
-    case 'deny':toast('تعذر أخذ الخانة — سُبقت إليها');stopMicLocal();pendingSlot=-1;break;
-    case 'closed':toast('أُغلق الروم');exitToLobby();break;
-  }
-}
-
-/* ══════════ عرض الروم ══════════ */
-function isMine(pid){return mode==='host'?(peer&&pid===peer.id):pid===myPid;}
-function renderRoom(st){
-  lastState=st;
-  el.roomTitle.textContent=st.name;
-  el.stage.className='stage bg-'+st.bg;
-  el.hostName.textContent=st.host.name;
-  el.hostAv.style.setProperty('--c',st.host.color);
-  const lsCount=st.listeners.length+1;
-  el.lsNum.textContent=lsCount;
-  el.lsNum2.textContent=lsCount;
-  el.onlineCount.textContent=lsCount+' متصل';
-  el.slots.innerHTML='';slotEls=[];
-  let myIdx=-1;
-  st.slots.forEach((s,i)=>{
-    const b=document.createElement('button');b.type='button';
-    if(s){
-      if(isMine(s.pid))myIdx=i;
-      b.className='slot occupied';b.style.setProperty('--lvl',0);
-      b.innerHTML=
-        '<span class="st'+(s.muted?' off':'')+'">'+icon(s.muted?'mic-off':'mic')+'</span>'
-        +'<span class="av" style="--c:'+esc(s.user.color)+'">'+icon('user')+'</span>'
-        +'<span class="nm">'+esc(s.user.name)+(isMine(s.pid)?' <i>(أنت)</i>':'')+'</span>'
-        +(mode==='host'&&!isMine(s.pid)?'<button class="act" data-act="kick" title="إنزاله">'+icon('down')+'</button>':'')
-        +(isMine(s.pid)?'<button class="act x" data-act="down" title="النزول">'+icon('x')+'</button>':'');
-      const av=b.querySelector('.av');
-      av.addEventListener('click',e=>{e.stopPropagation();openProfile(s.user,st.host&&s.user.name===st.host.name);});
-      const kick=b.querySelector('[data-act=kick]');
-      if(kick)kick.addEventListener('click',e=>{e.stopPropagation();kickSlot(i);});
-      const down=b.querySelector('[data-act=down]');
-      if(down)down.addEventListener('click',e=>{e.stopPropagation();leaveSlot();});
-    }else{
-      b.className='slot empty';
-      b.innerHTML=icon('plus')+'<span class="lb">اعتلِ المسرح</span>';
-      b.addEventListener('click',()=>requestStage(i));
-    }
-    el.slots.appendChild(b);slotEls.push(b);
-  });
-  el.stageCtrls.classList.toggle('hidden',myIdx<0);
-  el.lsAvatars.innerHTML='';
-  st.listeners.slice(0,9).forEach(u=>{
-    const a=document.createElement('span');a.className='av';a.style.setProperty('--c',u.color);
-    a.innerHTML=icon('user');a.title=u.name;
-    a.addEventListener('click',()=>openProfile(u,false));
-    el.lsAvatars.appendChild(a);
-  });
-  if(st.listeners.length>9){
-    const m=document.createElement('span');m.className='av';m.style.setProperty('--c','#a8977f');
-    m.innerHTML='<b>+</b>';el.lsAvatars.appendChild(m);
-  }
-  document.querySelectorAll('.sw').forEach((sw,i)=>sw.classList.toggle('active',i+1===st.bg));
-  if(mode==='client'&&myIdx>=0&&micStream&&!micCall)openSpeakerCall();
+function addRemote(pid,stream){
+  const ctx=ensureCtx();if(!ctx)return;
+  removeRemote(pid);
+  const src=ctx.createMediaStreamSource(stream);
+  const gain=ctx.createGain();gain.gain.value=1;
+  const an=ctx.createAnalyser();an.fftSize=256;
+  src.connect(gain);gain.connect(an);an.connect(ctx.destination);
+  remotes.set(pid,{src:src,gain:gain,an:an,data:new Uint8Array(an.frequencyBinCount)});
   checkAudio();
 }
-
-/* ══════════ صوت المستمع ══════════ */
+function removeRemote(pid){
+  const r=remotes.get(pid);if(!r)return;
+  try{r.src.disconnect();r.gain.disconnect();r.an.disconnect();}catch(e){}
+  remotes.delete(pid);checkAudio();
+}
+function drawLevels(){
+  if(!inRoom)return;
+  slotEls.forEach((elm,i)=>{
+    const s=state.slots[i];if(!elm||!s)return;
+    let v=0;
+    if(s.pid===myPid&&micAn){micAn.getByteFrequencyData(micData);let sum=0;for(let k=2;k<40;k++)sum+=micData[k];v=(sum/38/255)*1.7;}
+    else{const r=remotes.get(s.pid);if(r){r.an.getByteFrequencyData(r.data);let sum=0;for(let k=2;k<40;k++)sum+=r.data[k];v=(sum/38/255)*1.7;}}
+    elm.style.setProperty('--lvl',v<.07?0:Math.min(1,v));
+  });
+}
 function checkAudio(){
-  const a=el.remoteAudio;
-  const need=(mode==='client')&&a.srcObject&&a.paused;
+  const need=inRoom&&remotes.size>0&&actx&&actx.state==='suspended';
   el.audioBtn.classList.toggle('hidden',!need);
 }
-el.remoteAudio.addEventListener('play',checkAudio);
-el.remoteAudio.addEventListener('pause',checkAudio);
-el.audioBtn.addEventListener('click',()=>{resumeAudio();el.remoteAudio.play().then(checkAudio).catch(()=>{});});
+el.audioBtn.addEventListener('click',()=>{ensureCtx();checkAudio();});
 
-/* ══════════ المايكروفون ══════════ */
+/* ══════════ المايك ══════════ */
 async function getMicStream(){
   if(!window.isSecureContext||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw {name:'InsecureError'};
-  try{
-    const st=await navigator.permissions.query({name:'microphone'});
-    if(st.state==='denied')throw {name:'DeniedBefore'};
-  }catch(e){if(e.name==='DeniedBefore')throw e;}
+  try{const st=await navigator.permissions.query({name:'microphone'});if(st.state==='denied')throw {name:'DeniedBefore'};}
+  catch(e){if(e.name==='DeniedBefore')throw e;}
   return navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
 }
 function requestStage(i){
-  const hostOnStage=mode==='host'&&peer&&slotOf(peer.id)>=0;
-  if(hostOnStage){toast('أنت على المسرح بالفعل');return;}
+  if(mySlotIndex()>=0){toast('أنت على المسرح بالفعل');return;}
   pendingSlot=i;el.micModal.classList.remove('hidden');
 }
 el.micCancel.addEventListener('click',()=>{el.micModal.classList.add('hidden');pendingSlot=-1;});
@@ -945,38 +877,30 @@ el.micAllow.addEventListener('click',async()=>{
   try{
     micStream=await getMicStream();
     micTrack=micStream.getAudioTracks()[0];
-    if(mode==='host'){
-      if(slots[i]){stopMicLocal();toast('الخانة انأخذت');return;}
-      slots[i]={pid:peer.id,user:sanitizeUser(user),muted:false};
-      addSpeaker(peer.id,micStream,true,null);
-      sysChat('اعتليت المسرح');
-      broadcastState();pendingSlot=-1;
-    }else{
-      if(!safeSend({t:'take',i})){stopMicLocal();pendingSlot=-1;}
-    }
+    const ctx=ensureCtx();
+    const src=ctx.createMediaStreamSource(micStream);
+    micAn=ctx.createAnalyser();micAn.fftSize=256;src.connect(micAn);
+    micData=new Uint8Array(micAn.frequencyBinCount);
+    const msg={t:'claim',id:mid(),i:i,pid:myPid,user:user,ts:Date.now()};
+    seenMsg.add(msg.id);
+    applyClaim(msg,false);renderAll();
+    broadcastMesh(msg);
+    conns.forEach((c,pid)=>{if(c.open)callPeerWithMic(pid);});
+    pendingSlot=-1;
   }catch(err){stopMicLocal();pendingSlot=-1;showMicError(err);}
 });
-function openSpeakerCall(){
-  micCall=peer.call(PREFIX+roomCode,micStream,{metadata:{t:'speaker'}});
-  micCall.on('close',()=>{if(micStream){toast('أُزلت من المسرح');stopMicLocal();}});
-}
 function leaveSlot(){
-  if(mode==='host'){const i=peer?slotOf(peer.id):-1;if(i>=0)freeSlot(i);}
-  else safeSend({t:'leave'});
+  const i=mySlotIndex();if(i<0)return;
+  state.slots[i]=null;
+  callsOut.forEach(c=>{try{c.close();}catch(e){}});callsOut.clear();
   stopMicLocal();
-}
-function kickSlot(i){
-  if(mode!=='host')return;
-  const s=slots[i];if(!s)return;
-  removeSpeaker(s.pid);slots[i]=null;
-  const p=participants.get(s.pid);if(p)p.slot=-1;
-  sysChat('أُنزل '+s.user.name+' من المسرح');
-  broadcastState();
+  broadcastMesh({t:'slotLeave',id:mid(),pid:myPid,ts:Date.now()});
+  sysLocal('نزلت من المسرح');
+  renderAll();
 }
 function stopMicLocal(){
   if(micTrack){try{micTrack.stop();}catch(e){}}
-  if(micCall){try{micCall.close();}catch(e){}}
-  micStream=null;micTrack=null;micCall=null;
+  micStream=null;micTrack=null;micAn=null;micData=null;
   setMuteBtn(false);
 }
 function setMuteBtn(m){
@@ -989,101 +913,142 @@ el.muteToggle.addEventListener('click',()=>{
   micTrack.enabled=!micTrack.enabled;
   const m=!micTrack.enabled;
   setMuteBtn(m);
-  if(mode==='host'){
-    const i=slotOf(peer.id);
-    if(i>=0){slots[i].muted=m;const n=speakerNodes.get(peer.id);if(n)n.gain.gain.value=m?0:1;broadcastState();}
-  }else safeSend({t:'mute',m});
+  const s=state.slots.find(x=>x&&x.pid===myPid);if(s)s.muted=m;
+  broadcastMesh({t:'mute',id:mid(),pid:myPid,m:m,ts:Date.now()});
+  renderAll();
 });
 function showMicError(err){
   let title='تعذر تشغيل المايكروفون',tips=[];
-  const name=err&&err.name;
-  if(name==='InsecureError'){
-    title='المتصفح يمنع المايكروفون هنا';
-    tips=['الصفحة مفتوحة كملف مباشر أو عبر اتصال غير آمن.',
-      'شغّل: python -m http.server 8000 ثم افتح localhost:8000',
-      'أو ارفع الملف على استضافة HTTPS مثل Netlify'];
-  }else if(name==='DeniedBefore'){
-    title='الإذن مرفوض سابقًا';
-    tips=['سبق أن رفضت الإذن، لذلك لن يظهر الطلب مجددًا.',
-      'اضغط أيقونة القفل في شريط العنوان',
-      'فعّل المايكروفون أو أعد تعيين الأذونات',
-      'أعد تحميل الصفحة ثم جرّب مرة أخرى'];
-  }else if(name==='NotAllowedError'||name==='SecurityError'){
-    tips=['اضغط أيقونة القفل في شريط العنوان','فعّل إذن المايكروفون ثم أعد التحميل'];
-  }else if(name==='NotFoundError'){
-    tips=['لا يوجد مايكروفون متصل بالجهاز'];
-  }else if(name==='NotReadableError'){
-    tips=['المايكروفون مشغول من تطبيق آخر — أغلقه ثم أعد المحاولة'];
-  }else{
-    tips=['حدث خطأ غير متوقع — جرّب إعادة التحميل أو متصفح Chrome/Edge'];
-  }
+  const n=err&&err.name;
+  if(n==='InsecureError'){title='المتصفح يمنع المايكروفون هنا';tips=['الصفحة عبر اتصال غير آمن.','شغّل: python -m http.server 8000 ثم افتح localhost:8000','أو ارفعها على استضافة HTTPS مثل Netlify'];}
+  else if(n==='DeniedBefore'){title='الإذن مرفوض سابقًا';tips=['سبق أن رفضت الإذن فلن يظهر الطلب مجددًا.','اضغط أيقونة القفل في شريط العنوان','فعّل المايكروفون أو أعد تعيين الأذونات','أعد تحميل الصفحة ثم جرّب'];}
+  else if(n==='NotAllowedError'||n==='SecurityError'){tips=['اضغط أيقونة القفل في شريط العنوان','فعّل إذن المايكروفون ثم أعد التحميل'];}
+  else if(n==='NotFoundError'){tips=['لا يوجد مايكروفون متصل بالجهاز'];}
+  else if(n==='NotReadableError'){tips=['المايكروفون مشغول من تطبيق آخر'];}
+  else{tips=['خطأ غير متوقع — جرّب إعادة التحميل أو Chrome/Edge'];}
   el.micErrTitle.textContent=title;
   el.micErrTips.innerHTML=tips.map(t=>'<li>'+esc(t)+'</li>').join('');
   el.micErrModal.classList.remove('hidden');
 }
 el.micErrClose.addEventListener('click',()=>el.micErrModal.classList.add('hidden'));
 
+/* ══════════ المدير ══════════ */
+function managerPid(){
+  const arr=[...roster.entries()].sort((a,b)=>(a[1].joinTs-b[1].joinTs)||(a[0]<b[0]?-1:1));
+  return arr.length?arr[0][0]:null;
+}
+function isManager(){return managerPid()===myPid;}
+
+/* ══════════ العرض ══════════ */
+function renderAll(){renderBar();renderStage();}
+function renderBar(){
+  el.roomTitle.textContent=roomMeta.name||('روم '+roomCode);
+  const mp=managerPid(), mr=mp?roster.get(mp):null;
+  if(mr){setAv(el.hostAv,mr.user);el.hostName.textContent=mr.user.name+(mp===myPid?' (أنت)':'');}
+  const speakers=state.slots.filter(Boolean).length;
+  el.lsNum.textContent=roster.size;
+  el.lsNum2.textContent=Math.max(0,roster.size-speakers);
+  el.onlineCount.textContent=roster.size+' متصل';
+  el.bgBtn.classList.toggle('hidden',!isManager());
+  if(!isManager())el.bgPicker.classList.add('hidden');
+}
+function renderStage(){
+  el.stage.className='stage bg-'+state.bg.v;
+  el.slots.innerHTML='';slotEls=[];
+  const myIdx=mySlotIndex();
+  state.slots.forEach((s,i)=>{
+    const b=document.createElement('button');b.type='button';
+    if(s){
+      b.className='slot occupied';b.style.setProperty('--lvl',0);
+      b.innerHTML=
+        '<span class="st'+(s.muted?' off':'')+'">'+icon(s.muted?'mic-off':'mic')+'</span>'
+        +'<span class="av"></span>'
+        +'<span class="nm">'+esc(s.user.name)+(s.pid===myPid?' <i>(أنت)</i>':'')+'</span>'
+        +(isManager()&&s.pid!==myPid?'<button class="act" data-act="kick" title="إنزاله">'+icon('down')+'</button>':'')
+        +(s.pid===myPid?'<button class="act x" data-act="down" title="النزول">'+icon('x')+'</button>':'');
+      setAv(b.querySelector('.av'),s.user);
+      b.querySelector('.av').addEventListener('click',e=>{e.stopPropagation();openProfile(s.user,s.pid===managerPid());});
+      const k=b.querySelector('[data-act=kick]');
+      if(k)k.addEventListener('click',e=>{
+        e.stopPropagation();
+        broadcastMesh({t:'kick',id:mid(),pid:s.pid,ts:Date.now()});
+        kicked.add(s.pid);onPeerGone(s.pid);renderAll();
+      });
+      const d=b.querySelector('[data-act=down]');
+      if(d)d.addEventListener('click',e=>{e.stopPropagation();leaveSlot();});
+    }else{
+      b.className='slot empty';
+      b.innerHTML=icon('plus')+'<span class="lb">اعتلِ المسرح</span>';
+      b.addEventListener('click',()=>requestStage(i));
+    }
+    el.slots.appendChild(b);slotEls.push(b);
+  });
+  el.stageCtrls.classList.toggle('hidden',myIdx<0);
+  el.lsAvatars.innerHTML='';
+  const onStagePids=new Set(state.slots.filter(Boolean).map(s=>s.pid));
+  const lsArr=[...roster.entries()].filter(([pid])=>!onStagePids.has(pid)).map(e=>e[1]);
+  lsArr.slice(0,9).forEach(r=>{
+    const a=document.createElement('span');a.className='av';setAv(a,r.user);a.title=r.user.name;
+    a.addEventListener('click',()=>openProfile(r.user,false));
+    el.lsAvatars.appendChild(a);
+  });
+  if(lsArr.length>9){const m=document.createElement('span');m.className='av';m.style.setProperty('--c','#a8977f');m.innerHTML='<b>+</b>';el.lsAvatars.appendChild(m);}
+  document.querySelectorAll('.sw').forEach((sw,i)=>sw.classList.toggle('active',i+1===state.bg.v));
+}
+
 /* ══════════ الشات ══════════ */
 function appendChat(m){
   const li=document.createElement('li');
   if(m.sys){li.className='msg sys';li.textContent=m.text;}
   else{
+    const u=sanitizeUser(m.user);
     li.className='msg';
-    const u=sanitizeUser(m);
-    const av=document.createElement('span');av.className='av';
-    av.style.setProperty('--c',u.color);av.innerHTML=icon('user');
-    av.title=u.name;
-    av.addEventListener('click',()=>openProfile(u,!!m.host));
+    const av=document.createElement('span');av.className='av';setAv(av,u);av.title=u.name;
+    av.addEventListener('click',()=>openProfile(u,m.pid===managerPid()));
     const body=document.createElement('div');body.className='body';
     const mtop=document.createElement('div');mtop.className='mtop';
     const b=document.createElement('b');b.textContent=u.name;b.style.color=u.color;
     mtop.appendChild(b);
-    if(m.host){const tag=document.createElement('span');tag.className='host-tag';tag.textContent='المضيف';mtop.appendChild(tag);}
+    if(m.pid===managerPid()){const tag=document.createElement('span');tag.className='host-tag';tag.textContent='المدير';mtop.appendChild(tag);}
     const p=document.createElement('p');p.textContent=m.text;
     body.append(mtop,p);li.append(av,body);
   }
   el.chatList.appendChild(li);
   el.chatList.scrollTop=el.chatList.scrollHeight;
 }
-function sysChat(text){
-  appendChat({sys:true,text});
-  if(mode==='host')broadcast({t:'chat',sys:true,text});
-}
+function sysLocal(text){appendChat({sys:true,text});}
 el.chatForm.addEventListener('submit',e=>{
   e.preventDefault();
   const text=el.chatInput.value.trim();if(!text)return;
-  if(mode==='host'){
-    el.chatInput.value='';
-    const m=Object.assign({},sanitizeUser(user),{host:true,text});
-    appendChat(m);broadcast({t:'chat',...m});
-  }else{
-    if(safeSend({t:'chat',text}))el.chatInput.value='';
-  }
+  el.chatInput.value='';
+  const m={t:'chat',id:mid(),pid:myPid,user:user,text:text,ts:Date.now()};
+  seenMsg.add(m.id);
+  appendChat(m);
+  broadcastMesh(m);
 });
 
 /* ══════════ الموجودون ══════════ */
 function openPeople(){
-  const st=lastState||(mode==='host'?buildState():null);
-  if(!st)return;
   el.peopleList.innerHTML='';
-  const total=st.listeners.length+1;
-  el.peopleCount.textContent='('+total+')';
-  const hostOnStage=st.slots.some(s=>s&&s.user.name===st.host.name);
-  addPersonRow(st.host, hostOnStage?'المضيف · متحدث':'المضيف', true);
-  st.slots.forEach(s=>{
-    if(s&&s.user.name!==st.host.name)addPersonRow(s.user,'متحدث',false);
+  el.peopleCount.textContent='('+roster.size+')';
+  const mp=managerPid();
+  const onStage=new Set(state.slots.filter(Boolean).map(s=>s.pid));
+  [...roster.entries()].sort((a,b)=>a[1].joinTs-b[1].joinTs).forEach(([pid,r])=>{
+    let role='مستمع';
+    if(pid===mp)role=onStage.has(pid)?'المدير · متحدث':'المدير';
+    else if(onStage.has(pid))role='متحدث';
+    if(roomMeta.owner&&r.user.name===roomMeta.owner&&pid!==mp)role+=' · المالك';
+    addPersonRow(r.user,role,pid===mp);
   });
-  st.listeners.forEach(u=>addPersonRow(u,'مستمع',false));
   el.peopleModal.classList.remove('hidden');
 }
-function addPersonRow(u,role,isHost){
+function addPersonRow(u,role,isMgr){
   const r=document.createElement('button');r.type='button';r.className='ppl-row';
-  const av=document.createElement('span');av.className='av';
-  av.style.setProperty('--c',u.color);av.innerHTML=icon('user');
+  const av=document.createElement('span');av.className='av';setAv(av,u);
   const nm=document.createElement('span');nm.className='nm';nm.textContent=u.name+(user&&u.name===user.name?' (أنت)':'');
   const rl=document.createElement('span');rl.className='role';rl.textContent=role;
   r.append(av,nm,rl);
-  r.addEventListener('click',()=>{el.peopleModal.classList.add('hidden');openProfile(u,isHost);});
+  r.addEventListener('click',()=>{el.peopleModal.classList.add('hidden');openProfile(u,isMgr);});
   el.peopleList.appendChild(r);
 }
 el.lsCount.addEventListener('click',openPeople);
@@ -1091,43 +1056,33 @@ el.lsLabel.addEventListener('click',openPeople);
 el.peopleClose.addEventListener('click',()=>el.peopleModal.classList.add('hidden'));
 
 /* ══════════ البروفايل ══════════ */
-function openProfile(u,isHostUser){
+function openProfile(u,isMgr){
   u=sanitizeUser(u);
-  el.pfAv.style.setProperty('--c',u.color);
+  setAv(el.pfAv,u);
   el.pfName.textContent=u.name;
-  el.pfBadge.classList.toggle('hidden',!isHostUser);
+  el.pfBadge.classList.toggle('hidden',!isMgr);
   el.pfRows.innerHTML='';
-  if(u.gender){
-    const r=document.createElement('div');r.className='pf-row';
-    r.innerHTML=icon('user')+(u.gender==='m'?'ذكر':'أنثى');
-    el.pfRows.appendChild(r);
-  }
-  if(u.birth){
-    const a=ageOf(u.birth);
-    const r=document.createElement('div');r.className='pf-row';
-    r.innerHTML=icon('cal')+fmtDate(u.birth)+(a!=null?' — '+a+' سنة':'');
-    el.pfRows.appendChild(r);
-  }
-  if(!u.gender&&!u.birth){
-    const r=document.createElement('div');r.className='pf-row';r.textContent='لا توجد تفاصيل';
-    el.pfRows.appendChild(r);
-  }
+  if(u.gender){const r=document.createElement('div');r.className='pf-row';r.innerHTML=icon('user')+(u.gender==='m'?'ذكر':'أنثى');el.pfRows.appendChild(r);}
+  if(u.birth){const a=ageOf(u.birth);const r=document.createElement('div');r.className='pf-row';r.innerHTML=icon('cal')+fmtDate(u.birth)+(a!=null?' — '+a+' سنة':'');el.pfRows.appendChild(r);}
+  if(!u.gender&&!u.birth){const r=document.createElement('div');r.className='pf-row';r.textContent='لا توجد تفاصيل';el.pfRows.appendChild(r);}
   el.pfBio.textContent=u.bio;
   el.pfBio.classList.toggle('hidden',!u.bio);
-  el.pfEdit.classList.toggle('hidden',!(user&&u.name===user.name));
+  el.pfEdit.classList.toggle('hidden',!(user&&u.name===u.name));
   el.profileModal.classList.remove('hidden');
 }
 el.pfClose.addEventListener('click',()=>el.profileModal.classList.add('hidden'));
 el.pfEdit.addEventListener('click',()=>{el.profileModal.classList.add('hidden');openEdit();});
-el.hostChip.addEventListener('click',()=>{if(lastState)openProfile(lastState.host,true);});
+el.hostChip.addEventListener('click',()=>{const mp=managerPid();if(mp&&roster.get(mp))openProfile(roster.get(mp).user,true);});
 
 function openEdit(){
-  editGender=user.gender||'';
-  syncGenderPills();
+  pendingAvatar=user.avatar||'';
+  refreshAvPrev();
+  editGender=user.gender||'';syncGenderPills();
   el.birthInput.value=user.birth||'';
   el.bioInput.value=user.bio||'';
   el.editModal.classList.remove('hidden');
 }
+function refreshAvPrev(){setAv(el.avPrev,Object.assign({},user,{avatar:pendingAvatar}));}
 function syncGenderPills(){
   el.gM.classList.toggle('active',editGender==='m');
   el.gF.classList.toggle('active',editGender==='f');
@@ -1136,70 +1091,84 @@ function syncGenderPills(){
 el.gM.addEventListener('click',()=>{editGender='m';syncGenderPills();});
 el.gF.addEventListener('click',()=>{editGender='f';syncGenderPills();});
 el.gN.addEventListener('click',()=>{editGender='';syncGenderPills();});
+el.avPick.addEventListener('click',()=>el.avFile.click());
+el.avRemove.addEventListener('click',()=>{pendingAvatar='';refreshAvPrev();});
+el.avFile.addEventListener('change',e=>{
+  const f=e.target.files&&e.target.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    const img=new Image();
+    img.onload=()=>{
+      const c=document.createElement('canvas');c.width=64;c.height=64;
+      c.getContext('2d').drawImage(img,0,0,64,64);
+      pendingAvatar=c.toDataURL('image/jpeg',0.62);
+      refreshAvPrev();
+    };
+    img.src=rd.result;
+  };
+  rd.readAsDataURL(f);
+  e.target.value='';
+});
 el.editCancel.addEventListener('click',()=>el.editModal.classList.add('hidden'));
 el.editForm.addEventListener('submit',e=>{
   e.preventDefault();
   user.gender=editGender;
   user.birth=el.birthInput.value||'';
   user.bio=el.bioInput.value.trim().slice(0,120);
-  saveUser();
+  user.avatar=pendingAvatar||'';
+  user=sanitizeUser(user);
+  localStorage.setItem('sada-user',JSON.stringify(user));
   el.editModal.classList.add('hidden');
-  el.lobbyAv.style.setProperty('--c',user.color);
-  el.lobbyName.textContent=user.name;
-  if(mode==='host')broadcastState();
-  else if(mode==='client')safeSend({t:'profile',user});
+  setAv(el.lobbyAv,user);el.lobbyName.textContent=user.name;
+  const r=roster.get(myPid);if(r)r.user=user;
+  const s=state.slots.find(x=>x&&x.pid===myPid);if(s)s.user=user;
+  if(inRoom)broadcastMesh({t:'profile',id:mid(),pid:myPid,user:user,ts:Date.now()});
+  renderAll();
   toast('تم حفظ ملفك');
 });
 
-/* ══════════ الخلفيات ══════════ */
+/* ══════════ الخلفيات (المدير) ══════════ */
 BG_NAMES.forEach((n,i)=>{
   const b=document.createElement('button');b.type='button';b.className='sw bg-'+(i+1);
   b.innerHTML='<span>'+esc(n)+'</span>';
   b.addEventListener('click',()=>{
-    if(mode!=='host')return;
-    bgId=i+1;broadcastState();toast('تغيّرت الخلفية عند الجميع');
+    if(!isManager())return;
+    state.bg={v:i+1,ts:Date.now()};
+    broadcastMesh({t:'bg',id:mid(),v:i+1,ts:state.bg.ts});
+    toast('تغيّرت الخلفية عند الجميع');
     el.bgPicker.classList.add('hidden');
+    renderAll();
   });
   el.swatches.appendChild(b);
 });
 el.bgBtn.addEventListener('click',()=>el.bgPicker.classList.toggle('hidden'));
 
 /* ══════════ مغادرة ══════════ */
-el.leaveBtn.addEventListener('click',()=>{
+el.leaveBtn.addEventListener('click',leaveRoom);
+function leaveRoom(){
   intentional=true;
-  if(mode==='host')announce(true);
-  exitToLobby();
-});
-function exitToLobby(){
-  intentional=true;
-  clearTimeout(helloTimer);clearTimeout(stateTimer);
+  if(roster.size<=1)ntfyPost(DIR,{id:roomCode,closed:true,ts:Date.now()});
   cleanupRoom();
   showView(el.lobbyView);
-  startDirectoryPolling();
+  startDirPolling();
 }
 function cleanupRoom(){
-  clearInterval(heartbeatInt);clearInterval(levelsInt);clearInterval(stateInt);
-  heartbeatInt=levelsInt=stateInt=null;
+  clearInterval(hereInt);clearInterval(roomPollInt);clearInterval(lvlInt);
+  hereInt=roomPollInt=lvlInt=null;
+  broadcastMesh({t:'slotLeave',id:mid(),pid:myPid,ts:Date.now()});
+  callsOut.forEach(c=>{try{c.close();}catch(e){}});
+  callsIn.forEach(c=>{try{c.close();}catch(e){}});
+  conns.forEach(c=>{try{c.close();}catch(e){}});
+  [...remotes.keys()].forEach(removeRemote);
   stopMicLocal();
-  if(mode==='host'){
-    try{broadcast({t:'closed'});}catch(e){}
-    [...speakerNodes.keys()].forEach(pid=>removeSpeaker(pid));
-    if(mixCtx){try{mixCtx.close();}catch(e){}mixCtx=null;}
-  }
   if(peer){try{peer.destroy();}catch(e){}}
-  peer=null;hostConn=null;listenerCalls.clear();participants.clear();
-  slots=Array(8).fill(null);micStream=null;pendingSlot=-1;mode=null;lastState=null;
-  welcomed=false;gotState=false;
-  el.remoteAudio.srcObject=null;el.monitorAudio.srcObject=null;
-  el.bgPicker.classList.add('hidden');el.stageCtrls.classList.add('hidden');
-  el.audioBtn.classList.add('hidden');
+  peer=null;myPid=null;inRoom=false;
+  state={slots:Array(8).fill(null),bg:{v:1,ts:0}};
+  roster.clear();conns.clear();callsOut.clear();callsIn.clear();remotes.clear();
+  el.bgPicker.classList.add('hidden');el.stageCtrls.classList.add('hidden');el.audioBtn.classList.add('hidden');
 }
 window.addEventListener('pagehide',()=>{
-  if(mode==='host'&&roomCode){
-    try{fetch('https://ntfy.sh/'+TOPIC,{method:'POST',keepalive:true,
-      headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify({id:roomCode,closed:true,ts:Date.now()})});}catch(e){}
-  }
+  if(inRoom&&roster.size<=1)ntfyPost(DIR,{id:roomCode,closed:true,ts:Date.now()});
 });
 
 /* ══════════ الإقلاع ══════════ */
