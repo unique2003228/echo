@@ -42,7 +42,7 @@ h1,h2,h3{font-family:'Changa'}
 .btn:hover:not(:disabled){transform:translateY(-2px)}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .btn.primary{background:var(--red);color:#fff;box-shadow:0 8px 22px rgba(255,77,61,.25)}
-.btn.gold{background:var(--gold);color:#2b1c05}
+.btn.gold{background:var(--gold);color:#2b1c05;box-shadow:0 8px 22px rgba(255,194,75,.2)}
 .btn.ghost{background:transparent;color:var(--gold);border:1px solid rgba(255,194,75,.4)}
 .btn.ghost:hover{background:rgba(255,194,75,.08)}
 .btn.danger{background:transparent;color:var(--red);border:1px solid rgba(255,77,61,.5)}
@@ -51,14 +51,18 @@ h1,h2,h3{font-family:'Changa'}
 .btn.sm{min-height:37px;font-size:.86rem;padding:0 13px;border-radius:9px}
 .btn.icon{width:46px;padding:0}
 .btn.sm.icon{width:37px}
-input[type=text]{width:100%;background:#120d0a;border:1px solid var(--line);border-radius:11px;color:var(--text);
-  font-family:inherit;font-size:.95rem;padding:11px 15px;outline:none;transition:.2s;min-height:46px}
-input[type=text]:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,194,75,.14)}
-input::placeholder{color:#6d5c48}
+input[type=text],input[type=date]{width:100%;background:#120d0a;border:1px solid var(--line);border-radius:11px;color:var(--text);
+  font-family:inherit;font-size:.95rem;padding:11px 15px;outline:none;transition:.2s;min-height:46px;color-scheme:dark}
+input:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,194,75,.14)}
+input::placeholder,textarea::placeholder{color:#6d5c48}
+textarea{width:100%;background:#120d0a;border:1px solid var(--line);border-radius:11px;color:var(--text);
+  font-family:inherit;font-size:.92rem;padding:11px 15px;outline:none;resize:none;height:76px;line-height:1.8}
 .card{background:linear-gradient(180deg,rgba(34,26,21,.94),rgba(27,21,17,.94));border:1px solid var(--line);border-radius:15px;transition:border-color .25s}
-.av{width:42px;height:42px;border-radius:50%;display:inline-grid;place-items:center;flex-shrink:0;
-  background:color-mix(in srgb, var(--c) 20%, #120d0a);border:2px solid var(--c);color:var(--c)}
-.av .ic{width:55%;height:55%}
+.av{width:42px;height:42px;border-radius:50%;display:inline-grid;place-items:center;flex-shrink:0;cursor:pointer;
+  background:color-mix(in srgb, var(--c) 20%, #120d0a);border:2px solid var(--c);color:var(--c);transition:transform .15s}
+.av:hover{transform:scale(1.07)}
+.av .ic{width:55%;height:55%;pointer-events:none}
+.host-tag{font-size:.62rem;background:rgba(255,194,75,.16);color:var(--gold);border:1px solid rgba(255,194,75,.4);border-radius:99px;padding:2px 9px;font-family:'Changa';white-space:nowrap}
 
 /* ═══ الدخول ═══ */
 #authView{flex:1;min-height:0;display:flex}
@@ -76,8 +80,10 @@ input::placeholder{color:#6d5c48}
 .brand{display:flex;align-items:center;gap:9px;font-family:'Changa';font-weight:800;font-size:1.3rem;color:var(--gold)}
 .brand .ic{color:var(--red)}
 .spacer{flex:1}
-.user-chip{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:4px 15px 4px 5px}
-.user-chip .av{width:32px;height:32px}
+.user-chip{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:99px;
+  padding:4px 15px 4px 5px;cursor:pointer;transition:.2s}
+.user-chip:hover{border-color:var(--gold)}
+.user-chip .av{width:32px;height:32px;cursor:inherit}
 .user-chip .nm{font-weight:700;font-size:.88rem}
 .lobby-head{display:flex;align-items:center;gap:12px;flex-shrink:0}
 .lobby-head h2{font-size:1.35rem;font-weight:800;display:flex;align-items:center;gap:11px}
@@ -98,26 +104,34 @@ input::placeholder{color:#6d5c48}
 .rc-body{padding:12px 14px 14px}
 .rc-body h3{font-size:1.05rem;font-weight:700;margin-bottom:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rc-host{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--muted);margin-bottom:9px}
-.rc-host .av{width:24px;height:24px}
+.rc-host .av{width:24px;height:24px;cursor:default}
 .rc-meta{display:flex;gap:15px;font-size:.78rem;color:#d8c8ae;margin-bottom:11px}
 .rc-meta span{display:inline-flex;align-items:center;gap:6px}
 .rc-meta .ic{width:14px;height:14px;color:var(--gold)}
 .empty-state{text-align:center;color:var(--muted);padding:40px 20px;font-size:.95rem}
 .hint{font-size:.76rem;color:var(--muted)}
-.center{text-align:center}
 
 /* ═══ الروم ═══ */
 #roomView{flex:1;min-height:0;display:flex;flex-direction:column;gap:11px}
 .room-bar{display:flex;align-items:center;gap:11px;flex-wrap:wrap;padding:10px 14px;flex-shrink:0}
-.room-bar h2{font-size:1.15rem;font-weight:700;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.title-box{display:flex;flex-direction:column;gap:3px;min-width:0}
+.title-box h2{font-size:1.12rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+.host-chip{display:inline-flex;align-items:center;gap:6px;font-size:.7rem;color:var(--muted);background:none;border:none;
+  cursor:pointer;font-family:inherit;padding:0;transition:.2s;min-width:0}
+.host-chip:hover{color:var(--gold)}
+.host-chip .av{width:18px;height:18px;border-width:1.5px}
+.host-chip b{color:#d8c8ae;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+.count{display:inline-flex;align-items:center;gap:7px;font-size:.82rem;color:#d8c8ae;background:#120d0a;border:1px solid var(--line);
+  padding:6px 12px;border-radius:99px;cursor:pointer;transition:.2s;font-family:inherit}
+.count:hover{border-color:var(--gold)}
+.count .ic{width:14px;height:14px;color:var(--gold)}
 .live-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,77,61,.14);border:1px solid rgba(255,77,61,.5);
   color:var(--red);font-family:'Changa';font-weight:700;font-size:.76rem;padding:4px 12px;border-radius:99px}
-.count{display:inline-flex;align-items:center;gap:7px;font-size:.82rem;color:#d8c8ae;background:#120d0a;border:1px solid var(--line);padding:6px 12px;border-radius:99px}
-.count .ic{width:14px;height:14px;color:var(--gold)}
 .room-grid{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:11px}
 @media(max-width:820px){.room-grid{grid-template-columns:1fr;grid-template-rows:minmax(0,1.5fr) minmax(0,1fr)}}
-.stage-col{display:flex;flex-direction:column;min-height:0;position:relative}
-.stage{flex:1;min-height:0;overflow:hidden;border-radius:16px;border:1px solid var(--line);padding:16px;display:flex;flex-direction:column;gap:11px;transition:background .5s}
+.stage-col{display:flex;flex-direction:column;min-height:0}
+.stage{flex:1;min-height:0;overflow:hidden;border-radius:16px;border:1px solid var(--line);padding:16px;
+  display:flex;flex-direction:column;gap:11px;transition:background .5s;position:relative}
 .slots{flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:10px}
 .slot{position:relative;min-height:0;border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
   background:rgba(10,7,5,.55);border:1.5px solid rgba(245,234,217,.14);cursor:pointer;color:var(--text);font-family:inherit;
@@ -144,9 +158,16 @@ input::placeholder{color:#6d5c48}
 .ls-avs{display:flex}
 .ls-avs .av{width:30px;height:30px;margin-inline-start:-8px}
 .ls-avs .av:first-child{margin-inline-start:0}
-#lsLabel{font-size:.78rem;color:#d8c8ae;display:inline-flex;align-items:center;gap:7px}
+#lsLabel{font-size:.78rem;color:#d8c8ae;display:inline-flex;align-items:center;gap:7px;cursor:pointer;background:none;border:none;font-family:inherit}
+#lsLabel:hover{color:var(--gold)}
 #lsLabel .ic{width:14px;height:14px;color:var(--gold)}
-.bg-picker{position:absolute;top:10px;inset-inline:10px;z-index:6;padding:14px;box-shadow:0 18px 50px rgba(0,0,0,.55)}
+
+/* زر الخلفية الجديد (داخل المسرح) */
+.bg-fab{position:absolute;bottom:14px;inset-inline-start:14px;z-index:5;min-height:44px;border-radius:99px;padding:0 20px;
+  background:linear-gradient(135deg,var(--gold),#ff8f3d);color:#2b1c05;font-family:'Changa';font-weight:800;font-size:.92rem;
+  border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 10px 26px rgba(255,143,61,.35);transition:.2s}
+.bg-fab:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(255,143,61,.45)}
+.bg-picker{position:absolute;bottom:68px;inset-inline:14px;z-index:6;padding:14px;box-shadow:0 18px 50px rgba(0,0,0,.55)}
 .card-tag{font-family:'Changa';font-weight:700;color:var(--gold);margin-bottom:10px;font-size:.86rem;display:flex;align-items:center;gap:8px}
 .swatches{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
 @media(max-width:700px){.swatches{grid-template-columns:repeat(4,1fr)}}
@@ -154,6 +175,9 @@ input::placeholder{color:#6d5c48}
 .sw:hover{transform:translateY(-2px)}
 .sw.active{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,194,75,.25)}
 .sw span{position:absolute;bottom:0;inset-inline:0;background:rgba(0,0,0,.55);font-size:.58rem;padding:2px 6px;color:var(--text);font-family:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.audio-cta{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:5;min-height:40px;border-radius:99px;padding:0 20px;
+  background:var(--gold);color:#2b1c05;font-family:'Changa';font-weight:800;font-size:.88rem;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(255,194,75,.4);animation:blink 1.6s infinite}
 
 /* ═══ الشات ═══ */
 .chat-col{height:100%;min-height:0;display:flex;flex-direction:column;padding:14px}
@@ -166,12 +190,14 @@ input::placeholder{color:#6d5c48}
 .msg{display:flex;gap:8px;animation:slideIn .25s}
 .msg .av{width:29px;height:29px}
 .msg .body{min-width:0}
-.msg b{font-size:.76rem;display:block;margin-bottom:1px}
+.msg .mtop{display:flex;align-items:center;gap:6px;margin-bottom:1px}
+.msg b{font-size:.76rem}
 .msg p{font-size:.84rem;line-height:1.65;word-wrap:break-word;color:#efe3cf}
 .msg.sys{justify-content:center;color:var(--muted);font-size:.72rem;text-align:center}
 @keyframes slideIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
 #chatForm{display:flex;gap:8px;margin-top:10px;flex-shrink:0}
-#chatForm input{flex:1;min-height:44px}
+#chatForm input{flex:1;min-height:46px}
+#chatForm .btn{padding:0 18px}
 
 /* ═══ الخلفيات ═══ */
 .bg-1{background-color:#0b1120;background-image:radial-gradient(2px 2px at 18% 25%,#ffffffaa 40%,transparent 45%),radial-gradient(1.5px 1.5px at 68% 15%,#ffffff88 40%,transparent 45%),radial-gradient(2px 2px at 85% 55%,#ffffff77 40%,transparent 45%),radial-gradient(620px 300px at 70% 115%,rgba(45,80,140,.5),transparent)}
@@ -183,16 +209,43 @@ input::placeholder{color:#6d5c48}
 .bg-7{background-color:#0c1710;background-image:linear-gradient(115deg,rgba(90,212,138,.13) 0 2px,transparent 2px 92px),radial-gradient(520px 300px at 12% 0%,rgba(90,212,138,.2),transparent)}
 .bg-8{background-color:#151009;background-image:radial-gradient(440px 250px at 50% -6%,rgba(255,194,75,.42),transparent 72%),radial-gradient(2px 2px at 30% 62%,rgba(255,194,75,.5) 40%,transparent 45%),radial-gradient(2px 2px at 72% 40%,rgba(255,194,75,.4) 40%,transparent 45%)}
 
-/* ═══ نوافذ ═══ */
+/* ═══ النوافذ ═══ */
 .modal{position:fixed;inset:0;z-index:60;background:rgba(8,5,3,.8);backdrop-filter:blur(4px);display:grid;place-items:center;padding:20px;animation:fadeIn .25s}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.modal-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px 32px;max-width:440px;width:100%;text-align:center;box-shadow:0 26px 70px rgba(0,0,0,.55)}
+.modal-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px 30px;max-width:440px;width:100%;text-align:center;box-shadow:0 26px 70px rgba(0,0,0,.55);max-height:92dvh;overflow-y:auto}
 .modal-card .big-ic{width:50px;height:50px;color:var(--gold);margin:0 auto 12px;display:block}
-.modal-card h3{font-size:1.3rem;font-weight:700;margin-bottom:8px}
+.modal-card h3{font-size:1.25rem;font-weight:700;margin-bottom:8px}
 .modal-card>p{color:var(--muted);font-size:.86rem;line-height:1.9;margin-bottom:16px}
 .modal-card .row{display:flex;gap:10px;justify-content:center}
-.modal-card ul{text-align:right;margin:0 auto 16px;max-width:350px;display:flex;flex-direction:column;gap:7px;list-style:none}
-.modal-card ul li{font-size:.8rem;color:#efe3cf;line-height:1.8;background:#120d0a;border-radius:9px;padding:8px 12px;border-inline-start:3px solid var(--gold)}
+.modal-card ul.tips{text-align:right;margin:0 auto 16px;max-width:350px;display:flex;flex-direction:column;gap:7px;list-style:none}
+.modal-card ul.tips li{font-size:.8rem;color:#efe3cf;line-height:1.8;background:#120d0a;border-radius:9px;padding:8px 12px;border-inline-start:3px solid var(--gold)}
+
+/* الموجودون */
+.ppl{max-height:min(56vh,420px);overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.ppl-row{display:flex;align-items:center;gap:10px;background:#120d0a;border:1px solid var(--line);border-radius:11px;
+  padding:8px 12px;cursor:pointer;transition:.2s;width:100%;font-family:inherit;color:var(--text)}
+.ppl-row:hover{border-color:var(--gold);transform:translateY(-1px)}
+.ppl-row .av{width:34px;height:34px}
+.ppl-row .nm{font-weight:700;font-size:.88rem;flex:1;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.role{font-size:.68rem;color:var(--muted);font-family:'Changa';white-space:nowrap}
+
+/* البروفايل */
+.pf-av{width:76px;height:76px;margin:0 auto 12px;display:grid;place-items:center;border-radius:50%;
+  border:3px solid var(--c);background:color-mix(in srgb, var(--c) 18%, #120d0a);color:var(--c)}
+.pf-av .ic{width:48%;height:48%}
+.pf-name{font-family:'Changa';font-size:1.4rem;font-weight:800;display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap}
+.pf-row{display:flex;align-items:center;gap:9px;color:#d8c8ae;font-size:.85rem;margin-top:10px;justify-content:center}
+.pf-row .ic{color:var(--gold);width:16px;height:16px}
+.pf-bio{margin-top:14px;background:#120d0a;border-radius:10px;padding:11px 14px;font-size:.84rem;line-height:1.9;color:#efe3cf;text-align:right}
+
+/* تعديل الملف */
+.edit-field{text-align:right;margin-bottom:14px}
+.edit-field label{display:block;font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:7px}
+.pill-row{display:flex;gap:8px}
+.pill{flex:1;background:#120d0a;border:1px solid var(--line);color:var(--muted);border-radius:99px;padding:10px 0;
+  font-family:'Changa';font-weight:700;cursor:pointer;transition:.2s;font-size:.9rem}
+.pill.active{background:rgba(255,194,75,.15);border-color:var(--gold);color:var(--gold)}
+
 #toast{position:fixed;bottom:22px;inset-inline:0;margin-inline:auto;width:max-content;max-width:88vw;z-index:70;
   background:#2a201a;border:1px solid var(--gold);color:var(--text);padding:11px 22px;border-radius:12px;
   font-size:.88rem;opacity:0;transform:translateY(16px);transition:.3s;pointer-events:none;box-shadow:0 12px 34px rgba(0,0,0,.5)}
@@ -216,6 +269,8 @@ input::placeholder{color:#6d5c48}
   <symbol id="i-cast" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M8.6 8.6a4.8 4.8 0 0 0 0 6.8"/><path d="M15.4 8.6a4.8 4.8 0 0 1 0 6.8"/><path d="M5.8 5.8a8.8 8.8 0 0 0 0 12.4"/><path d="M18.2 5.8a8.8 8.8 0 0 1 0 12.4"/></symbol>
   <symbol id="i-head" viewBox="0 0 24 24"><path d="M4 14a8 8 0 0 1 16 0"/><rect x="3" y="14" width="4.2" height="6" rx="1.8"/><rect x="16.8" y="14" width="4.2" height="6" rx="1.8"/></symbol>
   <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2.5 20h19z"/><path d="M12 9.5V14"/><path d="M12 16.8v.2"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 9.5h17"/><path d="M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4l10-10a2.1 2.1 0 0 0-3-3L5 17z"/><path d="M13.5 6.5l3 3"/></symbol>
 </svg>
 
 <div class="amb" id="amb"></div>
@@ -250,7 +305,10 @@ input::placeholder{color:#6d5c48}
     <header class="bar">
       <span class="brand"><svg class="ic"><use href="#i-cast"/></svg> صدى لايف</span>
       <span class="spacer"></span>
-      <span class="user-chip"><span class="av" id="lobbyAv"><svg class="ic"><use href="#i-user"/></svg></span><span class="nm" id="lobbyName"></span></span>
+      <span class="user-chip" id="userChip" title="بروفايلك">
+        <span class="av" id="lobbyAv"><svg class="ic"><use href="#i-user"/></svg></span>
+        <span class="nm" id="lobbyName"></span>
+      </span>
       <button class="btn danger sm icon" id="logoutBtn" title="خروج"><svg class="ic sm"><use href="#i-exit"/></svg></button>
     </header>
     <div class="lobby-head">
@@ -272,28 +330,37 @@ input::placeholder{color:#6d5c48}
   <section id="roomView" class="hidden">
     <div class="room-bar card">
       <span class="live-badge"><span class="live-dot"></span> مباشر</span>
-      <h2 id="roomTitle"></h2>
-      <span class="count"><svg class="ic"><use href="#i-users"/></svg><span id="lsNum">0</span></span>
+      <div class="title-box">
+        <h2 id="roomTitle"></h2>
+        <button class="host-chip" id="hostChip" type="button">
+          <span class="av" id="hostAv"><svg class="ic"><use href="#i-user"/></svg></span>
+          المضيف: <b id="hostName"></b>
+        </button>
+      </div>
+      <button class="count" id="lsCount" type="button" title="الموجودون في الروم">
+        <svg class="ic"><use href="#i-users"/></svg><span id="lsNum">0</span>
+      </button>
       <span class="spacer"></span>
-      <button class="btn ghost sm icon hidden" id="bgBtn" title="الخلفية"><svg class="ic sm"><use href="#i-bg"/></svg></button>
       <button class="btn danger sm solid" id="leaveBtn"><svg class="ic sm"><use href="#i-exit"/></svg> مغادرة</button>
     </div>
     <div class="room-grid">
       <div class="stage-col">
         <div class="stage bg-1" id="stage">
+          <button class="audio-cta hidden" id="audioBtn" type="button"><svg class="ic sm"><use href="#i-head"/></svg> اضغط لتفعيل الصوت</button>
           <div class="slots" id="slots"></div>
           <div class="stage-ctrls hidden" id="stageCtrls">
-            <button class="btn ghost sm" id="muteToggle"><svg class="ic sm" id="muteIc"><use href="#i-mic"/></svg><span id="muteLbl">كتم صوتي</span></button>
-            <button class="btn danger sm" id="downBtn"><svg class="ic sm"><use href="#i-down"/></svg> النزول</button>
+            <button class="btn ghost sm" id="muteToggle" type="button"><svg class="ic sm" id="muteIc"><use href="#i-mic"/></svg><span id="muteLbl">كتم صوتي</span></button>
+            <button class="btn danger sm" id="downBtn" type="button"><svg class="ic sm"><use href="#i-down"/></svg> النزول</button>
           </div>
           <div class="listeners-strip">
             <div class="ls-avs" id="lsAvatars"></div>
-            <span id="lsLabel"><svg class="ic"><use href="#i-head"/></svg> المستمعون: <b id="lsNum2">0</b></span>
+            <button id="lsLabel" type="button"><svg class="ic"><use href="#i-head"/></svg> المستمعون: <b id="lsNum2">0</b></button>
           </div>
-        </div>
-        <div class="bg-picker card hidden" id="bgPicker">
-          <div class="card-tag"><svg class="ic sm"><use href="#i-bg"/></svg> اختر الخلفية — تصل للجميع فورًا</div>
-          <div class="swatches" id="swatches"></div>
+          <button class="bg-fab hidden" id="bgBtn" type="button"><svg class="ic sm"><use href="#i-bg"/></svg> الخلفية</button>
+          <div class="bg-picker card hidden" id="bgPicker">
+            <div class="card-tag"><svg class="ic sm"><use href="#i-bg"/></svg> اختر الخلفية — تصل للجميع فورًا</div>
+            <div class="swatches" id="swatches"></div>
+          </div>
         </div>
       </div>
       <aside class="chat-col card">
@@ -304,33 +371,86 @@ input::placeholder{color:#6d5c48}
         <ul id="chatList"></ul>
         <form id="chatForm">
           <input type="text" id="chatInput" maxlength="200" placeholder="اكتب رسالة" autocomplete="off">
-          <button class="btn primary sm icon" type="submit" title="إرسال"><svg class="ic sm"><use href="#i-send"/></svg></button>
+          <button class="btn gold" type="submit"><svg class="ic sm"><use href="#i-send"/></svg> إرسال</button>
         </form>
       </aside>
     </div>
   </section>
 </div>
 
-<!-- نافذة إذن المايك -->
+<!-- إذن المايك -->
 <div class="modal hidden" id="micModal">
   <div class="modal-card">
     <svg class="big-ic"><use href="#i-mic"/></svg>
     <h3>الصعود إلى المسرح</h3>
     <p>سيطلب المتصفح إذن المايكروفون الآن — اضغط السماح ليصل صوتك للجميع.</p>
     <div class="row">
-      <button class="btn gold" id="micAllow">اسمح وابدأ</button>
-      <button class="btn danger" id="micCancel">إلغاء</button>
+      <button class="btn gold" id="micAllow" type="button">اسمح وابدأ</button>
+      <button class="btn danger" id="micCancel" type="button">إلغاء</button>
     </div>
   </div>
 </div>
 
-<!-- نافذة خطأ المايك -->
+<!-- خطأ المايك -->
 <div class="modal hidden" id="micErrModal">
   <div class="modal-card">
     <svg class="big-ic" style="color:var(--red)"><use href="#i-mic-off"/></svg>
     <h3 id="micErrTitle">تعذر تشغيل المايكروفون</h3>
-    <ul id="micErrTips"></ul>
-    <button class="btn ghost" id="micErrClose">فهمت</button>
+    <ul class="tips" id="micErrTips"></ul>
+    <button class="btn ghost" id="micErrClose" type="button">فهمت</button>
+  </div>
+</div>
+
+<!-- الموجودون -->
+<div class="modal hidden" id="peopleModal">
+  <div class="modal-card">
+    <h3>الموجودون في الروم <span id="peopleCount" style="color:var(--gold)"></span></h3>
+    <div class="ppl" id="peopleList"></div>
+    <div class="row" style="margin-top:14px"><button class="btn ghost sm" id="peopleClose" type="button">إغلاق</button></div>
+  </div>
+</div>
+
+<!-- عرض بروفايل -->
+<div class="modal hidden" id="profileModal">
+  <div class="modal-card">
+    <div class="pf-av" id="pfAv"><svg class="ic"><use href="#i-user"/></svg></div>
+    <div class="pf-name"><span id="pfName"></span><span class="host-tag hidden" id="pfBadge">المضيف</span></div>
+    <div id="pfRows"></div>
+    <div class="pf-bio hidden" id="pfBio"></div>
+    <div class="row" style="margin-top:16px">
+      <button class="btn gold sm hidden" id="pfEdit" type="button"><svg class="ic sm"><use href="#i-edit"/></svg> تعديل ملفي</button>
+      <button class="btn ghost sm" id="pfClose" type="button">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- تعديل البروفايل -->
+<div class="modal hidden" id="editModal">
+  <div class="modal-card">
+    <h3>ملفي التعريفي</h3>
+    <p>كل الحقول اختيارية</p>
+    <form id="editForm" style="text-align:right">
+      <div class="edit-field">
+        <label>الجنس</label>
+        <div class="pill-row">
+          <button type="button" class="pill" id="gM">ذكر</button>
+          <button type="button" class="pill" id="gF">أنثى</button>
+          <button type="button" class="pill" id="gN">بدون</button>
+        </div>
+      </div>
+      <div class="edit-field">
+        <label>تاريخ الميلاد</label>
+        <input type="date" id="birthInput">
+      </div>
+      <div class="edit-field">
+        <label>بايو (نبذة عنك)</label>
+        <textarea id="bioInput" maxlength="120" placeholder="اكتب شيئًا عنك…"></textarea>
+      </div>
+      <div class="row" style="margin-top:4px">
+        <button class="btn gold" type="submit">حفظ</button>
+        <button class="btn danger" type="button" id="editCancel">إلغاء</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -342,21 +462,23 @@ input::placeholder{color:#6d5c48}
 'use strict';
 /* ══════════ العناصر ══════════ */
 const $=s=>document.querySelector(s);
-const IDS=['authView','lobbyView','roomView','insecure','authForm','nameInput','lobbyAv','lobbyName','logoutBtn',
-'createForm','roomNameInput','roomsGrid','noRooms','dirErr','roomTitle','lsNum','lsNum2','bgBtn','bgPicker','swatches',
-'leaveBtn','stage','slots','stageCtrls','muteToggle','muteIc','muteLbl','downBtn','lsAvatars','lsLabel','chatList',
-'chatForm','chatInput','onlineCount','micModal','micAllow','micCancel','micErrModal','micErrTitle','micErrTips',
-'micErrClose','toast','remoteAudio','monitorAudio','amb'];
+const IDS=['authView','lobbyView','roomView','insecure','authForm','nameInput','lobbyAv','lobbyName','userChip','logoutBtn',
+'createForm','roomNameInput','roomsGrid','noRooms','dirErr','roomTitle','hostChip','hostAv','hostName','lsCount','lsNum','lsNum2',
+'leaveBtn','stage','slots','stageCtrls','muteToggle','muteIc','muteLbl','downBtn','lsAvatars','lsLabel','bgBtn','bgPicker',
+'swatches','chatList','chatForm','chatInput','onlineCount','micModal','micAllow','micCancel','micErrModal','micErrTitle',
+'micErrTips','micErrClose','peopleModal','peopleCount','peopleList','peopleClose','profileModal','pfAv','pfName','pfBadge',
+'pfRows','pfBio','pfEdit','pfClose','editModal','editForm','gM','gF','gN','birthInput','bioInput','editCancel','audioBtn',
+'toast','remoteAudio','monitorAudio','amb'];
 const el={};IDS.forEach(id=>el[id]=$('#'+id));
 const icon=(n,cls='')=>'<svg class="ic '+cls+'" aria-hidden="true"><use href="#i-'+n+'"/></svg>';
 
-/* ══════════ أدوات ══════════ */
-const TOPIC='sada-rooms-ar-v2', PREFIX='sada8-';
+/* ══════════ ثوابت وأدوات ══════════ */
+const TOPIC='sada-rooms-ar-v3', PREFIX='sada8-';
 const ICE={config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}};
 const COLORS=['#ff4d3d','#ffc24b','#5ad48a','#4dc9ff','#ff8fab','#c0a3ff','#7ce0c3','#ffb02e'];
 const BG_NAMES=['سماء الليل','غروب البث','شبكة ذهبية','أستوديو أحمر','أعماق البحر','رمال دافئة','غابة ليلية','أضواء ذهبية'];
 const rnd=n=>Math.floor(Math.random()*n);
-const hash=s=>[...s].reduce((a,c)=>a+c.charCodeAt(0),0);
+const hash=s=>[...String(s)].reduce((a,c)=>a+c.charCodeAt(0),0);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const genCode=()=>{const A='abcdefghjkmnpqrstuvwxyz23456789';let s='';for(let i=0;i<5;i++)s+=A[rnd(A.length)];return s;};
 let toastT=null;
@@ -365,8 +487,20 @@ function showView(v){[el.authView,el.lobbyView,el.roomView].forEach(x=>x.classLi
 function sanitizeUser(u){
   const name=String(u&&u.name||'زائر').trim().slice(0,16)||'زائر';
   const color=COLORS.includes(u&&u.color)?u.color:COLORS[hash(name)%COLORS.length];
-  return {name,color};
+  const gender=(u&&(u.gender==='m'||u.gender==='f'))?u.gender:'';
+  const birth=(u&&/^\d{4}-\d{2}-\d{2}$/.test(u.birth||''))?u.birth:'';
+  const bio=String(u&&u.bio||'').slice(0,120);
+  return {name,color,gender,birth,bio};
 }
+function ageOf(birth){
+  if(!birth)return null;
+  const b=new Date(birth),n=new Date();
+  let a=n.getFullYear()-b.getFullYear();
+  const m=n.getMonth()-b.getMonth();
+  if(m<0||(m===0&&n.getDate()<b.getDate()))a--;
+  return (a>=0&&a<120)?a:null;
+}
+const fmtDate=b=>{try{return new Date(b).toLocaleDateString('ar',{year:'numeric',month:'long',day:'numeric'});}catch(e){return b;}};
 let actx=null;
 function resumeAudio(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();}catch(e){}}
 document.addEventListener('pointerdown',resumeAudio,{once:true});
@@ -381,21 +515,25 @@ for(let i=0;i<26;i++){
 }
 
 /* ══════════ حالة عامة ══════════ */
-let user=null, mode=null, peer=null, hostConn=null, myPid=null, roomCode=null, roomName='', bgId=1;
+let user=null, mode=null, peer=null, hostConn=null, myPid=null, roomCode=null, roomName='', bgId=1, lastState=null;
 let participants=new Map(), slots=Array(8).fill(null), listenerCalls=new Map(), speakerNodes=new Map();
 let mixCtx=null, broadcastDest=null, monitorDest=null, mixStream=null;
 let micStream=null, micCall=null, micTrack=null, pendingSlot=-1, slotEls=[];
 let heartbeatInt=null, levelsInt=null, dirTimer=null;
+let welcomed=false, helloTries=0, helloTimer=null, reconnTries=0, intentional=false, editGender='';
 
 /* ══════════ الدخول ══════════ */
 el.authForm.addEventListener('submit',e=>{
   e.preventDefault();
   const name=el.nameInput.value.trim();
   if(name.length<2){toast('اكتب اسمًا من حرفين على الأقل');el.nameInput.focus();return;}
-  user={name,color:COLORS[hash(name)%COLORS.length]};
-  localStorage.setItem('sada-user',JSON.stringify(user));
+  user=Object.assign(sanitizeUser({name}),{gender:'',birth:'',bio:''});
+  const saved=localStorage.getItem('sada-user');
+  if(saved){try{const o=JSON.parse(saved);user.gender=o.gender||'';user.birth=o.birth||'';user.bio=o.bio||'';}catch(e){}}
+  saveUser();
   enterLobby();
 });
+function saveUser(){localStorage.setItem('sada-user',JSON.stringify(user));}
 el.logoutBtn.addEventListener('click',()=>{localStorage.removeItem('sada-user');location.reload();});
 function enterLobby(){
   showView(el.lobbyView);
@@ -403,6 +541,7 @@ function enterLobby(){
   el.lobbyName.textContent=user.name;
   startDirectoryPolling();
 }
+el.userChip.addEventListener('click',()=>openProfile(user,false));
 
 /* ══════════ دليل الرومات ══════════ */
 function startDirectoryPolling(){stopDirectoryPolling();pollDirectory();dirTimer=setInterval(pollDirectory,7000);}
@@ -437,7 +576,7 @@ function renderRooms(rooms){
     host.innerHTML='<span class="av" style="--c:'+hc+'">'+icon('user')+'</span><span>'+esc(r.host||'')+'</span>';
     const meta=document.createElement('div');meta.className='rc-meta';
     meta.innerHTML='<span>'+icon('mic')+(r.sp||0)+'</span><span>'+icon('users')+(r.ls||0)+'</span>';
-    const btn=document.createElement('button');btn.className='btn primary';btn.style.width='100%';
+    const btn=document.createElement('button');btn.className='btn primary';btn.style.width='100%';btn.type='button';
     btn.innerHTML=icon('head')+' انضم للبث';
     btn.onclick=()=>openRoomAsClient(String(r.id));
     body.append(h,host,meta,btn);card.append(bgd,body);el.roomsGrid.appendChild(card);
@@ -526,7 +665,7 @@ function openRoomAsHost(name){
 }
 function buildState(){
   return {t:'state',code:roomCode,name:roomName,bg:bgId,host:sanitizeUser(user),
-    slots:slots.map(s=>s?{pid:s.pid,name:s.user.name,color:s.user.color,muted:s.muted}:null),
+    slots:slots.map(s=>s?{pid:s.pid,user:s.user,muted:s.muted}:null),
     listeners:[...participants.values()].map(p=>sanitizeUser(p.user))};
 }
 function broadcast(msg){participants.forEach(p=>{try{p.conn.send(msg);}catch(e){}});}
@@ -536,19 +675,20 @@ function handleClientMsg(conn,d){
   const p=participants.get(conn.peer);
   switch(d.t){
     case 'hello':{
+      const isNew=!participants.has(conn.peer);
       participants.set(conn.peer,{conn,user:sanitizeUser(d.user),slot:-1});
       conn.send({t:'welcome',pid:conn.peer});
       if(mixStream){
         const c=peer.call(conn.peer,mixStream,{metadata:{t:'mix'}});
         if(c){listenerCalls.set(conn.peer,c);c.on('close',()=>listenerCalls.delete(conn.peer));}
       }
-      sysChat('انضم '+sanitizeUser(d.user).name);
+      if(isNew)sysChat('انضم '+sanitizeUser(d.user).name);
       broadcastState();break;
     }
     case 'chat':{
       if(!p)break;
       const text=String(d.text||'').slice(0,200).trim();if(!text)break;
-      const m={name:p.user.name,color:p.user.color,text};
+      const m=Object.assign({},sanitizeUser(p.user),{host:false,text});
       appendChat(m);broadcast({t:'chat',...m});break;
     }
     case 'take':{
@@ -563,6 +703,13 @@ function handleClientMsg(conn,d){
       const i=slotOf(conn.peer);if(i<0)break;
       slots[i].muted=!!d.m;
       const n=speakerNodes.get(conn.peer);if(n)n.gain.gain.value=d.m?0:1;
+      broadcastState();break;
+    }
+    case 'profile':{
+      if(!p)break;
+      p.user=sanitizeUser(d.user);
+      const i=slotOf(conn.peer);
+      if(i>=0)slots[i].user=p.user;
       broadcastState();break;
     }
   }
@@ -590,30 +737,65 @@ function announce(closed){
   fetch('https://ntfy.sh/'+TOPIC,{method:'POST',headers:{'Content-Type':'text/plain'},body}).catch(()=>{});
 }
 
-/* ══════════ الانضمام ══════════ */
+/* ══════════ الانضمام (مع إعادة اتصال) ══════════ */
 function openRoomAsClient(code){
   if(typeof Peer==='undefined'){toast('تعذر تحميل مكتبة الاتصال — تحقق من الإنترنت');return;}
   mode='client';roomCode=code;myPid=null;pendingSlot=-1;
+  welcomed=false;helloTries=0;reconnTries=0;intentional=false;lastState=null;
   el.chatList.innerHTML='';el.bgBtn.classList.add('hidden');
   stopDirectoryPolling();showView(el.roomView);
   peer=new Peer(PREFIX+'u'+genCode(),ICE);
   peer.on('open',()=>{
     hostConn=peer.connect(PREFIX+code,{reliable:true});
-    hostConn.on('open',()=>hostConn.send({t:'hello',user}));
-    hostConn.on('data',onHostData);
-    hostConn.on('close',()=>{if(mode==='client'){toast('انقطع الاتصال بالروم');exitToLobby();}});
+    attachHostConn();
   });
   peer.on('call',call=>{
     call.answer();
-    call.on('stream',s=>{el.remoteAudio.srcObject=s;el.remoteAudio.play().catch(()=>{});});
+    call.on('stream',s=>{el.remoteAudio.srcObject=s;el.remoteAudio.play().catch(()=>{});checkAudio();});
   });
   peer.on('error',err=>{
     if(err.type==='peer-unavailable'){toast('الروم غير موجود أو أُغلق');exitToLobby();}
   });
 }
+function attachHostConn(){
+  hostConn.on('open',()=>{helloTries=0;sendHello();});
+  hostConn.on('data',onHostData);
+  hostConn.on('close',()=>{
+    if(mode!=='client'||intentional)return;
+    if(welcomed)toast('انقطع الاتصال — إعادة المحاولة…');
+    tryReconnect();
+  });
+}
+function sendHello(){
+  if(welcomed||mode!=='client')return;
+  if(hostConn&&hostConn.open){
+    try{hostConn.send({t:'hello',user});}catch(e){}
+  }
+  helloTries++;
+  clearTimeout(helloTimer);
+  if(helloTries>=8){if(!welcomed){toast('تعذر الاتصال بالروم');exitToLobby();}return;}
+  helloTimer=setTimeout(()=>{if(!welcomed)sendHello();},1800);
+}
+function tryReconnect(){
+  if(intentional||mode!=='client')return;
+  if(reconnTries>=3){toast('تعذر الوصول للروم');exitToLobby();return;}
+  reconnTries++;
+  setTimeout(()=>{
+    if(intentional||mode!=='client'||!peer||peer.destroyed)return;
+    try{
+      hostConn=peer.connect(PREFIX+roomCode,{reliable:true});
+      attachHostConn();
+    }catch(e){tryReconnect();}
+  },1200);
+}
+function safeSend(o){
+  if(mode!=='client')return false;
+  if(!hostConn||!hostConn.open){toast('الاتصال بالروم مفقوع…');return false;}
+  try{hostConn.send(o);return true;}catch(e){toast('فشل الإرسال — أعد المحاولة');return false;}
+}
 function onHostData(d){
   switch(d.t){
-    case 'welcome':myPid=d.pid;break;
+    case 'welcome':welcomed=true;clearTimeout(helloTimer);myPid=d.pid;break;
     case 'state':renderRoom(d);break;
     case 'chat':appendChat(d);break;
     case 'levels':d.arr.forEach((v,i)=>{if(slotEls[i])slotEls[i].style.setProperty('--lvl',v||0);});break;
@@ -625,8 +807,11 @@ function onHostData(d){
 /* ══════════ عرض الروم ══════════ */
 function isMine(pid){return mode==='host'?(peer&&pid===peer.id):pid===myPid;}
 function renderRoom(st){
+  lastState=st;
   el.roomTitle.textContent=st.name;
   el.stage.className='stage bg-'+st.bg;
+  el.hostName.textContent=st.host.name;
+  el.hostAv.style.setProperty('--c',st.host.color);
   const lsCount=st.listeners.length+1;
   el.lsNum.textContent=lsCount;
   el.lsNum2.textContent=lsCount;
@@ -640,10 +825,12 @@ function renderRoom(st){
       b.className='slot occupied';b.style.setProperty('--lvl',0);
       b.innerHTML=
         '<span class="st'+(s.muted?' off':'')+'">'+icon(s.muted?'mic-off':'mic')+'</span>'
-        +'<span class="av" style="--c:'+esc(s.color)+'">'+icon('user')+'</span>'
-        +'<span class="nm">'+esc(s.name)+(isMine(s.pid)?' <i>(أنت)</i>':'')+'</span>'
+        +'<span class="av" style="--c:'+esc(s.user.color)+'">'+icon('user')+'</span>'
+        +'<span class="nm">'+esc(s.user.name)+(isMine(s.pid)?' <i>(أنت)</i>':'')+'</span>'
         +(mode==='host'&&!isMine(s.pid)?'<button class="act" data-act="kick" title="إنزاله">'+icon('down')+'</button>':'')
         +(isMine(s.pid)?'<button class="act x" data-act="down" title="النزول">'+icon('x')+'</button>':'');
+      const av=b.querySelector('.av');
+      av.addEventListener('click',e=>{e.stopPropagation();openProfile(s.user,st.host&&s.user.name===st.host.name);});
       const kick=b.querySelector('[data-act=kick]');
       if(kick)kick.addEventListener('click',e=>{e.stopPropagation();kickSlot(i);});
       const down=b.querySelector('[data-act=down]');
@@ -659,7 +846,9 @@ function renderRoom(st){
   el.lsAvatars.innerHTML='';
   st.listeners.slice(0,9).forEach(u=>{
     const a=document.createElement('span');a.className='av';a.style.setProperty('--c',u.color);
-    a.innerHTML=icon('user');a.title=u.name;el.lsAvatars.appendChild(a);
+    a.innerHTML=icon('user');a.title=u.name;
+    a.addEventListener('click',()=>openProfile(u,false));
+    el.lsAvatars.appendChild(a);
   });
   if(st.listeners.length>9){
     const m=document.createElement('span');m.className='av';m.style.setProperty('--c','#a8977f');
@@ -667,19 +856,26 @@ function renderRoom(st){
   }
   document.querySelectorAll('.sw').forEach((sw,i)=>sw.classList.toggle('active',i+1===st.bg));
   if(mode==='client'&&myIdx>=0&&micStream&&!micCall)openSpeakerCall();
+  checkAudio();
 }
+
+/* ══════════ صوت المستمع (زر التفعيل) ══════════ */
+function checkAudio(){
+  const a=el.remoteAudio;
+  const need=(mode==='client')&&a.srcObject&&a.paused;
+  el.audioBtn.classList.toggle('hidden',!need);
+}
+el.remoteAudio.addEventListener('play',checkAudio);
+el.remoteAudio.addEventListener('pause',checkAudio);
+el.audioBtn.addEventListener('click',()=>{resumeAudio();el.remoteAudio.play().then(checkAudio).catch(()=>{});});
 
 /* ══════════ المايكروفون ══════════ */
 async function getMicStream(){
-  if(!window.isSecureContext||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-    throw {name:'InsecureError'};
-  }
+  if(!window.isSecureContext||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw {name:'InsecureError'};
   try{
     const st=await navigator.permissions.query({name:'microphone'});
     if(st.state==='denied')throw {name:'DeniedBefore'};
-  }catch(e){
-    if(e.name==='DeniedBefore')throw e;
-  }
+  }catch(e){if(e.name==='DeniedBefore')throw e;}
   return navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
 }
 function requestStage(i){
@@ -701,7 +897,7 @@ el.micAllow.addEventListener('click',async()=>{
       sysChat('اعتليت المسرح');
       broadcastState();pendingSlot=-1;
     }else{
-      hostConn.send({t:'take',i});
+      if(!safeSend({t:'take',i})){stopMicLocal();pendingSlot=-1;}
     }
   }catch(err){stopMicLocal();pendingSlot=-1;showMicError(err);}
 });
@@ -711,7 +907,7 @@ function openSpeakerCall(){
 }
 function leaveSlot(){
   if(mode==='host'){const i=peer?slotOf(peer.id):-1;if(i>=0)freeSlot(i);}
-  else if(hostConn)hostConn.send({t:'leave'});
+  else safeSend({t:'leave'});
   stopMicLocal();
 }
 function kickSlot(i){
@@ -741,7 +937,7 @@ el.muteToggle.addEventListener('click',()=>{
   if(mode==='host'){
     const i=slotOf(peer.id);
     if(i>=0){slots[i].muted=m;const n=speakerNodes.get(peer.id);if(n)n.gain.gain.value=m?0:1;broadcastState();}
-  }else if(hostConn)hostConn.send({t:'mute',m});
+  }else safeSend({t:'mute',m});
 });
 function showMicError(err){
   let title='تعذر تشغيل المايكروفون',tips=[];
@@ -750,17 +946,15 @@ function showMicError(err){
     title='المتصفح يمنع المايكروفون هنا';
     tips=['الصفحة مفتوحة كملف مباشر أو عبر اتصال غير آمن.',
       'شغّل: python -m http.server 8000 ثم افتح localhost:8000',
-      'أو استخدم إضافة Live Server في VS Code',
       'أو ارفع الملف على استضافة HTTPS مثل Netlify'];
   }else if(name==='DeniedBefore'){
     title='الإذن مرفوض سابقًا';
-    tips=['سبق أن رفضت إذن المايكروفون، لذلك لن يظهر الطلب مجددًا.',
-      'اضغط أيقونة القفل في شريط العنوان بجانب الرابط',
-      'اختر "إعادة تعيين الأذونات" أو فعّل المايكروفون يدويًا',
+    tips=['سبق أن رفضت الإذن، لذلك لن يظهر الطلب مجددًا.',
+      'اضغط أيقونة القفل في شريط العنوان',
+      'فعّل المايكروفون أو أعد تعيين الأذونات',
       'أعد تحميل الصفحة ثم جرّب مرة أخرى'];
   }else if(name==='NotAllowedError'||name==='SecurityError'){
-    tips=['اضغط أيقونة القفل في شريط العنوان',
-      'فعّل إذن المايكروفون (Allow) ثم أعد تحميل الصفحة'];
+    tips=['اضغط أيقونة القفل في شريط العنوان','فعّل إذن المايكروفون ثم أعد التحميل'];
   }else if(name==='NotFoundError'){
     tips=['لا يوجد مايكروفون متصل بالجهاز'];
   }else if(name==='NotReadableError'){
@@ -780,12 +974,18 @@ function appendChat(m){
   if(m.sys){li.className='msg sys';li.textContent=m.text;}
   else{
     li.className='msg';
+    const u=sanitizeUser(m);
     const av=document.createElement('span');av.className='av';
-    av.style.setProperty('--c',m.color||'#a8977f');av.innerHTML=icon('user');
+    av.style.setProperty('--c',u.color);av.innerHTML=icon('user');
+    av.title=u.name;
+    av.addEventListener('click',()=>openProfile(u,!!m.host));
     const body=document.createElement('div');body.className='body';
-    const b=document.createElement('b');b.textContent=m.name;b.style.color=m.color||'#fff';
+    const mtop=document.createElement('div');mtop.className='mtop';
+    const b=document.createElement('b');b.textContent=u.name;b.style.color=u.color;
+    mtop.appendChild(b);
+    if(m.host){const tag=document.createElement('span');tag.className='host-tag';tag.textContent='المضيف';mtop.appendChild(tag);}
     const p=document.createElement('p');p.textContent=m.text;
-    body.append(b,p);li.append(av,body);
+    body.append(mtop,p);li.append(av,body);
   }
   el.chatList.appendChild(li);
   el.chatList.scrollTop=el.chatList.scrollHeight;
@@ -797,11 +997,103 @@ function sysChat(text){
 el.chatForm.addEventListener('submit',e=>{
   e.preventDefault();
   const text=el.chatInput.value.trim();if(!text)return;
-  el.chatInput.value='';
   if(mode==='host'){
-    const m={name:user.name,color:user.color,text};
+    el.chatInput.value='';
+    const m=Object.assign({},sanitizeUser(user),{host:true,text});
     appendChat(m);broadcast({t:'chat',...m});
-  }else if(hostConn)hostConn.send({t:'chat',text});
+  }else{
+    if(safeSend({t:'chat',text}))el.chatInput.value='';
+  }
+});
+
+/* ══════════ الموجودون في الروم ══════════ */
+function openPeople(){
+  const st=lastState||(mode==='host'?buildState():null);
+  if(!st)return;
+  el.peopleList.innerHTML='';
+  const total=st.listeners.length+1;
+  el.peopleCount.textContent='('+total+')';
+  const hostOnStage=st.slots.some(s=>s&&s.user.name===st.host.name);
+  addPersonRow(st.host, hostOnStage?'المضيف · متحدث':'المضيف', true);
+  st.slots.forEach(s=>{
+    if(s&&s.user.name!==st.host.name)addPersonRow(s.user,'متحدث',false);
+  });
+  st.listeners.forEach(u=>addPersonRow(u,'مستمع',false));
+  el.peopleModal.classList.remove('hidden');
+}
+function addPersonRow(u,role,isHost){
+  const r=document.createElement('button');r.type='button';r.className='ppl-row';
+  const av=document.createElement('span');av.className='av';
+  av.style.setProperty('--c',u.color);av.innerHTML=icon('user');
+  const nm=document.createElement('span');nm.className='nm';nm.textContent=u.name+(user&&u.name===user.name?' (أنت)':'');
+  const rl=document.createElement('span');rl.className='role';rl.textContent=role;
+  r.append(av,nm,rl);
+  r.addEventListener('click',()=>{el.peopleModal.classList.add('hidden');openProfile(u,isHost);});
+  el.peopleList.appendChild(r);
+}
+el.lsCount.addEventListener('click',openPeople);
+el.lsLabel.addEventListener('click',openPeople);
+el.peopleClose.addEventListener('click',()=>el.peopleModal.classList.add('hidden'));
+
+/* ══════════ البروفايل ══════════ */
+function openProfile(u,isHostUser){
+  u=sanitizeUser(u);
+  el.pfAv.style.setProperty('--c',u.color);
+  el.pfName.textContent=u.name;
+  el.pfBadge.classList.toggle('hidden',!isHostUser);
+  el.pfRows.innerHTML='';
+  if(u.gender){
+    const r=document.createElement('div');r.className='pf-row';
+    r.innerHTML=icon('user')+(u.gender==='m'?'ذكر':'أنثى');
+    el.pfRows.appendChild(r);
+  }
+  if(u.birth){
+    const a=ageOf(u.birth);
+    const r=document.createElement('div');r.className='pf-row';
+    r.innerHTML=icon('cal')+fmtDate(u.birth)+(a!=null?' — '+a+' سنة':'');
+    el.pfRows.appendChild(r);
+  }
+  if(!u.gender&&!u.birth){
+    const r=document.createElement('div');r.className='pf-row';r.textContent='لا توجد تفاصيل';
+    el.pfRows.appendChild(r);
+  }
+  el.pfBio.textContent=u.bio;
+  el.pfBio.classList.toggle('hidden',!u.bio);
+  el.pfEdit.classList.toggle('hidden',!(user&&u.name===user.name));
+  el.profileModal.classList.remove('hidden');
+}
+el.pfClose.addEventListener('click',()=>el.profileModal.classList.add('hidden'));
+el.pfEdit.addEventListener('click',()=>{el.profileModal.classList.add('hidden');openEdit();});
+el.hostChip.addEventListener('click',()=>{if(lastState)openProfile(lastState.host,true);});
+
+function openEdit(){
+  editGender=user.gender||'';
+  syncGenderPills();
+  el.birthInput.value=user.birth||'';
+  el.bioInput.value=user.bio||'';
+  el.editModal.classList.remove('hidden');
+}
+function syncGenderPills(){
+  el.gM.classList.toggle('active',editGender==='m');
+  el.gF.classList.toggle('active',editGender==='f');
+  el.gN.classList.toggle('active',editGender==='');
+}
+el.gM.addEventListener('click',()=>{editGender='m';syncGenderPills();});
+el.gF.addEventListener('click',()=>{editGender='f';syncGenderPills();});
+el.gN.addEventListener('click',()=>{editGender='';syncGenderPills();});
+el.editCancel.addEventListener('click',()=>el.editModal.classList.add('hidden'));
+el.editForm.addEventListener('submit',e=>{
+  e.preventDefault();
+  user.gender=editGender;
+  user.birth=el.birthInput.value||'';
+  user.bio=el.bioInput.value.trim().slice(0,120);
+  saveUser();
+  el.editModal.classList.add('hidden');
+  el.lobbyAv.style.setProperty('--c',user.color);
+  el.lobbyName.textContent=user.name;
+  if(mode==='host')broadcastState();
+  else if(mode==='client')safeSend({t:'profile',user});
+  toast('تم حفظ ملفك');
 });
 
 /* ══════════ الخلفيات ══════════ */
@@ -819,10 +1111,13 @@ el.bgBtn.addEventListener('click',()=>el.bgPicker.classList.toggle('hidden'));
 
 /* ══════════ مغادرة ══════════ */
 el.leaveBtn.addEventListener('click',()=>{
+  intentional=true;
   if(mode==='host')announce(true);
   exitToLobby();
 });
 function exitToLobby(){
+  intentional=true;
+  clearTimeout(helloTimer);
   cleanupRoom();
   showView(el.lobbyView);
   startDirectoryPolling();
@@ -838,9 +1133,11 @@ function cleanupRoom(){
   }
   if(peer){try{peer.destroy();}catch(e){}}
   peer=null;hostConn=null;listenerCalls.clear();participants.clear();
-  slots=Array(8).fill(null);micStream=null;pendingSlot=-1;mode=null;
+  slots=Array(8).fill(null);micStream=null;pendingSlot=-1;mode=null;lastState=null;
+  welcomed=false;
   el.remoteAudio.srcObject=null;el.monitorAudio.srcObject=null;
   el.bgPicker.classList.add('hidden');el.stageCtrls.classList.add('hidden');
+  el.audioBtn.classList.add('hidden');
 }
 window.addEventListener('pagehide',()=>{
   if(mode==='host'&&roomCode){
