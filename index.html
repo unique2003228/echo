@@ -84,7 +84,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .host-tag.vrf{border-color:rgba(77,201,255,.45);color:#4dc9ff;background:rgba(77,201,255,.1);display:inline-flex;align-items:center;gap:4px}
 .host-tag.vrf .ic{width:10px;height:10px}
 
-/* ═══ الدخول (قوقل فقط) ═══ */
 #authView{flex:1;min-height:0;display:flex}
 .auth-wrap{flex:1;min-height:0;display:grid;place-items:center}
 .auth-card{width:min(400px,100%);padding:38px 32px;border-radius:28px;background:rgba(20,14,11,.62);backdrop-filter:blur(24px);
@@ -98,7 +97,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 #gWrap{display:flex;justify-content:center;min-height:44px}
 .ghint{font-size:.7rem;color:var(--muted);text-align:center;line-height:1.7;margin-top:10px}
 
-/* ═══ اللوبي ═══ */
 #lobbyView{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px}
 .lobby-top{display:flex;align-items:center;gap:14px;flex-shrink:0;flex-wrap:wrap}
 .brand-block{display:flex;align-items:center;gap:12px}
@@ -144,7 +142,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .empty-state{text-align:center;color:var(--muted);padding:44px 20px;font-size:.95rem}
 .hint{font-size:.76rem;color:var(--muted)}
 
-/* ═══ الروم ═══ */
 #roomView{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px}
 .room-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:2px 4px;flex-shrink:0}
 .title-box{display:flex;flex-direction:column;gap:3px;min-width:0}
@@ -229,7 +226,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
   background:var(--gold);color:#2b1c05;font-family:'Changa';font-weight:800;font-size:.88rem;border:none;cursor:pointer;
   display:inline-flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(255,194,75,.4);animation:blink 1.6s infinite}
 
-/* ═══ الشات ═══ */
 .chat-col{height:100%;min-height:0;display:flex;flex-direction:column;padding:14px 14px 14px 12px;position:relative;
   background:linear-gradient(to left,rgba(0,0,0,.3),rgba(0,0,0,.08))}
 @media(max-width:820px){.chat-col{background:linear-gradient(to top,rgba(0,0,0,.32),rgba(0,0,0,.06))}}
@@ -252,7 +248,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 #chatForm input{flex:1;min-height:46px}
 #chatForm .btn{padding:0 18px}
 
-/* ═══ الخلفيات ═══ */
 .bg-1{background-color:#0b1120;background-image:radial-gradient(2px 2px at 18% 25%,#ffffffaa 40%,transparent 45%),radial-gradient(1.5px 1.5px at 68% 15%,#ffffff88 40%,transparent 45%),radial-gradient(2px 2px at 85% 55%,#ffffff77 40%,transparent 45%),radial-gradient(620px 300px at 70% 115%,rgba(45,80,140,.5),transparent)}
 .bg-2{background-image:radial-gradient(circle at 50% 125%,#ffd98a 0%,#ff7a4d 32%,#7a2d3e 68%,#2a1220 100%)}
 .bg-3{background-color:#101317;background-image:linear-gradient(rgba(255,194,75,.13) 1px,transparent 1px),linear-gradient(90deg,rgba(255,194,75,.13) 1px,transparent 1px),radial-gradient(520px 260px at 50% 0%,rgba(255,77,61,.2),transparent);background-size:34px 34px,34px 34px,auto}
@@ -262,7 +257,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .bg-7{background-color:#0c1710;background-image:linear-gradient(115deg,rgba(90,212,138,.13) 0 2px,transparent 2px 92px),radial-gradient(520px 300px at 12% 0%,rgba(90,212,138,.2),transparent)}
 .bg-8{background-color:#151009;background-image:radial-gradient(440px 250px at 50% -6%,rgba(255,194,75,.42),transparent 72%),radial-gradient(2px 2px at 30% 62%,rgba(255,194,75,.5) 40%,transparent 45%),radial-gradient(2px 2px at 72% 40%,rgba(255,194,75,.4) 40%,transparent 45%)}
 
-/* ═══ النوافذ ═══ */
 .modal{position:fixed;inset:0;z-index:60;background:rgba(6,4,3,.75);backdrop-filter:blur(9px);display:grid;place-items:center;padding:20px;animation:fadeIn .25s}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .modal-card{background:rgba(24,17,13,.9);backdrop-filter:blur(26px);border:1px solid var(--line);border-radius:26px;padding:0;max-width:480px;width:100%;
@@ -270,20 +264,18 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .modal-card::before{content:'';position:sticky;top:0;display:block;height:2px;background:var(--ggrad);opacity:.7;z-index:2}
 .mc-body{padding:24px 26px 26px;text-align:center}
 .modal-card .big-ic{width:50px;height:50px;color:var(--gold);margin:0 auto 12px;display:block}
-.modal-card h3{font-size:1.25rem;font-weight:700;margin-bottom:8px}
-.modal-card>p,.mc-body>p{color:var(--muted);font-size:.86rem;line-height:1.9;margin-bottom:16px}
-.modal-card .row,.mc-body .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.modal-card h3,.mc-body h3{font-size:1.25rem;font-weight:700;margin-bottom:8px}
+.mc-body>p{color:var(--muted);font-size:.86rem;line-height:1.9;margin-bottom:16px}
+.mc-body .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 .modal-card ul.tips{text-align:right;margin:0 auto 16px;max-width:350px;display:flex;flex-direction:column;gap:7px;list-style:none}
 .modal-card ul.tips li{font-size:.8rem;color:#efe3cf;line-height:1.8;background:rgba(10,7,5,.5);border-radius:9px;padding:8px 12px;border-inline-start:3px solid var(--gold)}
 .handle-box{display:flex;gap:8px;direction:ltr;justify-content:center;margin-bottom:8px}
 .handle-box .at{font-family:'IBM Plex Mono';color:var(--gold);align-self:center;font-size:1.1rem}
 .handle-box input{direction:ltr;text-align:left;font-family:'IBM Plex Mono';letter-spacing:1px}
-/* قص الصورة */
 .crop-view{width:240px;height:240px;margin:0 auto 14px;border-radius:50%;overflow:hidden;position:relative;
   border:3px solid var(--gold);box-shadow:0 0 0 6px rgba(255,194,75,.12),0 16px 40px rgba(0,0,0,.5);background:#000;touch-action:none;cursor:grab}
 .crop-view:active{cursor:grabbing}
 .crop-view img{position:absolute;max-width:none;pointer-events:none;user-select:none;-webkit-user-drag:none}
-/* البروفايل الفاخر */
 .pf-banner{height:120px;border-radius:18px;overflow:hidden;position:relative;background:
   radial-gradient(420px 160px at 20% 0%,rgba(255,194,75,.35),transparent 70%),
   radial-gradient(420px 180px at 85% 100%,rgba(255,77,61,.3),transparent 70%),#170f0b}
@@ -379,7 +371,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
     <span>المايكروفون لا يعمل هنا — افتح الصفحة عبر <b>localhost</b> أو <b>HTTPS</b>. مثال: <code>python -m http.server 8000</code></span>
   </div>
 
-  <!-- الدخول: قوقل فقط -->
   <section id="authView">
     <div class="auth-wrap">
       <div class="auth-card">
@@ -394,7 +385,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
     </div>
   </section>
 
-  <!-- اللوبي -->
   <section id="lobbyView" class="hidden">
     <header class="lobby-top">
       <div class="brand-block">
@@ -414,7 +404,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
     <div class="lobby-head">
       <h2>الرومات المباشرة <span class="live-dot"></span></h2>
       <span class="spacer"></span>
-      <span class="hint" id="dirErr" style="display:none">تعذر جلب القائمة</span>
+      <span class="hint" id="dirErr" style="display:none">جارٍ الاتصال بالخادم…</span>
     </div>
     <form class="create-bar" id="createForm">
       <input type="text" id="roomNameInput" maxlength="40" placeholder="اسم الروم الجديد">
@@ -434,7 +424,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
     </div>
   </section>
 
-  <!-- الروم -->
   <section id="roomView" class="hidden">
     <div class="room-bar">
       <span class="live-badge"><span class="live-dot"></span> مباشر</span>
@@ -488,7 +477,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
   </section>
 </div>
 
-<!-- حجز اليوزر (إجباري) -->
 <div class="modal hidden" id="handleModal">
   <div class="modal-card"><div class="mc-body">
     <svg class="big-ic"><use href="#i-check"/></svg>
@@ -505,11 +493,10 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
   </div></div>
 </div>
 
-<!-- قص الصورة -->
 <div class="modal hidden" id="cropModal">
   <div class="modal-card"><div class="mc-body">
     <h3>قص الصورة</h3>
-    <p>اسحب الصورة داخل الدائرة واختر الجزء المناسب — قرّب وبعّد بالشريط.</p>
+    <p>اسحب الصورة داخل الدائرة واختر الجزء — قرّب وبعّد بالشريط.</p>
     <div class="crop-view" id="cropView"><img id="cropImg" alt=""></div>
     <input type="range" id="cropZoom" min="1" max="4" step="0.01" value="1">
     <div class="row" style="margin-top:12px">
@@ -519,7 +506,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
   </div></div>
 </div>
 
-<!-- إذن المايك -->
 <div class="modal hidden" id="micModal">
   <div class="modal-card"><div class="mc-body">
     <svg class="big-ic"><use href="#i-mic"/></svg>
@@ -532,7 +518,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
   </div></div>
 </div>
 
-<!-- خطأ المايك -->
 <div class="modal hidden" id="micErrModal">
   <div class="modal-card"><div class="mc-body">
     <svg class="big-ic" style="color:var(--red)"><use href="#i-mic-off"/></svg>
@@ -542,7 +527,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
   </div></div>
 </div>
 
-<!-- الموجودون / القوائم -->
 <div class="modal hidden" id="peopleModal">
   <div class="modal-card"><div class="mc-body">
     <h3 id="peopleTitle"></h3>
@@ -555,7 +539,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
   </div></div>
 </div>
 
-<!-- البروفايل الفاخر -->
 <div class="modal hidden" id="profileModal">
   <div class="modal-card">
     <div class="pf-banner" id="pfBanner"></div>
@@ -593,14 +576,13 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
   </div>
 </div>
 
-<!-- تعديل البروفايل -->
 <div class="modal hidden" id="editModal">
   <div class="modal-card"><div class="mc-body" style="text-align:right">
     <h3 style="text-align:center">ملفي التعريفي</h3>
-    <p style="text-align:center">كل الحقول اختيارية — الصور بجودة كاملة وGIF مدعوم</p>
+    <p style="text-align:center">صور بجودة كاملة — GIF متحرك مدعوم حتى 1MB</p>
     <form id="editForm">
       <div class="edit-field">
-        <label>الصورة الشخصية (قص دائري)</label>
+        <label>الصورة الشخصية (قص دائري / GIF متحرك)</label>
         <div class="avpick">
           <span class="av" id="avPrev"><svg class="ic"><use href="#i-user"/></svg></span>
           <div class="col">
@@ -613,7 +595,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
       <div class="edit-field">
         <label>بانر البروفايل</label>
         <div class="banner-prev" id="bannerPrev"></div>
-        <div class="col" style="display:flex;gap:6px;margin-top:8px;flex-direction:row">
+        <div style="display:flex;gap:6px;margin-top:8px">
           <button type="button" class="mini" id="bannerPick"><svg class="ic sm" style="vertical-align:-3px"><use href="#i-bg"/></svg> تغيير البانر</button>
           <button type="button" class="mini" id="bannerRemove">إزالة البانر</button>
         </div>
@@ -654,7 +636,8 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 <script>
 'use strict';
 const GOOGLE_CLIENT_ID='951107600780-q37rrqjcsopotjpqjuhikvofoersv19n.apps.googleusercontent.com';
-const GRACE_SECONDS=150, HEARTBEAT_MS=6000, PRUNE_MS=45000, PING_MS=5000, SWEEP_MS=10000, STALE_MS=12000;
+const GRACE_SECONDS=150, HEARTBEAT_MS=5000, PRUNE_MS=20000, PING_MS=5000, SWEEP_MS=10000, STALE_MS=12000;
+const MAXIMG=1000000; /* 1 ميقابايت */
 
 const $=s=>document.querySelector(s);
 const IDS=['authView','lobbyView','roomView','insecure','gWrap','gHint','lobbyAv','lobbyName','lobbyHandle','userChip','logoutBtn',
@@ -671,8 +654,8 @@ const IDS=['authView','lobbyView','roomView','insecure','gWrap','gHint','lobbyAv
 const el={};IDS.forEach(id=>{el[id]=$('#'+id);});
 const icon=(n,cls='')=>'<svg class="ic '+cls+'" aria-hidden="true"><use href="#i-'+n+'"/></svg>';
 
-const DIR='sada-dir-v12', ROOMPRE='sada-room-v12-', HANDLES='sada-handles-v1', PREFIX='sada8-';
-const ICE={config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}};
+const DIR_T='sada12/dir', ROOM_T=c=>'sada12/r/'+c, HANDLES='sada-handles-v1', PREFIX='sada8-';
+const ICE={config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:stun2.l.google.com:19302'}]}};
 const COLORS=['#ff4d3d','#ffc24b','#5ad48a','#4dc9ff','#ff8fab','#c0a3ff','#7ce0c3','#ffb02e'];
 const BG_NAMES=['سماء الليل','غروب البث','شبكة ذهبية','أستوديو أحمر','أعماق البحر','رمال دافئة','غابة ليلية','أضواء ذهبية'];
 const rnd=n=>Math.floor(Math.random()*n);
@@ -697,8 +680,8 @@ function sanitizeUser(u){
   const birth=/^\d{4}-\d{2}-\d{2}$/.test(u.birth||'')?u.birth:'';
   const bio=String(u.bio||'').slice(0,120);
   const okImg=v=>typeof v==='string'&&(v.startsWith('data:image/')||v.startsWith('https://'));
-  const avatar=okImg(u.avatar)?u.avatar.slice(0,500000):'';
-  const banner=okImg(u.banner)?u.banner.slice(0,500000):'';
+  const avatar=okImg(u.avatar)?u.avatar.slice(0,1600000):'';
+  const banner=okImg(u.banner)?u.banner.slice(0,1600000):'';
   const fw=Array.isArray(u.fw)?u.fw.map(x=>String(x).slice(0,20)).slice(0,40):[];
   const priv=!!u.priv;
   const handle=validHandle(u.handle)?u.handle:'';
@@ -724,6 +707,89 @@ function ensureCtx(){try{actx=actx||new (window.AudioContext||window.webkitAudio
 document.addEventListener('pointerdown',()=>ensureCtx(),{once:true});
 for(let i=0;i<26;i++){const s=document.createElement('span');s.style.height=(30+rnd(70))+'%';s.style.animationDuration=(1.1+Math.random()*1.8)+'s';s.style.animationDelay=(-Math.random()*2)+'s';el.amb.appendChild(s);}
 
+/* ═══════════════════════════════════════════
+   ناقل MQTT مصغّر (بديل ntfy للنبضات — بدون حدود خانقة)
+   ═══════════════════════════════════════════ */
+const MQ_URLS=['wss://broker.hivemq.com:8884/mqtt','wss://broker.emqx.io:8084/mqtt','wss://test.mosquitto.org:8081/mqtt'];
+let mqWS=null,mqOK=false,mqUrlI=0,mqPing=null,mqReT=null,mqPidN=1;
+const mqCbs=new Map();
+const enc=new TextEncoder(),dec=new TextDecoder();
+function mqRem(n){const o=[];do{let b=n%128;n=Math.floor(n/128);if(n>0)b|=128;o.push(b);}while(n>0);return o;}
+function mqStr(s){const b=enc.encode(s);return [b.length>>8,b.length&255,...b];}
+function mqConnect(){
+  if(mqWS&&(mqWS.readyState===0||mqWS.readyState===1))return;
+  const url=MQ_URLS[mqUrlI%MQ_URLS.length];
+  let ws;try{ws=new WebSocket(url,'mqtt');}catch(e){mqNext();return;}
+  ws.binaryType='arraybuffer';
+  ws.onopen=()=>{
+    const cid='sada'+Math.random().toString(36).slice(2,10);
+    const body=[...mqStr('MQTT'),4,2,0,60,...mqStr(cid)];
+    try{ws.send(new Uint8Array([0x10,...mqRem(body.length),...body]));}catch(e){}
+  };
+  let buf=new Uint8Array(0);
+  ws.onmessage=ev=>{
+    const ch=new Uint8Array(ev.data);
+    const nb=new Uint8Array(buf.length+ch.length);nb.set(buf);nb.set(ch,buf.length);buf=nb;
+    while(buf.length>1){
+      let idx=1,rem=0,mult=1,done=false;
+      while(idx<buf.length){const b=buf[idx++];rem+=(b&127)*mult;mult*=128;if(!(b&128)){done=true;break;}}
+      if(!done)return;
+      if(buf.length<idx+rem)return;
+      const type=buf[0]>>4;
+      const body=buf.subarray(idx,idx+rem);
+      buf=buf.slice(idx+rem);
+      if(type===2){if(!mqOK){mqOK=true;el.dirErr.style.display='none';}mqResub();mqStartPing();}
+      else if(type===3){
+        const tl=(body[0]<<8)|body[1];
+        const topic=dec.decode(body.subarray(2,2+tl));
+        const cb=mqCbs.get(topic);
+        if(cb){try{cb(JSON.parse(dec.decode(body.subarray(2+tl))));}catch(e){}}
+      }
+    }
+  };
+  ws.onclose=()=>{mqOK=false;mqStopPing();mqNext();};
+  ws.onerror=()=>{try{ws.close();}catch(e){}};
+  mqWS=ws;
+}
+function mqNext(){mqUrlI++;clearTimeout(mqReT);mqReT=setTimeout(mqConnect,1800);}
+function mqStartPing(){mqStopPing();mqPing=setInterval(()=>{if(mqWS&&mqWS.readyState===1){try{mqWS.send(new Uint8Array([0xC0,0x00]));}catch(e){}}},30000);}
+function mqStopPing(){clearInterval(mqPing);mqPing=null;}
+function mqPub(topic,obj){
+  if(!mqOK||!mqWS||mqWS.readyState!==1)return false;
+  const p=enc.encode(JSON.stringify(obj));
+  const t=mqStr(topic);
+  const body=[...t,...p];
+  try{mqWS.send(new Uint8Array([0x30,...mqRem(body.length),...body]));return true;}catch(e){return false;}
+}
+function mqSub(topic,cb){
+  mqCbs.set(topic,cb);
+  mqSendSub(topic);
+}
+function mqSendSub(topic){
+  if(mqOK&&mqWS&&mqWS.readyState===1){
+    const body=[mqPidN>>8,mqPidN&255,...mqStr(topic),0];
+    try{mqWS.send(new Uint8Array([0x82,...mqRem(body.length),...body]));}catch(e){}
+    mqPidN=(mqPidN+1)&0xffff;
+  }
+}
+function mqResub(){mqCbs.forEach((cb,t)=>mqSendSub(t));}
+function mqUnsub(topic){mqCbs.delete(topic);}
+mqConnect();
+/* احتياطي ntfy مخفّف جدًا إذا فشل MQTT */
+const ntfyLast={};
+function ntfyPost(topic,obj){fetch('https://ntfy.sh/'+topic,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(obj)}).catch(()=>{});}
+function ntfySlow(topic,obj,min){const n=Date.now();if(n-(ntfyLast[topic]||0)<min)return;ntfyLast[topic]=n;ntfyPost(topic,obj);}
+async function ntfyPoll(topic){
+  const r=await fetch('https://ntfy.sh/'+topic+'/json?poll=1',{cache:'no-store'});
+  const txt=await r.text();let msgs=[];
+  try{const j=JSON.parse(txt);msgs=Array.isArray(j)?j:[j];}
+  catch(e){msgs=txt.split('\n').filter(Boolean).map(l=>{try{return JSON.parse(l);}catch(_){return null;}}).filter(Boolean);}
+  return msgs.map(m=>{try{return JSON.parse(m.message);}catch(e){return null;}}).filter(Boolean);
+}
+/* نشر موحّد: MQTT أولًا ثم احتياطي مخفّف */
+function pubDir(obj){if(!mqPub(DIR_T,obj))ntfySlow(DIR_T,obj,20000);}
+function pubRoom(obj){if(inRoom&&!mqPub(ROOM_T(roomCode),obj))ntfySlow(ROOM_T(roomCode),obj,20000);}
+
 /* ══════════ حالة ══════════ */
 const sessionTs=Date.now();
 let user=null, peer=null, myPid=null, inRoom=false, intentional=false;
@@ -733,10 +799,9 @@ let roster=new Map(), conns=new Map(), callsOut=new Map(), callsIn=new Map(), re
 let kicked=new Set(), seenMsg=new Set(), connFails=new Map();
 let handlesMap=new Map(), handleKeepInt=null;
 let micStream=null, micTrack=null, micAn=null, micData=null, pendingSlot=-1, slotEls=[], editGender='', pendingAvatar='', pendingBanner='', editPriv=false;
-let dirTimer=null, hereInt=null, roomPollInt=null, lvlInt=null, graceInt=null, graceEnd=0, ownerPrompted=false, ownerPidSeen=null;
+let dirTimer=null, hereInt=null, pruneInt=null, lvlInt=null, graceInt=null, graceEnd=0, ownerPrompted=false, ownerPidSeen=null;
 let pendingPreMic=null, lastSig='', pfTargetPid=null, pfTargetUser=null, listKind='', listTarget=null;
-let wakeLock=null;
-/* مفاتيح تخزين لكل حساب (تصلح تسرب المتابعين بين الحسابات) */
+let wakeLock=null, dirMap=new Map(), dirRenderQ=false, ntfyFallbackInt=null;
 let FK='sada-follows', SK='sada-followers-seen';
 function setStorageKeys(){const uk=user?(user.handle||user.gid||user.name):'x';FK='sada-follows:'+uk;SK='sada-followers-seen:'+uk;}
 
@@ -772,7 +837,7 @@ function rememberFollowers(){
 }
 const roomFollowersOf=u=>{const k=userKey(u);return [...roster.values()].filter(r=>r.user.fw&&r.user.fw.includes(k)).length;};
 function resolveByKey(key){
-  const entry=[...roster.entries()].find(([p,r])=>!kicked.has(p)&&(r.user.handle===key||(!key.includes('@')&&r.user.name===key)));
+  const entry=[...roster.entries()].find(([p,r])=>!kicked.has(p)&&userKey(r.user)===key);
   if(entry)return entry[1].user;
   const seen=loadJSON('sada-seen-users',{});
   if(seen[key])return sanitizeUser(seen[key].u);
@@ -787,7 +852,7 @@ function rememberUser(u,room){
   saveJSON('sada-seen-users',m);
 }
 
-/* ══════════ سجل اليوزرات ══════════ */
+/* ══════════ سجل اليوزرات (ntfy — أحداث نادرة فقط) ══════════ */
 async function loadHandles(){
   const local=loadJSON('sada-handles-seen',{});
   const merged=new Map();
@@ -819,10 +884,9 @@ async function claimHandle(raw){
     if(ex.gid===user.gid){user.handle=h;saveJSON('sada-user',user);afterHandle();return true;}
     toast('اليوزر @'+h+' محجوز لشخص آخر');return false;
   }
-  const rec={h:h,gid:user.gid,ts:Date.now()};
-  try{ntfyPost(HANDLES,rec);}catch(e){toast('تعذر الاتصال — أعد المحاولة');return false;}
-  handlesMap.set(h,{gid:user.gid,ts:rec.ts});
-  const local=loadJSON('sada-handles-seen',{});local[h]={gid:user.gid,ts:rec.ts};saveJSON('sada-handles-seen',local);
+  ntfyPost(HANDLES,{h:h,gid:user.gid,ts:Date.now()});
+  handlesMap.set(h,{gid:user.gid,ts:Date.now()});
+  const local=loadJSON('sada-handles-seen',{});local[h]={gid:user.gid,ts:Date.now()};saveJSON('sada-handles-seen',local);
   user.handle=h;saveJSON('sada-user',user);
   afterHandle();
   return true;
@@ -841,19 +905,8 @@ function refreshHandleUI(){
 }
 el.handleClaim.addEventListener('click',async()=>{
   if(!user||!user.gid){toast('الحساب عبر قوقل فقط');return;}
-  const ok=await claimHandle(el.handleInput.value);
-  if(ok)el.handleModal.classList.add('hidden');
+  await claimHandle(el.handleInput.value);
 });
-
-/* ══════════ ntfy ══════════ */
-function ntfyPost(topic,obj){fetch('https://ntfy.sh/'+topic,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(obj)}).catch(()=>{});}
-async function ntfyPoll(topic){
-  const r=await fetch('https://ntfy.sh/'+topic+'/json?poll=1',{cache:'no-store'});
-  const txt=await r.text();let msgs=[];
-  try{const j=JSON.parse(txt);msgs=Array.isArray(j)?j:[j];}
-  catch(e){msgs=txt.split('\n').filter(Boolean).map(l=>{try{return JSON.parse(l);}catch(_){return null;}}).filter(Boolean);}
-  return msgs.map(m=>{try{return JSON.parse(m.message);}catch(e){return null;}}).filter(Boolean);
-}
 
 /* ══════════ الدخول (قوقل فقط) ══════════ */
 (function initGoogle(){
@@ -902,22 +955,37 @@ function enterLobby(){
 }
 el.userChip.addEventListener('click',()=>openProfile(user,false,null));
 
-/* ══════════ اللوبي + البحث ══════════ */
-function startDirPolling(){stopDirPolling();pollDir();dirTimer=setSafe(pollDir,7000);}
-function stopDirPolling(){clearInterval(dirTimer);dirTimer=null;}
-async function pollDir(){
-  try{
-    const msgs=await ntfyPoll(DIR);
-    const map=new Map();
-    for(const d of msgs){if(!d||!d.id)continue;const p=map.get(d.id);if(!p||(d.ts||0)>(p.ts||0))map.set(d.id,d);}
-    const now=Date.now();
-    const rooms=[...map.values()].filter(d=>!d.closed&&now-(d.ts||0)<45000).sort((a,b)=>(b.ls||0)-(a.ls||0)).slice(0,12);
-    renderRooms(rooms);el.dirErr.style.display='none';
-  }catch(e){el.dirErr.style.display='inline';}
+/* ══════════ اللوبي + الدليل عبر MQTT ══════════ */
+let dirSubbed=false;
+function startDirPolling(){
+  if(!dirSubbed){dirSubbed=true;mqSub(DIR_T,onDirMsg);}
+  clearInterval(ntfyFallbackInt);
+  ntfyFallbackInt=setSafe(()=>{if(!mqOK)pollDirNtfy();},15000);
+  pollDirNtfy();
 }
-function renderRooms(rooms){
+function onDirMsg(d){
+  if(!d||!d.id)return;
+  if(d.closed){dirMap.delete(d.id);}
+  else dirMap.set(d.id,d);
+  queueDirRender();
+}
+async function pollDirNtfy(){
+  try{
+    const msgs=await ntfyPoll(DIR_T);
+    for(const d of msgs)onDirMsg(d);
+  }catch(e){}
+}
+function queueDirRender(){
+  if(dirRenderQ)return;
+  dirRenderQ=true;
+  requestAnimationFrame(()=>{dirRenderQ=false;renderRooms();});
+}
+function renderRooms(){
+  const now=Date.now();
+  const rooms=[...dirMap.values()].filter(d=>!d.closed&&now-(d.ts||0)<30000).sort((a,b)=>(b.ls||0)-(a.ls||0)).slice(0,12);
   el.roomsGrid.innerHTML='';
   el.noRooms.classList.toggle('hidden',rooms.length>0);
+  el.dirErr.style.display=mqOK?'none':'inline';
   rooms.forEach(r=>{
     const card=document.createElement('article');card.className='room-card';
     const inner=document.createElement('div');inner.className='rc-inner';
@@ -987,7 +1055,7 @@ el.searchInput.addEventListener('input',()=>{
   });
 });
 
-/* ══════════ الروم (Mesh) ══════════ */
+/* ══════════ الروم (Mesh + حضور MQTT لحظي) ══════════ */
 function iAmOwner(){return !!roomMeta.owner&&user.name===roomMeta.owner;}
 function ownerEntry(){for(const [pid,r] of roster){if(r.user.name===roomMeta.owner)return [pid,r];}return null;}
 function ownerPresent(){
@@ -1044,12 +1112,17 @@ function startRoom(code,meta,isCreator,preMic){
   el.chatList.innerHTML='';
   const ph=document.createElement('li');ph.className='msg ph';ph.textContent='لا رسائل بعد — ابدأ الحديث';
   el.chatList.appendChild(ph);
-  stopDirPolling();showView(el.roomView);
-  setConn('','جارٍ الاتصال…');
+  clearInterval(dirTimer);clearInterval(ntfyFallbackInt);
+  showView(el.roomView);
+  setConn(mqOK?'ok':'','جارٍ الاتصال…');
   applyChatBanUI();
   loadHandles();
   renderAll();
   myJoinTs=Date.now();
+  /* حضور لحظي: اشتراك + استعلام فوري */
+  mqSub(ROOM_T(roomCode),onRoomMsg);
+  pubRoom({w:1});
+  publishHere();
   peer=new Peer(PREFIX+genCode()+rnd(99),ICE);
   peer.on('open',id=>{
     myPid=id;
@@ -1079,13 +1152,14 @@ function startRoom(code,meta,isCreator,preMic){
       }
     }
     publishHere();hereInt=setSafe(publishHere,HEARTBEAT_MS);
-    pollRoom();roomPollInt=setSafe(pollRoom,4000);
+    pruneInt=setSafe(pruneTick,4000);
     lvlInt=setSafe(drawLevels,200);
     pingInt=setSafe(()=>broadcastMesh({t:'ping'}),PING_MS);
     sweepInt=setSafe(connSweep,SWEEP_MS);
     sysLocal('دخلت الروم');
     renderAll();
   });
+  peer.on('disconnected',()=>{try{if(peer&&!peer.destroyed)peer.reconnect();}catch(e){}});
   peer.on('connection',conn=>{
     const pid=conn.peer;
     if(kicked.has(pid)){try{conn.close();}catch(e){}return;}
@@ -1109,41 +1183,41 @@ function startRoom(code,meta,isCreator,preMic){
 function publishHere(){
   if(!inRoom||!myPid)return;
   const u=Object.assign({},user,{avatar:'',banner:''});
-  ntfyPost(ROOMPRE+roomCode,{pid:myPid,user:u,joinTs:myJoinTs,sess:sessionTs,meta:roomMeta,ts:Date.now()});
-  ntfyPost(DIR,{id:roomCode,name:roomMeta.name,owner:roomMeta.owner,bg:state.bg.v,
+  const msg={pid:myPid,user:u,joinTs:myJoinTs,sess:sessionTs,meta:roomMeta,ts:Date.now()};
+  pubRoom(msg);
+  if(iAmOwner())pubDir({id:roomCode,name:roomMeta.name,owner:roomMeta.owner,bg:state.bg.v,
     sp:state.slots.filter(Boolean).length,ls:roster.size,ts:Date.now()});
 }
-async function pollRoom(){
+function onRoomMsg(d){
+  if(!inRoom||!d)return;
+  if(d.w){publishHere();return;}
+  if(!d.pid||d.pid===myPid||kicked.has(d.pid))return;
+  let nu=verifyHandle(sanitizeUser(d.user));
+  if(state.bans.includes(nu.name))return;
+  rememberUser(nu,roomMeta.name);
+  const now=Date.now();
+  const cur=roster.get(d.pid);
+  if(!cur||(d.ts||0)>(cur.lastMsgTs||0)){
+    const userChanged=cur&&JSON.stringify(cur.user)!==JSON.stringify(nu);
+    if(cur){if(!nu.avatar&&cur.user.avatar)nu.avatar=cur.user.avatar;if(!nu.banner&&cur.user.banner)nu.banner=cur.user.banner;}
+    roster.set(d.pid,{user:nu,joinTs:d.joinTs||now,seen:now,sess:d.sess||0,lastMsgTs:d.ts||now});
+    connFails.delete(d.pid);
+    if(nu.name===roomMeta.owner)ownerPidSeen=d.pid;
+    if(d.meta&&d.meta.name&&(!roomMeta.name||roomMeta.name.startsWith('روم ')))roomMeta=d.meta;
+    if(!cur){onPeerSeen(d.pid);rememberFollowers();handleOwnerPresence();renderAll();}
+    else if(userChanged){rememberFollowers();renderAll();}
+    else handleOwnerPresence();
+  }
+}
+function pruneTick(){
   if(!inRoom)return;
-  try{
-    const msgs=await ntfyPoll(ROOMPRE+roomCode);
-    const now=Date.now();
-    let changed=false;
-    for(const d of msgs){
-      if(!d||!d.pid||d.pid===myPid||kicked.has(d.pid))continue;
-      let nu=verifyHandle(sanitizeUser(d.user));
-      if(state.bans.includes(nu.name))continue;
-      const cur=roster.get(d.pid);
-      if(!cur||d.ts>(cur.lastMsgTs||0)){
-        const userChanged=cur&&JSON.stringify(cur.user)!==JSON.stringify(nu);
-        if(cur&&cur.user.avatar&&!nu.avatar)nu.avatar=cur.user.avatar;
-        if(cur&&cur.user.banner&&!nu.banner)nu.banner=cur.user.banner;
-        roster.set(d.pid,{user:nu,joinTs:d.joinTs||now,seen:now,sess:d.sess||0,lastMsgTs:d.ts||now});
-        connFails.delete(d.pid);
-        if(nu.name===roomMeta.owner)ownerPidSeen=d.pid;
-        if(d.meta&&d.meta.name&&(!roomMeta.name||roomMeta.name.startsWith('روم ')))roomMeta=d.meta;
-        if(!cur){onPeerSeen(d.pid);changed=true;}
-        else if(userChanged)changed=true;
-      }
-    }
-    if(dedupeRoster())changed=true;
-    for(const [pid] of [...roster]){
-      if(pid!==myPid&&now-roster.get(pid).seen>PRUNE_MS){roster.delete(pid);onPeerGone(pid);changed=true;}
-    }
-    if(changed)rememberFollowers();
-    handleOwnerPresence();
-    if(changed)renderAll();else renderBar();
-  }catch(e){}
+  const now=Date.now();let changed=false;
+  for(const [pid] of [...roster]){
+    if(pid!==myPid&&now-roster.get(pid).seen>PRUNE_MS){roster.delete(pid);onPeerGone(pid);changed=true;}
+  }
+  if(dedupeRoster())changed=true;
+  handleOwnerPresence();
+  if(changed){rememberFollowers();renderAll();}else renderBar();
 }
 function connSweep(){
   if(!inRoom||intentional)return;
@@ -1189,16 +1263,19 @@ function stopGraceTick(){clearInterval(graceInt);graceInt=null;el.graceChip.clas
 
 function onPeerSeen(pid){if(conns.has(pid)||kicked.has(pid))return;connectTo(pid);}
 function connectTo(pid){
-  try{const c=peer.connect(pid,{reliable:true});conns.set(pid,c);wireConn(c,pid);}catch(e){}
+  try{const c=peer.connect(pid,{reliable:true,serialization:'binary'});conns.set(pid,c);wireConn(c,pid);}catch(e){}
 }
 function wireConn(conn,pid){
   conn.on('open',()=>{
     connFails.delete(pid);
     touch(pid);
     try{
-      conn.send({t:'hi',user:user,joinTs:myJoinTs,sess:sessionTs,meta:roomMeta});
+      let hi={t:'hi',user:user,joinTs:myJoinTs,sess:sessionTs,meta:roomMeta};
+      if(JSON.stringify(hi).length>2500000)hi.user=Object.assign({},user,{banner:''});
+      if(JSON.stringify(hi).length>2500000)hi.user=Object.assign({},user,{avatar:'',banner:''});
+      conn.send(hi);
       let sync={t:'sync',slots:state.slots,bg:state.bg,meta:roomMeta,bans:state.bans,chatBans:state.chatBans};
-      if(JSON.stringify(sync).length>400000)sync.slots=state.slots.map(s=>s?{pid:s.pid,user:Object.assign({},s.user,{banner:''}),ts:s.ts,muted:s.muted}:null);
+      if(JSON.stringify(sync).length>2500000)sync.slots=state.slots.map(s=>s?{pid:s.pid,user:Object.assign({},s.user,{banner:'',avatar:''}),ts:s.ts,muted:s.muted}:null);
       conn.send(sync);
       if(mySlotIndex()>=0&&micStream)callPeerWithMic(pid);
     }catch(e){}
@@ -1745,7 +1822,8 @@ el.pfFollow.addEventListener('click',()=>{if(pfTargetUser)toggleFollowByKey(user
 el.pfLists.addEventListener('click',()=>{
   if(!pfTargetUser)return;
   el.profileModal.classList.add('hidden');
-  if(pfTargetUser.name===user.name&&(!pfTargetUser.handle||pfTargetUser.handle===user.handle))openFollowList('self');
+  const isSelf=!!pfTargetUser.gid&&pfTargetUser.gid===user.gid;
+  if(isSelf)openFollowList('self');
   else openFollowList('other-following',pfTargetUser);
 });
 el.pfSocialStats.addEventListener('click',()=>{
@@ -1769,7 +1847,7 @@ el.pfBanKick.addEventListener('click',()=>{
   el.profileModal.classList.add('hidden');
 });
 
-/* ══════════ الصور: قص دائري + بانر + GIF ══════════ */
+/* ══════════ الصور: قص + GIF حتى 1MB + بانر ══════════ */
 let cropState={zoom:1,tx:0,ty:0,base:1,natW:1,natH:1,V:240};
 function openCropper(dataUrl){
   const img=el.cropImg;
@@ -1796,7 +1874,7 @@ el.cropZoom.addEventListener('input',()=>{cropState.zoom=parseFloat(el.cropZoom.
   let drag=null;
   el.cropView.addEventListener('pointerdown',e=>{
     drag={x:e.clientX,y:e.clientY,tx:cropState.tx,ty:cropState.ty};
-    el.cropView.setPointerCapture(e.pointerId);
+    try{el.cropView.setPointerCapture(e.pointerId);}catch(_){}
   });
   el.cropView.addEventListener('pointermove',e=>{
     if(!drag)return;
@@ -1822,47 +1900,49 @@ el.cropSave.addEventListener('click',()=>{
   }catch(e){toast('تعذر قص الصورة');}
   el.cropModal.classList.add('hidden');
 });
+function readImgFile(f,onOk){
+  if(f.size>MAXIMG){toast('حجم الصورة كبير — الحد الأقصى 1MB');return;}
+  if(f.type==='image/gif'){
+    const rd=new FileReader();
+    rd.onload=()=>onOk(rd.result,true);
+    rd.readAsDataURL(f);
+  }else{
+    const rd=new FileReader();
+    rd.onload=()=>onOk(rd.result,false);
+    rd.readAsDataURL(f);
+  }
+}
 el.avPick.addEventListener('click',()=>el.avFile.click());
 el.avFile.addEventListener('change',e=>{
   const f=e.target.files&&e.target.files[0];if(!f)return;
-  if(f.type==='image/gif'){
-    if(f.size>350000){toast('حجم الـGIF كبير جدًا (الحد ~350KB)');}
-    else{const rd=new FileReader();rd.onload=()=>{pendingAvatar=rd.result;refreshAvPrev();toast('افتار GIF جاهز — احفظ');};rd.readAsDataURL(f);}
-  }else{
-    const rd=new FileReader();rd.onload=()=>openCropper(rd.result);rd.readAsDataURL(f);
-  }
+  readImgFile(f,(data,isGif)=>{
+    if(isGif){pendingAvatar=data;refreshAvPrev();toast('افتار GIF جاهز — احفظ ليتحرك عند الجميع');}
+    else openCropper(data);
+  });
   e.target.value='';
 });
 el.avRemove.addEventListener('click',()=>{pendingAvatar='';refreshAvPrev();});
 el.bannerPick.addEventListener('click',()=>el.bannerFile.click());
 el.bannerFile.addEventListener('change',e=>{
   const f=e.target.files&&e.target.files[0];if(!f)return;
-  if(f.type==='image/gif'){
-    if(f.size>350000){toast('حجم الـGIF كبير جدًا (الحد ~350KB)');}
-    else{const rd=new FileReader();rd.onload=()=>{pendingBanner=rd.result;refreshBannerPrev();};rd.readAsDataURL(f);}
-  }else{
-    const rd=new FileReader();
-    rd.onload=()=>{
-      const img=new Image();
-      img.onload=()=>{
-        const W=800,H=260;
-        const c=document.createElement('canvas');c.width=W;c.height=H;
-        const sc=Math.max(W/img.naturalWidth,H/img.naturalHeight);
-        const dw=img.naturalWidth*sc,dh=img.naturalHeight*sc;
-        c.getContext('2d').drawImage(img,(W-dw)/2,(H-dh)/2,dw,dh);
-        pendingBanner=c.toDataURL('image/jpeg',0.72);
-        refreshBannerPrev();
-      };
-      img.src=rd.result;
+  readImgFile(f,(data,isGif)=>{
+    if(isGif){pendingBanner=data;refreshBannerPrev();return;}
+    const img=new Image();
+    img.onload=()=>{
+      const W=800,H=260;
+      const c=document.createElement('canvas');c.width=W;c.height=H;
+      const sc=Math.max(W/img.naturalWidth,H/img.naturalHeight);
+      const dw=img.naturalWidth*sc,dh=img.naturalHeight*sc;
+      c.getContext('2d').drawImage(img,(W-dw)/2,(H-dh)/2,dw,dh);
+      pendingBanner=c.toDataURL('image/jpeg',0.72);
+      refreshBannerPrev();
     };
-    rd.readAsDataURL(f);
-  }
+    img.src=data;
+  });
   e.target.value='';
 });
 el.bannerRemove.addEventListener('click',()=>{pendingBanner='';refreshBannerPrev();});
-function refreshBannerPrev(){
-  el.bannerPrev.innerHTML=pendingBanner?'<img src="'+esc(pendingBanner)+'" alt="">':'';
-}
+function refreshBannerPrev(){el.bannerPrev.innerHTML=pendingBanner?'<img src="'+esc(pendingBanner)+'" alt="">':'';}
 
 /* ══════════ تعديل الملف ══════════ */
 function openEdit(){
@@ -1923,16 +2003,16 @@ BG_NAMES.forEach((n,i)=>{
 });
 el.bgBtn.addEventListener('click',()=>el.bgPicker.classList.toggle('hidden'));
 
-/* ══════════ المغادرة (محمية) ══════════ */
+/* ══════════ المغادرة ══════════ */
 function leaveRoom(){
   if(!inRoom)return;
   intentional=true;
   try{
     if(iAmOwner()){
       broadcastMesh({t:'hostEnd',id:mid(),ts:Date.now()});
-      ntfyPost(DIR,{id:roomCode,closed:true,ts:Date.now()});
+      pubDir({id:roomCode,closed:true,ts:Date.now()});
     }else if(roster.size<=1){
-      ntfyPost(DIR,{id:roomCode,closed:true,ts:Date.now()});
+      pubDir({id:roomCode,closed:true,ts:Date.now()});
     }
   }catch(e){}
   try{cleanupRoom();}
@@ -1942,15 +2022,16 @@ function leaveRoom(){
     peer=null;myPid=null;
   }
   showView(el.lobbyView);
-  startDirPolling();
+  enterLobbyKeep();
 }
+function enterLobbyKeep(){startDirPolling();}
 el.leaveBtn.addEventListener('click',e=>{e.preventDefault();leaveRoom();});
 document.addEventListener('click',e=>{
-  if(e.target&&e.target.closest&&e.target.closest('#leaveBtn')){leaveRoom();}
+  if(e.target&&e.target.closest&&e.target.closest('#leaveBtn'))leaveRoom();
 });
 function cleanupRoom(){
-  [hereInt,roomPollInt,lvlInt,pingInt,sweepInt].forEach(clearInterval);
-  hereInt=roomPollInt=lvlInt=pingInt=sweepInt=null;
+  [hereInt,pruneInt,lvlInt,pingInt,sweepInt].forEach(clearInterval);
+  hereInt=pruneInt=lvlInt=pingInt=sweepInt=null;
   stopGraceTick();graceEnd=0;
   broadcastMesh({t:'slotLeave',id:mid(),pid:myPid,ts:Date.now()});
   callsOut.forEach(c=>{try{c.close();}catch(e){}});
@@ -1959,6 +2040,7 @@ function cleanupRoom(){
   [...remotes.keys()].forEach(removeRemote);
   stopMicLocal();
   releaseWake();
+  mqUnsub(ROOM_T(roomCode));
   if(peer){try{peer.destroy();}catch(e){}}
   peer=null;myPid=null;inRoom=false;pendingPreMic=null;pfTargetPid=null;listKind='';ownerPidSeen=null;
   state={slots:Array(8).fill(null),bg:{v:1,ts:0},bans:[],chatBans:[]};
@@ -1971,10 +2053,10 @@ async function requestWake(){
 function releaseWake(){try{if(wakeLock)wakeLock.release();}catch(e){}wakeLock=null;}
 window.addEventListener('pagehide',()=>{
   if(!inRoom)return;
-  if(iAmOwner()||roster.size<=1)ntfyPost(DIR,{id:roomCode,closed:true,ts:Date.now()});
+  if(iAmOwner()||roster.size<=1){mqPub(DIR_T,{id:roomCode,closed:true,ts:Date.now()});ntfyPost(DIR_T,{id:roomCode,closed:true,ts:Date.now()});}
 });
 document.addEventListener('visibilitychange',()=>{
-  if(document.visibilityState==='visible'&&inRoom){requestWake();publishHere();pollRoom();}
+  if(document.visibilityState==='visible'&&inRoom){requestWake();publishHere();pruneTick();}
 });
 
 /* ══════════ الإقلاع ══════════ */
@@ -1984,7 +2066,7 @@ const saved=localStorage.getItem('sada-user');
 if(saved){
   try{
     const u=JSON.parse(saved);
-    if(u&&u.gid){user=sanitizeUser(u);user.fw=[];setStorageKeys();user.fw=myFollows().slice(0,40);enterLobby();if(user.handle)startHandleKeepalive();else openHandleModal();}
+    if(u&&u.gid){user=sanitizeUser(u);setStorageKeys();user.fw=myFollows().slice(0,40);enterLobby();if(user.handle)startHandleKeepalive();else openHandleModal();}
   }catch(e){}
 }
 </script>
