@@ -31,7 +31,6 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;back
 ::-webkit-scrollbar-thumb{background:rgba(255,194,75,.16);border-radius:6px}
 ::-webkit-scrollbar-track{background:transparent}
 
-/* أنيميشن الانتقالات */
 button, a, input, textarea, .slot, .room-card, .ppl-row, .pill, .sw, .msg {
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -146,7 +145,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .empty-state{text-align:center;color:var(--muted);padding:44px 20px;font-size:.95rem}
 .hint{font-size:.76rem;color:var(--muted)}
 
-/* Room Layout (Redesigned) */
 #roomView{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px}
 .room-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:2px 4px;flex-shrink:0}
 .title-box{display:flex;flex-direction:column;gap:3px;min-width:0}
@@ -176,8 +174,8 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
   .chat-col { flex: 1; max-width: 420px; min-width: 320px; }
 }
 @media (max-width: 819px) {
-  .stage-col { flex: 1; min-height: 40%; border-bottom: 1px solid var(--line); }
-  .chat-col { flex: 1.5; }
+  .stage-col { flex: 0 0 45%; border-bottom: 1px solid var(--line); }
+  .chat-col { flex: 1; }
 }
 .room-shell.text-only { flex-direction: column; }
 .room-shell.text-only .stage-col { display: none; }
@@ -185,43 +183,94 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 
 /* Stage */
 .stage-col { display: flex; flex-direction: column; min-height: 0; position: relative; }
-.stage { flex: 1; min-height: 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; transition: background .5s; position: relative; }
-.slots { display: flex; flex-wrap: wrap; gap: 16px 24px; justify-content: center; align-content: flex-start; padding: 10px 0; }
+.stage { flex: 1; min-height: 0; overflow: hidden; padding: 8px 8px 6px; display: flex; flex-direction: column; gap: 4px; transition: background .5s; position: relative; }
 
-.slot { width: clamp(65px, 18vw, 90px); display: flex; flex-direction: column; align-items: center; gap: 8px; background: transparent; border: none; cursor: pointer; position: relative; outline: none; }
-.slot:hover .pod { transform: scale(1.05); border-color: var(--gold); }
+.slots {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  overflow: hidden;
+}
+@media (max-width: 900px) and (orientation: portrait) {
+  .slots {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+  }
+}
 
-.pod { position: relative; width: 100%; aspect-ratio: 1; border-radius: 50%; border: 2px solid rgba(245,234,217,.15); background: rgba(10,7,5,.5); display: flex; align-items: center; justify-content: center; transition: transform .2s, border-color .2s; --lvl: 0; box-shadow: 0 0 calc(2px + var(--lvl)*20px) rgba(255,194,75,calc(.1 + var(--lvl)*.6)); }
+.slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text);
+  outline: none;
+}
+
+.pod {
+  position: relative;
+  flex-shrink: 0;
+  width: clamp(38px, 7vw, 60px);
+  height: clamp(38px, 7vw, 60px);
+  border-radius: 50%;
+  border: 2px solid rgba(245,234,217,.15);
+  background: rgba(10,7,5,.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .2s, border-color .2s;
+  --lvl: 0;
+  box-shadow: 0 0 calc(2px + var(--lvl)*20px) rgba(255,194,75,calc(.1 + var(--lvl)*.6));
+}
+@media (max-width: 900px) and (orientation: portrait) {
+  .pod {
+    width: clamp(36px, 12vw, 52px);
+    height: clamp(36px, 12vw, 52px);
+  }
+}
+.slot:hover .pod { border-color: var(--gold); }
 .slot.occupied .pod { border-color: rgba(255,194,75,.5); background: linear-gradient(160deg,rgba(255,194,75,.1),rgba(10,7,5,.8)); }
 .slot.empty .pod { border-style: dashed; }
-.pod .av { position: absolute; inset: 4px; width: auto; height: auto; border: none; }
-.slot.empty .pod .ic { width: 24px; height: 24px; color: var(--muted); }
+.pod .av { position: absolute; inset: 3px; width: auto; height: auto; border: none; }
+.pod .plus { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); }
+.pod .plus .ic { width: 16px; height: 16px; }
 
-.micpill { position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%); width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: #1b1512; border: 1px solid var(--line); color: var(--green); z-index: 3; }
+.micpill { position: absolute; bottom: -3px; left: 50%; transform: translateX(-50%); width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; background: #1b1512; border: 1px solid var(--line); color: var(--green); z-index: 3; }
 .micpill.off { color: var(--red); }
-.micpill .ic { width: 11px; height: 11px; }
-.own-tag { position: absolute; top: -4px; inset-inline-start: -4px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: #1b1512; border: 1px solid rgba(255,194,75,.5); color: var(--gold); z-index: 3; }
-.own-tag .ic { width: 11px; height: 11px; }
-.slot .act { position: absolute; top: -4px; inset-inline-end: -4px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: #1b1512; border: 1px solid var(--line); color: #d8c8ae; cursor: pointer; transition: .15s; z-index: 4; }
+.micpill .ic { width: 9px; height: 9px; }
+.own-tag { position: absolute; top: -3px; inset-inline-start: -3px; width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; background: #1b1512; border: 1px solid rgba(255,194,75,.5); color: var(--gold); z-index: 3; }
+.own-tag .ic { width: 9px; height: 9px; }
+.slot .act { position: absolute; top: -3px; inset-inline-end: -3px; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; background: #1b1512; border: 1px solid var(--line); color: #d8c8ae; cursor: pointer; transition: .15s; z-index: 4; }
 .slot .act:hover { background: var(--red); color: #fff; border-color: var(--red); }
 .slot .act.x:hover { background: #5c4630; border-color: #5c4630; }
-.slot .act .ic { width: 10px; height: 10px; }
-.slot .nm { font-size: .73rem; font-weight: 700; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; color: var(--text); }
-.slot .nm i { font-style: normal; color: var(--gold); font-size: .6rem; }
-.slot.empty .lb { font-size: .68rem; color: var(--muted); }
+.slot .act .ic { width: 9px; height: 9px; }
+.slot .nm { font-size: .58rem; font-weight: 700; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; color: var(--text); line-height: 1.1; }
+.slot .nm i { font-style: normal; color: var(--gold); font-size: .52rem; }
+.slot.empty .lb { font-size: .55rem; color: var(--muted); line-height: 1.1; }
 
-.stage-ctrls { display: flex; gap: 10px; justify-content: center; flex-shrink: 0; margin-top: auto; padding-top: 10px;}
-.stage-ctrls .btn { min-height: 38px; font-size: .85rem; border-radius: 99px; padding: 0 16px; }
-.listeners-strip { display: flex; align-items: center; gap: 10px; flex-shrink: 0; flex-wrap: wrap; margin-top: auto; padding-top: 10px; border-top: 1px dashed rgba(245,234,217,.1); }
+.stage-ctrls { display: flex; gap: 6px; justify-content: center; flex-shrink: 0; }
+.stage-ctrls .btn { min-height: 30px; font-size: .72rem; border-radius: 99px; padding: 0 12px; }
+.listeners-strip { display: flex; align-items: center; gap: 8px; flex-shrink: 0; flex-wrap: wrap; padding-top: 6px; margin-top: auto; border-top: 1px dashed rgba(245,234,217,.1); }
 .ls-avs { display: flex; }
-.ls-avs .av { width: 28px; height: 28px; margin-inline-start: -8px; border-width: 2px; }
+.ls-avs .av { width: 24px; height: 24px; margin-inline-start: -8px; border-width: 2px; }
 .ls-avs .av:first-child { margin-inline-start: 0; }
-#lsLabel { font-size: .78rem; color:#d8c8ae; display:inline-flex; align-items:center; gap:7px; cursor:pointer; background:none; border:none; font-family:inherit; }
+#lsLabel { font-size: .72rem; color:#d8c8ae; display:inline-flex; align-items:center; gap:6px; cursor:pointer; background:none; border:none; font-family:inherit; }
 #lsLabel:hover { color: var(--gold); }
-#lsLabel .ic { width:14px; height:14px; color:var(--gold); }
+#lsLabel .ic { width:12px; height:12px; color:var(--gold); }
 
-.bg-fab{position:absolute;bottom:14px;inset-inline-end:14px;z-index:5;min-height:36px;border-radius:99px;padding:0 16px;background:linear-gradient(135deg,rgba(255,227,168,.96),rgba(255,143,61,.96));color:#2b1c05;font-family:'Changa';font-weight:800;font-size:.85rem;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 6px 20px rgba(255,143,61,.4);transition:.2s}
-.bg-picker{position:absolute;bottom:56px;inset-inline-end:14px;width:min(440px,calc(100% - 28px));z-index:6;padding:14px;border-radius:18px;background:rgba(20,14,11,.92);backdrop-filter:blur(20px);border:1px solid var(--line);box-shadow:0 18px 50px rgba(0,0,0,.55)}
+.bg-fab{position:absolute;bottom:8px;inset-inline-end:8px;z-index:5;min-height:30px;border-radius:99px;padding:0 12px;background:linear-gradient(135deg,rgba(255,227,168,.96),rgba(255,143,61,.96));color:#2b1c05;font-family:'Changa';font-weight:800;font-size:.75rem;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;box-shadow:0 4px 12px rgba(255,143,61,.4);transition:.2s}
+.bg-picker{position:absolute;bottom:46px;inset-inline-end:8px;width:min(440px,calc(100% - 16px));z-index:6;padding:14px;border-radius:18px;background:rgba(20,14,11,.92);backdrop-filter:blur(20px);border:1px solid var(--line);box-shadow:0 18px 50px rgba(0,0,0,.55)}
 .card-tag{font-family:'Changa';font-weight:700;color:var(--gold);margin-bottom:10px;font-size:.86rem;display:flex;align-items:center;gap:8px}
 .swatches{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
 @media(max-width:700px){.swatches{grid-template-columns:repeat(4,1fr)}}
@@ -232,29 +281,27 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .audio-cta{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:80;min-height:48px;border-radius:99px;padding:0 26px;background:linear-gradient(135deg,#ffe3a3,#ff8f3d);color:#2b1c05;font-family:'Changa';font-weight:800;font-size:.95rem;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 10px 30px rgba(255,143,61,.55);animation:blink 1.2s infinite}
 .audio-cta .ic{width:22px;height:22px;stroke-width:2.2}
 
-/* Chat Redesign */
 .chat-col { display: flex; flex-direction: column; min-height: 0; background: rgba(10, 7, 5, 0.4); position: relative; }
-.chat-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px 10px; flex-shrink: 0; border-bottom: 1px solid var(--line); }
-.chat-head .t { font-family: 'Changa'; font-weight: 700; color: var(--gold); font-size: .95rem; display: flex; align-items: center; gap: 8px; }
-#chatList { list-style: none; flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 16px; }
-#chatList::before { content: ''; flex: 1 0 auto; } /* Pushes messages to bottom */
-.msg { display: flex; gap: 10px; align-items: flex-start; }
-.msg .av { width: 32px; height: 32px; border-width: 1.5px; }
-.msg .body { min-width: 0; max-width: 85%; background: rgba(255,255,255,.03); padding: 8px 12px; border-radius: 12px; border-top-right-radius: 2px; }
-.msg .mtop { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; flex-wrap: wrap; }
-.msg b { font-size: .78rem; }
-.msg p { font-size: .88rem; line-height: 1.6; word-wrap: break-word; color: #efe3cf; }
-.msg.sys { justify-content: center; color: var(--muted); font-size: .75rem; text-align: center; background: none; padding: 0; }
+.chat-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px 8px; flex-shrink: 0; border-bottom: 1px solid var(--line); }
+.chat-head .t { font-family: 'Changa'; font-weight: 700; color: var(--gold); font-size: .9rem; display: flex; align-items: center; gap: 6px; }
+#chatList { list-style: none; flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; }
+#chatList::before { content: ''; flex: 1 0 auto; }
+.msg { display: flex; gap: 8px; align-items: flex-start; }
+.msg .av { width: 28px; height: 28px; border-width: 1.5px; }
+.msg .body { min-width: 0; max-width: 85%; background: rgba(255,255,255,.03); padding: 6px 10px; border-radius: 12px; border-top-right-radius: 2px; }
+.msg .mtop { display: flex; align-items: center; gap: 4px; margin-bottom: 2px; flex-wrap: wrap; }
+.msg b { font-size: .74rem; }
+.msg p { font-size: .85rem; line-height: 1.55; word-wrap: break-word; color: #efe3cf; }
+.msg.sys { justify-content: center; color: var(--muted); font-size: .72rem; text-align: center; }
 .msg.sys .body { background: none; padding: 0; }
 .msg.sys.warn { color: var(--gold); }
-.msg.ph { justify-content: center; color: #6d5c48; font-size: .8rem; text-align: center; }
+.msg.ph { justify-content: center; color: #6d5c48; font-size: .78rem; text-align: center; }
 .msg.ph .body { background: none; padding: 0; }
 
-#chatForm { display: flex; gap: 8px; padding: 12px 16px; flex-shrink: 0; background: rgba(14, 10, 8, 0.8); border-top: 1px solid var(--line); }
-#chatForm input { flex: 1; min-height: 44px; border-radius: 99px; padding: 0 16px; background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.1); }
-#chatForm .btn { min-height: 44px; padding: 0 16px; border-radius: 99px; }
+#chatForm { display: flex; gap: 8px; padding: 10px 12px; flex-shrink: 0; background: rgba(14, 10, 8, 0.85); border-top: 1px solid var(--line); }
+#chatForm input { flex: 1; min-height: 40px; border-radius: 99px; padding: 0 14px; background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.1); }
+#chatForm .btn { min-height: 40px; padding: 0 12px; border-radius: 99px; }
 
-/* Backgrounds */
 .bg-1{background-color:#0b1120;background-image:radial-gradient(2px 2px at 18% 25%,#ffffffaa 40%,transparent 45%),radial-gradient(1.5px 1.5px at 68% 15%,#ffffff88 40%,transparent 45%),radial-gradient(2px 2px at 85% 55%,#ffffff77 40%,transparent 45%),radial-gradient(620px 300px at 70% 115%,rgba(45,80,140,.5),transparent)}
 .bg-2{background-image:radial-gradient(circle at 50% 125%,#ffd98a 0%,#ff7a4d 32%,#7a2d3e 68%,#2a1220 100%)}
 .bg-3{background-color:#101317;background-image:linear-gradient(rgba(255,194,75,.13) 1px,transparent 1px),linear-gradient(90deg,rgba(255,194,75,.13) 1px,transparent 1px),radial-gradient(520px 260px at 50% 0%,rgba(255,77,61,.2),transparent);background-size:34px 34px,34px 34px,auto}
@@ -403,7 +450,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
       <span class="spacer"></span>
       <button class="btn danger sm icon" id="dmBtn" title="الرسائل" style="position:relative">
         <svg class="ic sm"><use href="#i-chat"/></svg>
-        <span id="dmUnread" class="hidden" style="position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;font-size:.6rem;padding:2px 6px;border-radius:99px;z-index:99;display:flex;align-items:center;justify-content:center">0</span>
+        <span id="dmUnread" class="hidden" style="position:absolute;top:-6px;right:-6px;background:var(--red);color:#fff;font-size:.62rem;padding:2px 6px;border-radius:99px;z-index:99;display:flex;align-items:center;justify-content:center;min-width:18px;height:18px;font-family:'Changa';font-weight:800">0</span>
       </button>
       <span class="user-chip" id="userChip" title="بروفايلك">
         <span class="av" id="lobbyAv"><svg class="ic"><use href="#i-user"/></svg></span>
@@ -451,7 +498,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
       <span class="spacer"></span>
       <button class="btn danger sm icon" id="dmBtn2" title="الرسائل" style="position:relative">
         <svg class="ic sm"><use href="#i-chat"/></svg>
-        <span id="dmUnread2" class="hidden" style="position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;font-size:.6rem;padding:2px 6px;border-radius:99px;z-index:99;display:flex;align-items:center;justify-content:center">0</span>
+        <span id="dmUnread2" class="hidden" style="position:absolute;top:-6px;right:-6px;background:var(--red);color:#fff;font-size:.62rem;padding:2px 6px;border-radius:99px;z-index:99;display:flex;align-items:center;justify-content:center;min-width:18px;height:18px;font-family:'Changa';font-weight:800">0</span>
       </button>
       <button class="btn danger sm solid" id="leaveBtn" type="button"><svg class="ic sm"><use href="#i-exit"/></svg> مغادرة</button>
     </div>
@@ -586,7 +633,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
         <button class="btn ghost sm" id="pfModToggle">تعيين مشرف</button>
         <button class="btn ghost sm" id="pfMute"></button>
         <button class="btn ghost sm" id="pfChatBan"></button>
-        <button class="btn danger sm" id="pfKick"></button>
+        <button class="btn danger sm" id="pfKick">طرد</button>
       </div>
       <div class="row">
         <button class="btn gold sm hidden" id="pfEdit" type="button"><svg class="ic sm"><use href="#i-edit"/></svg> تعديل ملفي</button>
@@ -675,7 +722,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
   </div></div>
 </div>
 
-<!-- مودال إنشاء بث -->
 <div class="modal hidden" id="createRoomModal">
   <div class="modal-card"><div class="mc-body" style="text-align:right">
     <h3 style="text-align:center">إنشاء بث جديد</h3>
@@ -704,7 +750,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
   </div></div>
 </div>
 
-<!-- مودال طلب الصعود للمسرح -->
 <div class="modal hidden" id="reqModal">
   <div class="modal-card"><div class="mc-body">
     <svg class="big-ic"><use href="#i-alert"/></svg>
@@ -775,6 +820,18 @@ function showView(v){[el.authView,el.lobbyView,el.roomView].forEach(x=>x.classLi
 function setConn(cls,text){el.connChip.className='count conn static '+cls;el.connText.textContent=text;}
 const cleanHandle=h=>String(h||'').toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,16);
 const validHandle=h=>/^[a-z0-9_]{3,16}$/.test(h);
+
+function loadBanList(code){ return loadJSON('sada-ban-' + code, []); }
+function saveBanList(code, list){ saveJSON('sada-ban-' + code, list); }
+function isUserBannedInRoom(u, code){
+  if (!u) return false;
+  const list = loadBanList(code);
+  return list.some(b => {
+    if (b.gid && u.gid) return b.gid === u.gid;
+    if (b.name && !u.gid) return b.name === u.name;
+    return false;
+  });
+}
 
 function sanitizeUser(u){
   u=u||{};
@@ -972,7 +1029,7 @@ function pubRoom(obj){if(inRoom&&!mqPub(ROOM_T(roomCode),obj))ntfySlow(ROOM_T(ro
 
 /* ══════════ حالة ══════════ */
 const sessionTs=Date.now();
-let user=null,peer=null,myPid=null,inRoom=false,intentional=false;
+let user=null,peer=null,myPid=null,inRoom=false,intentional=false,bannedExit=false;
 let roomCode=null,roomMeta={name:'',owner:'',ownerId:'',type:'voice',requireApproval:false},myJoinTs=0;
 let state={slots:Array(8).fill(null),bg:{v:1,ts:0},chatBans:[],mods:[],bans:[]};
 let roster=new Map(),conns=new Map(),callsOut=new Map(),callsIn=new Map(),remotes=new Map();
@@ -996,6 +1053,7 @@ function clearPendingTimeouts(){pendingTimeouts.forEach(t=>clearTimeout(t));pend
 let dms = {};
 let dmChatTarget = null;
 let dmES = null;
+let dmESReconnectTimer = null;
 
 function loadDMs() {
   dms = loadJSON('sada-dms-' + (user ? user.gid : 'x'), {});
@@ -1015,8 +1073,6 @@ function updateDMUnread() {
         badge.textContent = unread > 9 ? '9+' : unread;
         badge.classList.remove('hidden');
         badge.style.display = 'flex';
-        badge.style.alignItems = 'center';
-        badge.style.justifyContent = 'center';
       } else {
         badge.classList.add('hidden');
         badge.style.display = 'none';
@@ -1025,6 +1081,8 @@ function updateDMUnread() {
   });
 }
 function openDMList() {
+  dmChatTarget = null;
+  document.getElementById('dmChatModal').classList.add('hidden');
   document.getElementById('dmModal').classList.remove('hidden');
   const list = document.getElementById('dmList');
   list.innerHTML = '';
@@ -1066,6 +1124,7 @@ function openDMChat(targetUser) {
 function renderDMChat() {
   const list = document.getElementById('dmChatList');
   list.innerHTML = '';
+  if (!dmChatTarget) return;
   const key = dmChatTarget.gid || dmChatTarget.name;
   const c = dms[key];
   if (!c || !c.messages.length) {
@@ -1091,52 +1150,88 @@ function sendDM(text) {
   if (!dmChatTarget) return;
   const targetGid = dmChatTarget.gid;
   if (!targetGid) { toast('لا يمكن إرسال رسالة خاصة لهذا الشخص'); return; }
-  const m = { id: mid(), from: user, text, ts: Date.now() };
   
-  mqPub(DM_T + targetGid, m);
-  ntfyPost(DM_T + targetGid, m);
+  const id = mid();
+  const now = Date.now();
   
-  const key = targetGid;
-  if (!dms[key]) dms[key] = { user: dmChatTarget, messages: [] };
-  dms[key].messages.push({ id: m.id, text, from: user.gid, ts: m.ts });
-  dms[key].lastTs = m.ts;
-  saveDMs();
-  renderDMChat();
+  // نرسل الصورة المصغرة فقط لتجنب تجاوز الحد
+  makeThumb(user.avatar || '', 48).then(avThumb => {
+    const fromMini = {
+      gid: user.gid,
+      name: user.name,
+      handle: user.handle,
+      color: user.color,
+      avatar: avThumb || ''
+    };
+    const m = { id, from: fromMini, text, ts: now };
+    
+    mqPub(DM_T + targetGid, m);
+    ntfyPost(DM_T + targetGid, m);
+    
+    const key = targetGid;
+    if (!dms[key]) dms[key] = { user: dmChatTarget, messages: [] };
+    dms[key].messages.push({ id, text, from: user.gid, ts: now });
+    dms[key].lastTs = now;
+    saveDMs();
+    renderDMChat();
+  });
 }
 function onDMMsg(m) {
   if (!m || !m.from) return;
   const key = m.from.gid || m.from.name;
   if (!dms[key]) dms[key] = { user: m.from, messages: [] };
+  if (!dms[key].user || !dms[key].user.avatar) {
+    dms[key].user = m.from; // refresh with latest mini
+  }
   
   if (m.id && dms[key].messages.some(x => x.id === m.id)) return;
   
   dms[key].messages.push({ id: m.id, text: m.text, from: m.from.gid, ts: m.ts });
   dms[key].lastTs = m.ts;
+  if (dms[key].messages.length > 100) dms[key].messages = dms[key].messages.slice(-100);
   
-  if (!dmChatTarget || dmChatTarget.gid !== m.from.gid) {
+  const modalOpen = !document.getElementById('dmChatModal').classList.contains('hidden');
+  const isViewing = modalOpen && dmChatTarget && dmChatTarget.gid === m.from.gid;
+  
+  if (!isViewing) {
     dms[key].unread = (dms[key].unread || 0) + 1;
     toast('رسالة من ' + m.from.name);
   }
   
   saveDMs();
-  if (dmChatTarget && dmChatTarget.gid === m.from.gid) {
-    renderDMChat();
-  }
+  if (isViewing) renderDMChat();
 }
 function startDMListener() {
   if (!user || !user.gid) return;
-  if (dmES) dmES.close();
-  dmES = new EventSource('https://ntfy.sh/' + DM_T + user.gid + '/sse');
-  dmES.onmessage = (e) => {
+  if (dmES) { try { dmES.close(); } catch(e){} }
+  clearTimeout(dmESReconnectTimer);
+  
+  function connect() {
     try {
-      const d = JSON.parse(e.data);
-      if (d.event === 'message' && d.message) {
-        const m = JSON.parse(d.message);
-        onDMMsg(m);
-      }
-    } catch(err){}
-  };
+      dmES = new EventSource('https://ntfy.sh/' + DM_T + user.gid + '/sse');
+      dmES.onmessage = (e) => {
+        try {
+          const d = JSON.parse(e.data);
+          if (d.event === 'message' && d.message) {
+            const m = JSON.parse(d.message);
+            onDMMsg(m);
+          }
+        } catch(err){}
+      };
+      dmES.onerror = () => {
+        try { dmES.close(); } catch(e){}
+        dmESReconnectTimer = setTimeout(connect, 3000);
+      };
+    } catch(e) {
+      dmESReconnectTimer = setTimeout(connect, 5000);
+    }
+  }
+  connect();
 }
+setSafe(() => {
+  if (!user || !user.gid) return;
+  if (!dmES || dmES.readyState === 2) startDMListener();
+}, 45000);
 
 el.dmForm.addEventListener('submit', e => {
   e.preventDefault();
@@ -1145,8 +1240,11 @@ el.dmForm.addEventListener('submit', e => {
   el.dmInput.value = '';
   sendDM(text);
 });
-el.dmChatClose.onclick = () => el.dmChatModal.classList.add('hidden');
-el.dmClose.onclick = () => el.dmModal.classList.add('hidden');
+el.dmChatClose.onclick = () => {
+  el.dmChatModal.classList.add('hidden');
+  dmChatTarget = null;
+};
+el.dmClose.onclick = () => { el.dmModal.classList.add('hidden'); dmChatTarget = null; };
 el.dmBtn.onclick = openDMList;
 el.dmBtn2.onclick = openDMList;
 
@@ -1214,7 +1312,7 @@ function makeThumb(dataUrl,size=48){
         const s=Math.min(img.naturalWidth,img.naturalHeight);
         const sx=(img.naturalWidth-s)/2, sy=(img.naturalHeight-s)/2;
         ctx.drawImage(img,sx,sy,s,s,0,0,size,size);
-        resolve(c.toDataURL('image/jpeg',0.55));
+        resolve(c.toDataURL('image/jpeg',0.5));
       }catch(e){resolve('');}
     };
     img.onerror=()=>resolve('');
@@ -1272,6 +1370,10 @@ function startProfListener() {
         onProfMsg(obj);
       }
     } catch(err){}
+  };
+  profES.onerror = () => {
+    try { profES.close(); } catch(e){}
+    setTimeout(startProfListener, 5000);
   };
 }
 
@@ -1623,7 +1725,17 @@ function silentGone(pid){
 
 function startRoom(code,meta,isCreator,preMic){
   if(typeof Peer==='undefined'){toast('تعذر تحميل مكتبة الاتصال');return;}
-  inRoom=true;intentional=false;
+  
+  // Ban check before entering
+  if (!isCreator) {
+    const bans = loadBanList(code);
+    if (bans.some(b => (user.gid && b.gid === user.gid) || (!user.gid && b.name === user.name))) {
+      toast('أنت محظور من هذا البث ولا يمكنك الانضمام');
+      return;
+    }
+  }
+  
+  inRoom=true;intentional=false;bannedExit=false;
   roomCode=code;
   roomMeta={
     name:String((meta&&meta.name)||('بث '+code)).slice(0,40),
@@ -1636,7 +1748,7 @@ function startRoom(code,meta,isCreator,preMic){
     roomMeta.owner=user.name;
     roomMeta.ownerId=myOwnerId();
   }
-  state={slots:Array(8).fill(null),bg:{v:1,ts:0},chatBans:[],mods:[],bans:[]};
+  state={slots:Array(8).fill(null),bg:{v:1,ts:0},chatBans:[],mods:[],bans:loadBanList(code)};
   
   el.roomShell.classList.toggle('text-only', roomMeta.type === 'text');
   
@@ -1647,7 +1759,7 @@ function startRoom(code,meta,isCreator,preMic){
   clearPendingTimeouts();
   peerAudioEls.forEach((_,pid)=>removeAudioElement(pid));
   el.chatList.innerHTML='';
-  const ph=document.createElement('li');ph.className='msg ph';ph.textContent='لا رسائل بعد — ابدأ الحديث';
+  const ph=document.createElement('li');ph.className='msg ph';ph.innerHTML='<div class="body">لا رسائل بعد — ابدأ الحديث</div>';
   el.chatList.appendChild(ph);
   clearInterval(ntfyFallbackInt);
   showView(el.roomView);
@@ -1883,6 +1995,11 @@ function onRoomMsg(d){
   if(d.w){publishHere();return;}
   if(!d.pid||d.pid===myPid||kicked.has(d.pid))return;
   let nu=verifyHandle(sanitizeUser(d.user));
+  
+  // Ban check - don't add banned users to roster
+  if (isUserBannedInRoom(nu, roomCode)) {
+    return;
+  }
   
   if(d.chatBans&&Array.isArray(d.chatBans)){
     d.chatBans.forEach(b=>{if(!state.chatBans.includes(b))state.chatBans.push(b);});
@@ -2181,6 +2298,15 @@ function applyMsg(m,pid,conn){
     }
     case 'hi':{
       let nu=verifyHandle(sanitizeUser(m.user));
+      
+      // Ban check - reject connection immediately
+      if (isUserBannedInRoom(nu, roomCode)) {
+        try { conn.send({t:'bannedYou', id:mid()}); } catch(e){}
+        try { conn.close(); } catch(e){}
+        kicked.add(pid);
+        return;
+      }
+      
       rememberUser(nu,roomMeta.name);
       const cur=roster.get(pid);
       if(!cur){
@@ -2203,6 +2329,12 @@ function applyMsg(m,pid,conn){
       }
       dedupeRoster();
       renderAll();break;
+    }
+    case 'bannedYou':{
+      toast('أنت محظور من هذا البث');
+      bannedExit = true;
+      leaveRoom();
+      break;
     }
     case 'meta':{
       if(m.meta){
@@ -2229,9 +2361,21 @@ function applyMsg(m,pid,conn){
           m.chatBans.forEach(b=>{if(!state.chatBans.includes(b))state.chatBans.push(b);});
         }
         if(m.mods&&Array.isArray(m.mods)) state.mods = m.mods;
-        if(m.bans&&Array.isArray(m.bans)) state.bans = m.bans;
+        if(m.bans&&Array.isArray(m.bans)){
+          state.bans = m.bans;
+          saveBanList(roomCode, m.bans);
+        }
         applyChatBanUI();
       }
+      
+      // Check if self got banned via sync
+      if (isUserBannedInRoom(user, roomCode)) {
+        toast('أنت محظور من هذا البث');
+        bannedExit = true;
+        leaveRoom();
+        return;
+      }
+      
       renderAll();break;
     }
     case 'claim':applyClaim(m,false);renderAll();break;
@@ -2261,15 +2405,22 @@ function applyMsg(m,pid,conn){
     }
     case 'kick':{
       if(!senderIsStaff(pid))break;
+      
+      // Update ban list from message
+      if (m.bans && Array.isArray(m.bans)) {
+        state.bans = m.bans;
+        saveBanList(roomCode, m.bans);
+      }
+      
       if(m.pid===myPid){
         toast('تم طردك وحظرك من البث');
+        bannedExit = true;
         leaveRoom();
-      }else{
-        if(m.bans) state.bans = m.bans;
+      } else {
         roster.delete(m.pid);
         silentGone(m.pid);
         renderAll();
-        sysLocal('تم طرد وحظر '+(m.name||'مستخدم')+' من البث');
+        sysLocal('تم طرد وحظر ' + (m.name || 'مستخدم') + ' من البث');
       }
       break;
     }
@@ -2377,17 +2528,33 @@ function hostChatBan(name,on){
   broadcastMesh({t:'chatBan',id:mid(),name,on,ts:Date.now()});
   applyChatBanUI();renderAll();toast(on?'مُنِع من الإرسال':'سُمح له بالإرسال');
 }
+
+// Kick + Ban
 function hostKick(pid){
   const r=roster.get(pid);
   if(!r)return;
-  if(!state.bans.some(b=>(b.gid&&b.gid===r.user.gid)||b.name===r.user.name)){
-    state.bans.push({gid:r.user.gid,name:r.user.name});
+  const targetUser = r.user;
+  
+  // Persist ban
+  const bans = loadBanList(roomCode);
+  if(!bans.some(b => (b.gid && b.gid === targetUser.gid) || (!targetUser.gid && b.name === targetUser.name))) {
+    bans.push({ gid: targetUser.gid, name: targetUser.name });
+    saveBanList(roomCode, bans);
   }
-  broadcastMesh({t:'kick',id:mid(),pid,name:r.user.name,bans:state.bans,ts:Date.now()});
+  state.bans = bans;
+  
+  // Broadcast kick with full ban list
+  broadcastMesh({t:'kick',id:mid(),pid,name:targetUser.name,bans:state.bans,ts:Date.now()});
+  
+  // Cleanup connection
+  const c = conns.get(pid); if (c) { try { c.close(); } catch(e){} conns.delete(pid); }
+  const co = callsOut.get(pid); if (co) { try { co.close(); } catch(e){} callsOut.delete(pid); }
+  const ci = callsIn.get(pid); if (ci) { try { ci.close(); } catch(e){} callsIn.delete(pid); }
+  removeRemote(pid);
   roster.delete(pid);
-  silentGone(pid);
+  kicked.add(pid);
   renderAll();
-  toast('تم طرد وحظر '+r.user.name+' من البث');
+  toast('تم طرد وحظر ' + targetUser.name + ' من البث');
 }
 
 el.reqAccept.addEventListener('click', () => {
@@ -2450,7 +2617,7 @@ function renderStage(){
         +(senderIsStaff(myPid)&&s.pid!==myPid?'<span class="act" data-act="down0" title="إنزاله">'+icon('down')+'</span>':'')
         +(s.pid===myPid?'<span class="act x" data-act="down" title="النزول">'+icon('x')+'</span>':'')
         +'</span>'
-        +'<span class="nm">'+esc(s.user.name)+(s.pid===myPid?' <i>(أنت)</i>':'')+(isModUser&&!isHostUser?' <span style="font-size:0.6rem;color:var(--green);font-style:normal;border:1px solid rgba(90,212,138,.4);padding:1px 4px;border-radius:4px;background:rgba(90,212,138,.1)">مشرف</span>':'')+'</span>';
+        +'<span class="nm">'+esc(s.user.name)+(s.pid===myPid?' <i>(أنت)</i>':'')+(isModUser&&!isHostUser?' <span style="font-size:0.55rem;color:var(--green);font-style:normal;border:1px solid rgba(90,212,138,.4);padding:0px 3px;border-radius:3px;background:rgba(90,212,138,.1)">مشرف</span>':'')+'</span>';
       const pod=b.querySelector('.pod');
       pod.style.setProperty('--lvl',0);
       setAv(b.querySelector('.av'),s.user);
@@ -2643,7 +2810,7 @@ function openProfile(u,isHostUser,pid){
     el.pfMute.textContent=s?(s.muted?'فتح مايكه':'كتم مايكه'):'ليس على المسرح';
     el.pfMute.disabled=!s;
     el.pfChatBan.textContent=state.chatBans.includes(u.name)?'سماح بالإرسال':'منع من الإرسال';
-    el.pfKick.innerHTML=icon('x','sm')+' طرد';
+    el.pfKick.textContent='طرد';
   }
   el.profileModal.classList.remove('hidden');
 }
@@ -2889,16 +3056,19 @@ function leaveRoom(){
   if(!inRoom)return;
   intentional=true;
   try{
-    if(iAmOwner()){
-      broadcastMesh({t:'hostEnd',id:mid(),ts:Date.now()});
-      pubDir({id:roomCode,closed:true,ts:Date.now()});
-    }else if(roster.size<=1){
-      pubDir({id:roomCode,closed:true,ts:Date.now()});
+    if (!bannedExit) {
+      if(iAmOwner()){
+        broadcastMesh({t:'hostEnd',id:mid(),ts:Date.now()});
+        pubDir({id:roomCode,closed:true,ts:Date.now()});
+      }else if(roster.size<=1){
+        pubDir({id:roomCode,closed:true,ts:Date.now()});
+      }
     }
   }catch(e){}
   try{cleanupRoom();}catch(e){inRoom=false;if(peer){try{peer.destroy();}catch(_){}}peer=null;myPid=null;}
   el.roomShell.classList.remove('text-only');
   showView(el.lobbyView);
+  bannedExit=false;
   enterLobbyKeep();
 }
 function enterLobbyKeep(){startDirPolling();}
