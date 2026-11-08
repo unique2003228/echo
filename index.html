@@ -17,7 +17,7 @@
   --ggrad:linear-gradient(135deg,#ffe9b8,#ffc24b 45%,#ff8f3d);
   --glass:rgba(20,14,11,.55);
 }
-*{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
 body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:var(--text);height:100dvh;display:flex;flex-direction:column}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
@@ -30,6 +30,40 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;back
 ::-webkit-scrollbar{width:8px;height:8px}
 ::-webkit-scrollbar-thumb{background:rgba(255,194,75,.16);border-radius:8px}
 ::-webkit-scrollbar-track{background:transparent}
+
+/* أنيميشن الانتقالات */
+button, a, input, textarea, .slot, .room-card, .ppl-row, .pill, .sw, .msg {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#authView, #lobbyView, #roomView {
+  animation: fadeInView 0.4s ease-out;
+}
+@keyframes fadeInView {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.modal-card {
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.92) translateY(15px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.msg {
+  animation: slideInMsg 0.3s ease-out;
+}
+@keyframes slideInMsg {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.room-card {
+  animation: zoomInCard 0.4s ease-out;
+}
+@keyframes zoomInCard {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 .defs{position:absolute;width:0;height:0;overflow:hidden}
 .ic{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 .ic.sm{width:15px;height:15px}.ic.lg{width:27px;height:27px}
@@ -94,7 +128,11 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .auth-logo .wordmark{font-size:2.3rem}
 .or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.75rem;margin:14px 0}
 .or::before,.or::after{content:'';flex:1;height:1px;background:var(--line)}
-#gWrap{display:flex;justify-content:center;min-height:44px}
+
+/* زر جوجل المحسن */
+#gWrap{display:flex;justify-content:center;min-height:44px;width:100%;}
+#gWrap > div { width: 100% !important; display: flex; justify-content: center; }
+
 .ghint{font-size:.7rem;color:var(--muted);text-align:center;line-height:1.7;margin-top:10px}
 
 #lobbyView{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px}
@@ -242,7 +280,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .chat-head .t{display:flex;align-items:center;gap:8px}
 #chatList{list-style:none;flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:9px;padding-inline-end:4px;
   mask-image:linear-gradient(to bottom,transparent 0,#000 54px);-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 54px)}
-.msg{display:flex;gap:8px;animation:slideIn .25s}
+.msg{display:flex;gap:8px;animation:slideInMsg 0.3s ease-out}
 .msg .av{width:29px;height:29px}
 .msg .body{min-width:0}
 .msg .mtop{display:flex;align-items:center;gap:6px;margin-bottom:1px;flex-wrap:wrap}
@@ -251,7 +289,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .msg.sys{justify-content:center;color:var(--muted);font-size:.72rem;text-align:center}
 .msg.sys.warn{color:var(--gold)}
 .msg.ph{justify-content:center;color:#6d5c48;font-size:.75rem;text-align:center}
-@keyframes slideIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
 #chatForm{display:flex;gap:8px;margin-top:10px;flex-shrink:0}
 #chatForm input{flex:1;min-height:46px}
 #chatForm .btn{padding:0 18px}
@@ -265,8 +302,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .bg-7{background-color:#0c1710;background-image:linear-gradient(115deg,rgba(90,212,138,.13) 0 2px,transparent 2px 92px),radial-gradient(520px 300px at 12% 0%,rgba(90,212,138,.2),transparent)}
 .bg-8{background-color:#151009;background-image:radial-gradient(440px 250px at 50% -6%,rgba(255,194,75,.42),transparent 72%),radial-gradient(2px 2px at 30% 62%,rgba(255,194,75,.5) 40%,transparent 45%),radial-gradient(2px 2px at 72% 40%,rgba(255,194,75,.4) 40%,transparent 45%)}
 
-.modal{position:fixed;inset:0;z-index:60;background:rgba(6,4,3,.75);backdrop-filter:blur(9px);display:grid;place-items:center;padding:20px;animation:fadeIn .25s}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{position:fixed;inset:0;z-index:60;background:rgba(6,4,3,.75);backdrop-filter:blur(9px);display:grid;place-items:center;padding:20px}
 .modal-card{background:rgba(24,17,13,.9);backdrop-filter:blur(26px);border:1px solid var(--line);border-radius:26px;padding:0;max-width:480px;width:100%;
   box-shadow:0 30px 90px rgba(0,0,0,.65);max-height:92dvh;overflow-y:auto;position:relative}
 .modal-card::before{content:'';position:sticky;top:0;display:block;height:2px;background:var(--ggrad);opacity:.7;z-index:2}
@@ -484,7 +520,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
   </section>
 </div>
 
-<!-- زر تشغيل الصوت العائم -->
 <button class="audio-cta hidden" id="audioBtn" type="button">
   <svg class="ic"><use href="#i-head"/></svg> 🔊 اضغط لتشغيل الصوت
 </button>
@@ -591,7 +626,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 <div class="modal hidden" id="editModal">
   <div class="modal-card"><div class="mc-body" style="text-align:right">
     <h3 style="text-align:center">ملفي التعريفي</h3>
-    <p style="text-align:center">صور بجودة كاملة — GIF متحرك مدعوم حتى 1MB</p>
+    <p style="text-align:center">صور بجودة كاملة — GIF متحرك مدعوم حتى 4MB</p>
     <form id="editForm">
       <div class="edit-field">
         <label>الاسم الظاهر</label>
@@ -609,7 +644,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
         <input type="file" id="avFile" accept="image/*" class="hidden">
       </div>
       <div class="edit-field">
-        <label>بانر البروفايل</label>
+        <label>بانر البروفايل (GIF متحرك مدعوم)</label>
         <div class="banner-prev" id="bannerPrev"></div>
         <div style="display:flex;gap:6px;margin-top:8px">
           <button type="button" class="mini" id="bannerPick"><svg class="ic sm" style="vertical-align:-3px"><use href="#i-bg"/></svg> تغيير البانر</button>
@@ -653,7 +688,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 'use strict';
 const GOOGLE_CLIENT_ID='951107600780-q37rrqjcsopotjpqjuhikvofoersv19n.apps.googleusercontent.com';
 const GRACE_SECONDS=150, HEARTBEAT_MS=3000, HEALTH_MS=3000, PRUNE_MS=20000, PING_MS=5000, STALE_MS=12000;
-const MAXIMG=1000000;
+const MAXIMG=4000000;
 
 const $=s=>document.querySelector(s);
 const IDS=['authView','lobbyView','roomView','insecure','gWrap','gHint','lobbyAv','lobbyName','lobbyHandle','userChip','logoutBtn',
@@ -704,6 +739,7 @@ function showView(v){[el.authView,el.lobbyView,el.roomView].forEach(x=>x.classLi
 function setConn(cls,text){el.connChip.className='count conn static '+cls;el.connText.textContent=text;}
 const cleanHandle=h=>String(h||'').toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,16);
 const validHandle=h=>/^[a-z0-9_]{3,16}$/.test(h);
+
 function sanitizeUser(u){
   u=u||{};
   const name=String(u.name||'زائر').trim().slice(0,16)||'زائر';
@@ -712,183 +748,114 @@ function sanitizeUser(u){
   const birth=/^\d{4}-\d{2}-\d{2}$/.test(u.birth||'')?u.birth:'';
   const bio=String(u.bio||'').slice(0,120);
   const okImg=v=>typeof v==='string'&&(v.startsWith('data:image/')||v.startsWith('https://'));
-  const avatar=okImg(u.avatar)?u.avatar.slice(0,1600000):'';
-  const banner=okImg(u.banner)?u.banner.slice(0,1600000):'';
+  const avatar=okImg(u.avatar)?u.avatar.slice(0,5500000):'';
+  const banner=okImg(u.banner)?u.banner.slice(0,5500000):'';
   const fw=Array.isArray(u.fw)?u.fw.map(x=>String(x).slice(0,20)).slice(0,40):[];
   const priv=!!u.priv;
   const handle=validHandle(u.handle)?u.handle:'';
   const gid=typeof u.gid==='string'?u.gid.slice(0,24):'';
   return {name,color,gender,birth,bio,avatar,banner,fw,priv,handle,gid};
 }
+
 function verifyHandle(u){
   if(!u.handle)return u;
   const rec=handlesMap.get(u.handle);
   if(rec&&u.gid&&rec.gid!==u.gid)u.handle='';
   return u;
 }
+
 function setAv(span,u){
   span.style.setProperty('--c',u.color);
-  span.innerHTML=u.avatar?'<img src="'+esc(u.avatar)+'" alt="">':icon('user');
+  span.innerHTML='';
+  if(u.avatar){
+    const img=document.createElement('img');
+    img.src=u.avatar;
+    img.alt='';
+    span.appendChild(img);
+  }else{
+    span.innerHTML=icon('user');
+  }
 }
+
 const userKey=u=>u.handle||u.name;
 const identityKey=u=>u.handle?'@'+u.handle:'n:'+u.name;
 function ageOf(b){if(!b)return null;const d=new Date(b),n=new Date();let a=n.getFullYear()-d.getFullYear();const m=n.getMonth()-d.getMonth();if(m<0||(m===0&&n.getDate()<d.getDate()))a--;return(a>=0&&a<120)?a:null;}
 const fmtDate=b=>{try{return new Date(b).toLocaleDateString('ar',{year:'numeric',month:'long',day:'numeric'});}catch(e){return b;}};
 
-/* ═══════════════════════════════════════════════════════════
-   ★★★ نظام الصوت — الحل الجذري ★★★
-   - عنصر <audio> مخفي لكل قرين (مسار التشغيل الأساسي)
-   - AudioContext للتحليل فقط (بدون تشغيل)
-   - التقاط أول لمسة لفتح قناة الصوت نهائيًا
-   - إعادة محاولة تلقائية عند كل لمسة
-   ═══════════════════════════════════════════════════════════ */
+/* ══════════ الصوت ══════════ */
+let actx=null;
+let userActivated=false;
+const peerAudioEls=new Map();
 
-let actx = null;
-let userActivated = false;
-const peerAudioEls = new Map();   // pid -> HTMLAudioElement
-
-/* فتح قناة الصوت — يُستدعى عند أول تفاعل */
 function unlockAudio(){
-  try {
-    if (!actx) {
-      actx = new (window.AudioContext || window.webkitAudioContext)();
-      console.log('[Sada audio] AudioContext created, state=', actx.state);
-    }
-    if (actx.state !== 'running') {
-      actx.resume().then(() => {
-        console.log('[Sada audio] AudioContext resumed, state=', actx.state);
-      }).catch(err => console.warn('[Sada audio] resume failed:', err));
-    }
-    userActivated = true;
-    // شغّل كل عناصر الصوت المعلقة
+  try{
+    if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();
+    if(actx.state!=='running')actx.resume().catch(()=>{});
+    userActivated=true;
     retryAllPendingAudio();
-  } catch(e) {
-    console.warn('[Sada audio] unlock failed:', e);
-  }
+  }catch(e){}
 }
-
-/* المسجّل الحقيقي على كل لمسة — NOT once:true */
-['click', 'touchstart', 'pointerdown', 'keydown', 'scroll'].forEach(ev => {
-  document.addEventListener(ev, () => {
-    if (!userActivated) {
-      userActivated = true;
-      unlockAudio();
-    }
-  }, { passive: true });
+['click','touchstart','pointerdown','keydown','scroll'].forEach(ev=>{
+  document.addEventListener(ev,()=>{if(!userActivated){userActivated=true;unlockAudio();}},{passive:true});
 });
+function ensureCtx(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){return null;}}if(actx.state!=='running'){actx.resume().catch(()=>{});}return actx;}
 
-function ensureCtx(){
-  if (!actx) {
-    try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return null; }
-  }
-  if (actx.state !== 'running') {
-    actx.resume().catch(()=>{});
-  }
-  return actx;
-}
-
-/* ─── عنصر <audio> لكل قرين ─── */
-function attachAudioElement(pid, stream){
-  if (!stream) return;
-  const tracks = stream.getAudioTracks();
-  console.log('[Sada audio] attach for', pid, 'audio tracks:', tracks.length);
-  if (tracks.length === 0) return;
-
-  // احذف القديم إن وجد
+function attachAudioElement(pid,stream){
+  if(!stream)return;
+  const tracks=stream.getAudioTracks();
+  if(tracks.length===0)return;
   removeAudioElement(pid);
-
-  const audio = document.createElement('audio');
-  audio.autoplay = true;
+  const audio=document.createElement('audio');
+  audio.autoplay=true;
   audio.setAttribute('playsinline','');
-  audio.setAttribute('webkit-playsinline','');
-  audio.muted = false;
-  audio.volume = 1.0;
-  audio.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;';
-  audio.srcObject = stream;
+  audio.muted=false;
+  audio.volume=1.0;
+  audio.style.cssText='position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;';
+  audio.srcObject=stream;
   document.body.appendChild(audio);
-  peerAudioEls.set(pid, audio);
+  peerAudioEls.set(pid,audio);
 
-  // راقب حالة التشغيل
-  const tryPlay = () => {
-    const p = audio.play();
-    if (p && p.catch) {
-      p.then(() => {
-        console.log('[Sada audio] playing for', pid);
-        updateAudioButton();
-      }).catch(err => {
-        console.warn('[Sada audio] play blocked for', pid, err && err.name);
-        updateAudioButton();
-      });
-    }
+  const tryPlay=()=>{
+    const p=audio.play();
+    if(p&&p.catch)p.catch(()=>{updateAudioButton();});
   };
-
-  audio.addEventListener('canplay', tryPlay, { once: true });
-  audio.addEventListener('playing', () => {
-    console.log('[Sada audio] now playing:', pid);
-    updateAudioButton();
-  });
-  audio.addEventListener('pause', () => updateAudioButton());
-  audio.addEventListener('error', e => console.warn('[Sada audio] audio error', pid, e));
-
+  audio.addEventListener('canplay',tryPlay,{once:true});
+  audio.addEventListener('playing',()=>updateAudioButton());
+  audio.addEventListener('pause',()=>updateAudioButton());
   tryPlay();
-  setTimeout(tryPlay, 500);
-  setTimeout(tryPlay, 1500);
+  setTimeout(tryPlay,500);
+  setTimeout(tryPlay,1500);
 }
-
 function removeAudioElement(pid){
-  const a = peerAudioEls.get(pid);
-  if (!a) return;
-  try { a.pause(); a.srcObject = null; a.remove(); } catch(e){}
-  peerAudioEls.delete(pid);
-  updateAudioButton();
+  const a=peerAudioEls.get(pid);
+  if(!a)return;
+  try{a.pause();a.srcObject=null;a.remove();}catch(e){}
+  peerAudioEls.delete(pid);updateAudioButton();
 }
-
 function retryAllPendingAudio(){
-  peerAudioEls.forEach((audio, pid) => {
-    if (audio.paused) {
-      const p = audio.play();
-      if (p && p.catch) {
-        p.then(() => console.log('[Sada audio] resumed:', pid))
-         .catch(err => console.warn('[Sada audio] still blocked:', pid, err && err.name));
-      }
-    }
+  peerAudioEls.forEach((audio)=>{
+    if(audio.paused){const p=audio.play();if(p&&p.catch)p.catch(()=>{});}
   });
   updateAudioButton();
 }
-
-/* زر الصوت — يظهر فقط عند وجود صوت معلق */
 function updateAudioButton(){
-  if (!inRoom) { el.audioBtn.classList.add('hidden'); return; }
-  let stuck = false;
-  peerAudioEls.forEach(audio => { if (audio.paused) stuck = true; });
-  if (stuck) {
-    el.audioBtn.classList.remove('hidden');
-  } else {
-    el.audioBtn.classList.add('hidden');
-  }
+  if(!inRoom){el.audioBtn.classList.add('hidden');return;}
+  let stuck=false;
+  peerAudioEls.forEach(audio=>{if(audio.paused)stuck=true;});
+  if(stuck)el.audioBtn.classList.remove('hidden');
+  else el.audioBtn.classList.add('hidden');
 }
-
-el.audioBtn.addEventListener('click', (e) => {
-  e.preventDefault(); e.stopPropagation();
+el.audioBtn.addEventListener('click',(e)=>{
+  e.preventDefault();e.stopPropagation();
   unlockAudio();
-  peerAudioEls.forEach(audio => {
-    audio.muted = false;
-    audio.volume = 1.0;
-    audio.play().catch(err => console.warn('manual play failed:', err));
-  });
-  setTimeout(updateAudioButton, 400);
+  peerAudioEls.forEach(audio=>{audio.muted=false;audio.volume=1.0;audio.play().catch(()=>{});});
+  setTimeout(updateAudioButton,400);
 });
+setSafe(()=>{if(inRoom)updateAudioButton();},1200);
 
-/* مراقب دوري كل ١ ثانية — يعرض الزر إذا لزم */
-setSafe(() => {
-  if (!inRoom) return;
-  updateAudioButton();
-}, 1200);
-
-/* خلفية الزخرفة */
 for(let i=0;i<26;i++){const s=document.createElement('span');s.style.height=(30+rnd(70))+'%';s.style.animationDuration=(1.1+Math.random()*1.8)+'s';s.style.animationDelay=(-Math.random()*2)+'s';el.amb.appendChild(s);}
 
-/* ══════════ Peer ID ثابت ══════════ */
+/* ══════════ Peer ID ══════════ */
 function getPersistentPeerId(){
   let tabId=sessionStorage.getItem('sada-peer-id');
   if(tabId)return tabId;
@@ -897,11 +864,7 @@ function getPersistentPeerId(){
   sessionStorage.setItem('sada-peer-id',pid);
   return pid;
 }
-function regenerateSessionPeerId(){
-  const newId=PREFIX+genCode()+rnd(99);
-  sessionStorage.setItem('sada-peer-id',newId);
-  return newId;
-}
+function regenerateSessionPeerId(){const newId=PREFIX+genCode()+rnd(99);sessionStorage.setItem('sada-peer-id',newId);return newId;}
 
 /* ══════════ MQTT ══════════ */
 const MQ_URLS=['wss://broker.hivemq.com:8884/mqtt','wss://broker.emqx.io:8084/mqtt','wss://test.mosquitto.org:8081/mqtt'];
@@ -911,50 +874,27 @@ const mqQueue=[];
 const enc=new TextEncoder(),dec=new TextDecoder();
 function mqRem(n){const o=[];do{let b=n%128;n=Math.floor(n/128);if(n>0)b|=128;o.push(b);}while(n>0);return o;}
 function mqStr(s){const b=enc.encode(s);return [b.length>>8,b.length&255,...b];}
-function mqRawSend(topic,obj){
-  const p=enc.encode(JSON.stringify(obj));
-  const t=mqStr(topic);
-  const body=[...t,...p];
-  mqWS.send(new Uint8Array([0x30,...mqRem(body.length),...body]));
-}
+function mqRawSend(topic,obj){const p=enc.encode(JSON.stringify(obj));const t=mqStr(topic);const body=[...t,...p];mqWS.send(new Uint8Array([0x30,...mqRem(body.length),...body]));}
 function mqConnect(){
   if(mqWS&&(mqWS.readyState===0||mqWS.readyState===1))return;
   const url=MQ_URLS[mqUrlI%MQ_URLS.length];
   let ws;try{ws=new WebSocket(url,'mqtt');}catch(e){mqNext();return;}
   ws.binaryType='arraybuffer';
-  ws.onopen=()=>{
-    const cid='sada'+Math.random().toString(36).slice(2,10);
-    const body=[...mqStr('MQTT'),4,2,0,60,...mqStr(cid)];
-    try{ws.send(new Uint8Array([0x10,...mqRem(body.length),...body]));}catch(e){}
-  };
+  ws.onopen=()=>{const cid='sada'+Math.random().toString(36).slice(2,10);const body=[...mqStr('MQTT'),4,2,0,60,...mqStr(cid)];try{ws.send(new Uint8Array([0x10,...mqRem(body.length),...body]));}catch(e){}};
   let buf=new Uint8Array(0);
   ws.onmessage=ev=>{
-    const ch=new Uint8Array(ev.data);
-    const nb=new Uint8Array(buf.length+ch.length);nb.set(buf);nb.set(ch,buf.length);buf=nb;
+    const ch=new Uint8Array(ev.data);const nb=new Uint8Array(buf.length+ch.length);nb.set(buf);nb.set(ch,buf.length);buf=nb;
     while(buf.length>1){
       let idx=1,rem=0,mult=1,done=false;
       while(idx<buf.length){const b=buf[idx++];rem+=(b&127)*mult;mult*=128;if(!(b&128)){done=true;break;}}
       if(!done)return;
       if(buf.length<idx+rem)return;
-      const type=buf[0]>>4;
-      const body=buf.subarray(idx,idx+rem);
-      buf=buf.slice(idx+rem);
+      const type=buf[0]>>4;const body=buf.subarray(idx,idx+rem);buf=buf.slice(idx+rem);
       if(type===2){
-        if(!mqOK){
-          mqOK=true;
-          el.dirErr.style.display='none';
-          const now=Date.now();
-          while(mqQueue.length){
-            const item=mqQueue.shift();
-            if(now-item.ts<60000){try{mqRawSend(item.topic,item.obj);}catch(e){}}
-          }
-        }
-        mqResub();
-        mqStartPing();
+        if(!mqOK){mqOK=true;el.dirErr.style.display='none';const now=Date.now();while(mqQueue.length){const item=mqQueue.shift();if(now-item.ts<60000){try{mqRawSend(item.topic,item.obj);}catch(e){}}}}
+        mqResub();mqStartPing();
       }else if(type===3){
-        const tl=(body[0]<<8)|body[1];
-        const topic=dec.decode(body.subarray(2,2+tl));
-        const cb=mqCbs.get(topic);
+        const tl=(body[0]<<8)|body[1];const topic=dec.decode(body.subarray(2,2+tl));const cb=mqCbs.get(topic);
         if(cb){try{cb(JSON.parse(dec.decode(body.subarray(2+tl))));}catch(e){}}
       }
     }
@@ -967,10 +907,7 @@ function mqNext(){mqUrlI++;clearTimeout(mqReT);mqReT=setTimeout(mqConnect,1800);
 function mqStartPing(){mqStopPing();mqPing=setInterval(()=>{if(mqWS&&mqWS.readyState===1){try{mqWS.send(new Uint8Array([0xC0,0x00]));}catch(e){}}},30000);}
 function mqStopPing(){clearInterval(mqPing);mqPing=null;}
 function mqPub(topic,obj){
-  if(!mqOK||!mqWS||mqWS.readyState!==1){
-    if(mqQueue.length<100)mqQueue.push({topic,obj,ts:Date.now()});
-    return false;
-  }
+  if(!mqOK||!mqWS||mqWS.readyState!==1){if(mqQueue.length<100)mqQueue.push({topic,obj,ts:Date.now()});return false;}
   try{mqRawSend(topic,obj);return true;}catch(e){return false;}
 }
 function mqSub(topic,cb){mqCbs.set(topic,cb);mqSendSub(topic);}
@@ -1156,7 +1093,14 @@ el.handleClaim.addEventListener('click',async()=>{
     if(!window.google||!window.google.accounts){setTimeout(tryInit,700);return;}
     try{
       google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:onGoogle});
-      google.accounts.id.renderButton(el.gWrap,{theme:'filled_black',size:'large',text:'continue_with',shape:'pill',locale:'ar'});
+      google.accounts.id.renderButton(el.gWrap,{
+        theme:'filled_blue',
+        size:'large',
+        text:'continue_with',
+        shape:'pill',
+        locale:'ar',
+        width:320
+      });
     }catch(e){el.gHint.classList.remove('hidden');}
   };
   tryInit();
@@ -1175,12 +1119,18 @@ function loginUser(u){
   let extra={};
   const saved=localStorage.getItem('sada-user');
   if(saved){try{const o=JSON.parse(saved);if((u.gid&&o.gid===u.gid)||o.name===u.name)extra=o;}catch(e){}}
-  user=sanitizeUser(Object.assign({gender:extra.gender||'',birth:extra.birth||'',bio:extra.bio||'',avatar:extra.avatar||'',
-    banner:extra.banner||'',priv:extra.priv||false,handle:extra.handle||'',gid:extra.gid||''},u));
-  if(extra.gid&&extra.gid===user.gid){
-    if(extra.name)user.name=extra.name;
-    if(extra.handle)user.handle=extra.handle;
-  }
+  user=sanitizeUser({
+    name:u.name||extra.name||'مستخدم',
+    gid:u.gid||extra.gid||'',
+    handle:u.handle||extra.handle||'',
+    avatar:extra.avatar||u.avatar||'',
+    banner:extra.banner||u.banner||'',
+    gender:extra.gender||u.gender||'',
+    birth:extra.birth||u.birth||'',
+    bio:extra.bio||u.bio||'',
+    priv:extra.priv!==undefined?extra.priv:(u.priv||false),
+    fw:extra.fw||[]
+  });
   setStorageKeys();
   user.fw=myFollows().slice(0,40);
   saveJSON('sada-user',user);
@@ -1253,7 +1203,7 @@ function renderRooms(){
 }
 el.createForm.addEventListener('submit',async e=>{
   e.preventDefault();
-  unlockAudio(); // ← فتح الصوت عند فتح الروم
+  unlockAudio();
   let preMic=null;
   try{preMic=await getMicStream();}catch(err){preMic=null;}
   const code=genCode();
@@ -1302,6 +1252,37 @@ el.searchInput.addEventListener('input',()=>{
     el.searchResults.appendChild(row);
   });
 });
+
+/* ══════════ الحظر ══════════ */
+function isBanned(u){
+  if(!u)return false;
+  return state.bans.some(b=>
+    (b.gid&&b.gid===u.gid)||
+    (b.handle&&b.handle===u.handle)||
+    (b.name&&b.name===u.name)
+  );
+}
+function addBan(u){
+  if(!u)return;
+  if(isBanned(u))return;
+  state.bans.push({name:u.name,gid:u.gid||'',handle:u.handle||''});
+  try{
+    const saved=JSON.parse(localStorage.getItem('sada-bans-'+roomCode)||'[]');
+    if(!saved.some(b=>b.name===u.name)){
+      saved.push({name:u.name,gid:u.gid||'',handle:u.handle||''});
+      localStorage.setItem('sada-bans-'+roomCode,JSON.stringify(saved));
+    }
+  }catch(e){}
+}
+function checkBannedMe(){
+  if(inRoom&&isBanned(user)){
+    toast('أنت محظور من هذا الروم');
+    addBan(user);
+    leaveRoom();
+    return true;
+  }
+  return false;
+}
 
 /* ══════════ الروم ══════════ */
 function myOwnerId(){return user&&user.gid?('g:'+user.gid):('n:'+(user?user.name:''));}
@@ -1372,12 +1353,23 @@ function startRoom(code,meta,isCreator,preMic){
     roomMeta.ownerId=myOwnerId();
   }
   state={slots:Array(8).fill(null),bg:{v:1,ts:0},bans:[],chatBans:[]};
+  try{
+    state.bans=JSON.parse(localStorage.getItem('sada-bans-'+code)||'[]');
+  }catch(e){}
+  
+  if(isBanned(user)){
+    toast('أنت محظور من هذا الروم');
+    inRoom=false;
+    showView(el.lobbyView);
+    enterLobbyKeep();
+    return;
+  }
+
   roster.clear();conns.clear();callsOut.clear();callsIn.clear();remotes.clear();
   kicked.clear();seenMsg.clear();connFails.clear();
   graceEnd=0;ownerPrompted=false;ownerPidSeen=null;pendingPreMic=preMic||null;lastSig='';
   firstOpen=true;recreateLock=false;
   clearPendingTimeouts();
-  // نظّف عناصر audio القديمة
   peerAudioEls.forEach((_,pid)=>removeAudioElement(pid));
   el.chatList.innerHTML='';
   const ph=document.createElement('li');ph.className='msg ph';ph.textContent='لا رسائل بعد — ابدأ الحديث';
@@ -1389,7 +1381,7 @@ function startRoom(code,meta,isCreator,preMic){
   loadHandles();
   renderAll();
   myJoinTs=Date.now();
-  unlockAudio(); // ← فتح الصوت فورًا
+  unlockAudio();
   mqSub(ROOM_T(roomCode),onRoomMsg);
   [300,1500,3000,6000].forEach(t=>safeTimeout(()=>{pubRoom({w:1});publishHere();},t));
   
@@ -1398,7 +1390,6 @@ function startRoom(code,meta,isCreator,preMic){
   
   clearInterval(healthInt);
   healthInt=setSafe(healthCheck,HEALTH_MS);
-  
   clearInterval(audioWatchInt);
   audioWatchInt=setSafe(audioWatch,3000);
 }
@@ -1410,7 +1401,6 @@ function bindPeerEvents(p){
   p.on('disconnected',onPeerDisconnected);
   p.on('error',onPeerError);
 }
-
 function onPeerOpen(id){
   myPid=id;
   connFails.clear();
@@ -1458,70 +1448,69 @@ function onPeerOpen(id){
   });
   renderAll();
 }
-
 function onPeerConnection(conn){
   const pid=conn.peer;
   if(kicked.has(pid)){try{conn.close();}catch(e){}return;}
+  const r=roster.get(pid);
+  if(r&&isBanned(r.user)){
+    try{conn.send({t:'bannedYou',id:mid()});}catch(e){}
+    try{conn.close();}catch(e){}
+    kicked.add(pid);
+    return;
+  }
   const ex=conns.get(pid);
   if(ex&&ex.open&&myPid<pid){try{conn.close();}catch(e){}return;}
   if(ex){try{ex.close();}catch(e){}}
   conns.set(pid,conn);wireConn(conn,pid);
 }
-
 function onPeerCall(call){
   const pid=call.peer;
   if(kicked.has(pid)){try{call.close();}catch(e){}return;}
+  const r=roster.get(pid);
+  if(r&&isBanned(r.user)){
+    try{call.close();}catch(e){}
+    kicked.add(pid);
+    return;
+  }
   const ex=callsIn.get(pid);
   if(ex){try{ex.close();}catch(e){}callsIn.delete(pid);}
   callsIn.set(pid,call);
   
-  // ★ ربط stream قبل الإجابة — ضروري جدًا
-  call.on('stream', s => {
-    console.log('[Sada audio] incoming stream from', pid, 'tracks:', s.getAudioTracks().length);
-    if (s.getAudioTracks().length > 0) {
-      addRemote(pid, s);
-    } else {
-      s.addEventListener('addtrack', () => {
-        if (s.getAudioTracks().length > 0) addRemote(pid, s);
+  call.on('stream',s=>{
+    if(s.getAudioTracks().length>0){
+      addRemote(pid,s);
+    }else{
+      s.addEventListener('addtrack',()=>{
+        if(s.getAudioTracks().length>0)addRemote(pid,s);
       });
     }
   });
   
-  try {
-    // نرسل مايكنا إن وُجد، ونطلب استقبال الصوت دائمًا
-    const answerOpts = { constraints: { mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: false } } };
-    if (micStream) {
-      micStream.getAudioTracks().forEach(t => t.enabled = true);
-      call.answer(micStream, answerOpts);
-    } else {
-      call.answer(undefined, answerOpts);
+  try{
+    const answerOpts={constraints:{mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:false}}};
+    if(micStream){
+      micStream.getAudioTracks().forEach(t=>t.enabled=true);
+      call.answer(micStream,answerOpts);
+    }else{
+      call.answer(undefined,answerOpts);
     }
-    console.log('[Sada audio] answered call from', pid);
-  } catch(e) { console.warn('[Sada audio] answer failed:', e); }
-  
-  call.on('close', () => {
-    if (callsIn.get(pid) === call) callsIn.delete(pid);
-    removeRemote(pid);
-  });
-  call.on('error', e => console.warn('[Sada audio] call error:', e));
-  watchCallICE(call, pid);
+  }catch(e){}
+  call.on('close',()=>{if(callsIn.get(pid)===call)callsIn.delete(pid);removeRemote(pid);});
+  call.on('error',e=>console.warn('[Sada audio] call error:',e));
+  watchCallICE(call,pid);
 }
-
 function onPeerDisconnected(){
   setConn('err','انقطع — جارٍ الإرجاع…');
   if(intentional||!inRoom)return;
   try{peer.reconnect();}catch(e){setTimeout(recreatePeer,1000);}
 }
-
 function onPeerError(err){
   if(err.type==='network'){setConn('err','مشكلة شبكة');}
   else if(err.type==='unavailable-id'){
-    console.warn('[Sada] ID taken, regenerating session ID');
     regenerateSessionPeerId();
     setTimeout(recreatePeer,1000);
   }
 }
-
 function recreatePeer(){
   if(!inRoom||intentional||recreateLock)return;
   recreateLock=true;
@@ -1538,10 +1527,9 @@ function recreatePeer(){
     try{
       peer=new Peer(getPersistentPeerId(),ICE);
       bindPeerEvents(peer);
-    }catch(e){console.error('[Sada] peer recreate failed:',e);}
+    }catch(e){}
   },800);
 }
-
 function healthCheck(){
   if(!inRoom||intentional)return;
   if(!peer||peer.destroyed){recreatePeer();return;}
@@ -1559,21 +1547,16 @@ function healthCheck(){
   roster.forEach((r,pid)=>{
     if(pid===myPid||kicked.has(pid))return;
     const c=conns.get(pid);
-    if(!c||!c.open){
-      if((connFails.get(pid)||0)<5)connectTo(pid);
-    }
+    if(!c||!c.open){if((connFails.get(pid)||0)<5)connectTo(pid);}
   });
 }
-
 function watchCallICE(call,pid){
   try{
     const pc=call.peerConnection;
     if(!pc)return;
     pc.oniceconnectionstatechange=()=>{
       const st=pc.iceConnectionState;
-      console.log('[Sada ICE]',pid,st);
       if(st==='failed'||st==='closed'){
-        console.warn('[Sada ICE] failed for',pid,'— retry');
         try{call.close();}catch(e){}
         callsIn.delete(pid);
         removeRemote(pid);
@@ -1583,7 +1566,6 @@ function watchCallICE(call,pid){
       }else if(st==='disconnected'){
         setTimeout(()=>{
           if(pc.iceConnectionState==='disconnected'){
-            console.warn('[Sada ICE] still disconnected — retry');
             try{call.close();}catch(e){}
             callsIn.delete(pid);
             removeRemote(pid);
@@ -1596,27 +1578,20 @@ function watchCallICE(call,pid){
     };
   }catch(e){}
 }
-
-/* audioWatch — مراقبة من على المسرح وليس لدينا صوتهم */
 function audioWatch(){
   if(!inRoom||!myPid)return;
   state.slots.filter(Boolean).forEach(s=>{
     if(s.pid===myPid||kicked.has(s.pid))return;
-    // إذا لم يكن لدينا عنصر audio لهذا القرين → اطلب إعادة مكالمة
     if(!peerAudioEls.has(s.pid)){
       const c=conns.get(s.pid);
-      if(c&&c.open){
-        try{c.send({t:'reCall',id:mid(),pid:myPid,ts:Date.now()});}catch(e){}
-      }
+      if(c&&c.open){try{c.send({t:'reCall',id:mid(),pid:myPid,ts:Date.now()});}catch(e){}}
     }
   });
-  // أغلق أي مكالمة ICE حالتها failed
   callsIn.forEach((call,pid)=>{
     try{
       const pc=call.peerConnection;
       if(!pc)return;
       if(pc.iceConnectionState==='failed'){
-        console.warn('[Sada audioWatch] closing failed call to',pid);
         try{call.close();}catch(e){}
         callsIn.delete(pid);
         removeRemote(pid);
@@ -1627,22 +1602,31 @@ function audioWatch(){
     }catch(e){}
   });
 }
-
 function publishHere(){
   if(!inRoom||!myPid)return;
   const u=Object.assign({},user,{avatar:'',banner:''});
-  const msg={pid:myPid,user:u,joinTs:myJoinTs,sess:sessionTs,meta:roomMeta,ts:Date.now()};
+  const msg={pid:myPid,user:u,joinTs:myJoinTs,sess:sessionTs,meta:roomMeta,bans:state.bans,chatBans:state.chatBans,ts:Date.now()};
   pubRoom(msg);
-  if(iAmOwner())pubDir({id:roomCode,name:roomMeta.name,owner:roomMeta.owner,ownerId:roomMeta.ownerId,
-    bg:state.bg.v,sp:state.slots.filter(Boolean).length,ls:roster.size,ts:Date.now()});
+  if(iAmOwner())pubDir({id:roomCode,name:roomMeta.name,owner:roomMeta.owner,ownerId:roomMeta.ownerId,bg:state.bg.v,sp:state.slots.filter(Boolean).length,ls:roster.size,ts:Date.now()});
 }
-
 function onRoomMsg(d){
   if(!inRoom||!d)return;
   if(d.w){publishHere();return;}
   if(!d.pid||d.pid===myPid||kicked.has(d.pid))return;
   let nu=verifyHandle(sanitizeUser(d.user));
-  if(state.bans.includes(nu.name))return;
+  
+  if(d.bans&&Array.isArray(d.bans)){
+    d.bans.forEach(b=>{
+      if(!state.bans.some(x=>(x.name===b.name)||(x.gid&&b.gid&&x.gid===b.gid))){
+        state.bans.push(b);
+      }
+    });
+  }
+  if(d.chatBans&&Array.isArray(d.chatBans)){
+    d.chatBans.forEach(b=>{if(!state.chatBans.includes(b))state.chatBans.push(b);});
+  }
+
+  if(isBanned(nu))return;
   rememberUser(nu,roomMeta.name);
   const now=Date.now();
   const cur=roster.get(d.pid);
@@ -1659,7 +1643,6 @@ function onRoomMsg(d){
     else handleOwnerPresence();
   }
 }
-
 function pruneTick(){
   if(!inRoom)return;
   const now=Date.now();let changed=false;
@@ -1670,7 +1653,6 @@ function pruneTick(){
   handleOwnerPresence();
   if(changed){rememberFollowers();renderAll();}else renderBar();
 }
-
 function handleOwnerPresence(){
   if(!inRoom||iAmOwner())return;
   if(ownerPresent()){
@@ -1742,11 +1724,10 @@ function onPeerGone(pid){
 }
 function broadcastMesh(o){conns.forEach((c,pid)=>{if(c.open&&!kicked.has(pid)){try{c.send(o);}catch(e){}}});}
 
-/* ══════════ الصوت — إرسال ══════════ */
+/* ══════════ المكالمات ══════════ */
 function callPeerWithMic(pid){
   if(!micStream||kicked.has(pid))return;
-  // تأكد من تفعيل المسار
-  micStream.getAudioTracks().forEach(t => t.enabled = true);
+  micStream.getAudioTracks().forEach(t=>t.enabled=true);
   const ex=callsOut.get(pid);
   if(ex){try{ex.close();}catch(e){}callsOut.delete(pid);}
   try{
@@ -1755,43 +1736,34 @@ function callPeerWithMic(pid){
       constraints:{mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:false}}
     });
     callsOut.set(pid,call);
-    call.on('stream', s => {
-      console.log('[Sada audio] outgoing stream callback from', pid, 'tracks:', s.getAudioTracks().length);
-      if (s.getAudioTracks().length > 0) addRemote(pid, s);
+    call.on('stream',s=>{
+      if(s.getAudioTracks().length>0)addRemote(pid,s);
     });
     call.on('close',()=>{if(callsOut.get(pid)===call)callsOut.delete(pid);});
     call.on('error',e=>console.warn('[Sada audio] outgoing call error:',e));
     watchCallICE(call,pid);
-  }catch(e){console.warn('[Sada audio] call failed:',e);}
+  }catch(e){}
 }
-
-/* إضافة صوت القادم من قرين */
-function addRemote(pid, stream){
+function addRemote(pid,stream){
   if(!stream)return;
-  if(stream.getAudioTracks().length===0){
-    console.warn('[Sada audio] empty stream from', pid);
-    return;
-  }
-  console.log('[Sada audio] addRemote:', pid, 'tracks:', stream.getAudioTracks().length);
-  // 1) عنصر audio — المسار الرئيسي للتشغيل
-  attachAudioElement(pid, stream);
-  // 2) AudioContext — للتحليل فقط (بدون تشغيل)
-  const ctx = ensureCtx();
-  if (ctx) {
-    try {
+  if(stream.getAudioTracks().length===0)return;
+  attachAudioElement(pid,stream);
+  const ctx=ensureCtx();
+  if(ctx){
+    try{
       removeRemoteAnalyser(pid);
-      const src = ctx.createMediaStreamSource(stream);
-      const an = ctx.createAnalyser();
-      an.fftSize = 256;
-      src.connect(an); // ← لا نتصل بالـ destination لتجنب ازدواج الصوت
-      remotes.set(pid, { src, an, data: new Uint8Array(an.frequencyBinCount) });
-    } catch(e) { console.warn('[Sada audio] analyser failed:', e); }
+      const src=ctx.createMediaStreamSource(stream);
+      const an=ctx.createAnalyser();
+      an.fftSize=256;
+      src.connect(an);
+      remotes.set(pid,{src,an,data:new Uint8Array(an.frequencyBinCount)});
+    }catch(e){}
   }
 }
 function removeRemoteAnalyser(pid){
-  const r = remotes.get(pid);
-  if(!r) return;
-  try { r.src.disconnect(); r.an.disconnect(); } catch(e){}
+  const r=remotes.get(pid);
+  if(!r)return;
+  try{r.src.disconnect();r.an.disconnect();}catch(e){}
   remotes.delete(pid);
 }
 function removeRemote(pid){
@@ -1818,7 +1790,7 @@ async function getMicStream(){
 }
 function initMicAnalyser(stream){
   micTrack=stream.getAudioTracks()[0];
-  if(micTrack) micTrack.enabled = true;
+  if(micTrack)micTrack.enabled=true;
   const ctx=ensureCtx();
   if(!ctx)return;
   const src=ctx.createMediaStreamSource(stream);
@@ -1893,10 +1865,6 @@ el.micErrClose.addEventListener('click',()=>el.micErrModal.classList.add('hidden
 
 /* ══════════ الرسائل ══════════ */
 function senderIsOwner(pid){const r=roster.get(pid);return !!r&&(r.user.name===roomMeta.owner||(roomMeta.ownerId&&r.user.gid&&('g:'+r.user.gid)===roomMeta.ownerId));}
-function checkBannedMe(){
-  if(inRoom&&state.bans.includes(user.name)){toast('أنت محظور من هذا الروم');leaveRoom();return true;}
-  return false;
-}
 function applyMsg(m,pid,conn){
   if(!m||kicked.has(pid))return;
   touch(pid);
@@ -1913,7 +1881,7 @@ function applyMsg(m,pid,conn){
     }
     case 'hi':{
       let nu=verifyHandle(sanitizeUser(m.user));
-      if(state.bans.includes(nu.name)){
+      if(isBanned(nu)){
         try{conn.send({t:'bannedYou',id:mid()});}catch(e){}
         try{conn.close();}catch(e){}
         kicked.add(pid);
@@ -1952,8 +1920,16 @@ function applyMsg(m,pid,conn){
       (m.slots||[]).forEach((s,i)=>{if(i<8&&s)applyClaim({i:i,pid:s.pid,user:s.user,ts:s.ts,muted:s.muted},true);});
       if(m.bg&&m.bg.ts>state.bg.ts)state.bg=m.bg;
       if(senderIsOwner(pid)){
-        if(Array.isArray(m.bans))state.bans=[...new Set([...state.bans,...m.bans])];
-        if(Array.isArray(m.chatBans))state.chatBans=[...new Set([...state.chatBans,...m.chatBans])];
+        if(m.bans&&Array.isArray(m.bans)){
+          m.bans.forEach(b=>{
+            if(!state.bans.some(x=>(x.name===b.name)||(x.gid&&b.gid&&x.gid===b.gid))){
+              state.bans.push(b);
+            }
+          });
+        }
+        if(m.chatBans&&Array.isArray(m.chatBans)){
+          m.chatBans.forEach(b=>{if(!state.chatBans.includes(b))state.chatBans.push(b);});
+        }
         applyChatBanUI();
       }
       if(checkBannedMe())return;
@@ -1971,10 +1947,7 @@ function applyMsg(m,pid,conn){
     }
     case 'mute':{
       const s=state.slots.find(x=>x&&x.pid===m.pid);
-      if(s){s.muted=!!m.m;
-        const audio = peerAudioEls.get(m.pid);
-        if(audio) audio.muted = !!m.m;
-        renderAll();}
+      if(s){s.muted=!!m.m;const audio=peerAudioEls.get(m.pid);if(audio)audio.muted=!!m.m;renderAll();}
       break;
     }
     case 'forceMute':{
@@ -1995,8 +1968,13 @@ function applyMsg(m,pid,conn){
     }
     case 'ban':{
       if(!senderIsOwner(pid))break;
-      if(!state.bans.includes(m.name))state.bans.push(m.name);
-      if(m.name===user.name){toast('تم حظرك وطردك من الروم');leaveRoom();return;}
+      const bannedUser=sanitizeUser(m.user);
+      addBan(bannedUser);
+      if(isBanned(user)){
+        toast('تم حظرك وطردك من الروم');
+        leaveRoom();
+        return;
+      }
       if(m.pid){roster.delete(m.pid);silentGone(m.pid);}
       renderAll();break;
     }
@@ -2059,8 +2037,8 @@ function freeSlotLocal(pid){
 }
 function applyForceMute(pid,m){
   const s=state.slots.find(x=>x&&x.pid===pid);if(s)s.muted=m;
-  const audio = peerAudioEls.get(pid);
-  if(audio) audio.muted = m;
+  const audio=peerAudioEls.get(pid);
+  if(audio)audio.muted=m;
   if(pid===myPid&&micTrack){micTrack.enabled=!m;setMuteBtn(m);}
 }
 function applyChatBanUI(){
@@ -2077,8 +2055,10 @@ function hostChatBan(name,on){
   applyChatBanUI();renderAll();toast(on?'مُنِع من الإرسال':'سُمح له بالإرسال');
 }
 function hostBanKick(name,pid){
-  if(!state.bans.includes(name))state.bans.push(name);
-  broadcastMesh({t:'ban',id:mid(),name,pid,ts:Date.now()});
+  const r=roster.get(pid);
+  const u=r?r.user:{name};
+  addBan(u);
+  broadcastMesh({t:'ban',id:mid(),user:u,pid,ts:Date.now()});
   if(pid){roster.delete(pid);silentGone(pid);}
   renderAll();
   toast('تم حظر '+name+' وطرده من الروم');
@@ -2100,7 +2080,7 @@ function renderAll(){
   renderBar();renderStage();
 }
 function renderBar(){
-  if(inRoom&&state.bans.includes(user.name)){toast('أنت محظور من هذا الروم');leaveRoom();return;}
+  if(inRoom&&isBanned(user)){toast('أنت محظور من هذا الروم');leaveRoom();return;}
   el.roomTitle.textContent=roomMeta.name||('روم '+roomCode);
   const oe=ownerEntry();
   if(oe){setAv(el.hostAv,oe[1].user);el.hostName.textContent=oe[1].user.name+(oe[0]===myPid?' (أنت)':'');el.hostChip.classList.remove('away');}
@@ -2274,7 +2254,13 @@ function openProfile(u,isHostUser,pid){
   pfTargetUser=u;pfTargetPid=pid||null;
   const isSelf=!!u.gid&&u.gid===user.gid;
   const inRoster=!!pid&&roster.has(pid);
-  el.pfBanner.innerHTML=u.banner?'<img src="'+esc(u.banner)+'" alt="">':'';
+  
+  el.pfBanner.innerHTML='';
+  if(u.banner){
+    const img=document.createElement('img');
+    img.src=u.banner;
+    el.pfBanner.appendChild(img);
+  }
   setAv(el.pfAv,u);
   el.pfName.textContent=u.name;
   el.pfHandle.classList.toggle('hidden',!u.handle);
@@ -2395,16 +2381,10 @@ el.cropSave.addEventListener('click',()=>{
   el.cropModal.classList.add('hidden');
 });
 function readImgFile(f,onOk){
-  if(f.size>MAXIMG){toast('حجم الصورة كبير — الحد الأقصى 1MB');return;}
-  if(f.type==='image/gif'){
-    const rd=new FileReader();
-    rd.onload=()=>onOk(rd.result,true);
-    rd.readAsDataURL(f);
-  }else{
-    const rd=new FileReader();
-    rd.onload=()=>onOk(rd.result,false);
-    rd.readAsDataURL(f);
-  }
+  if(f.size>MAXIMG){toast('حجم الصورة كبير — الحد الأقصى 4MB');return;}
+  const rd=new FileReader();
+  rd.onload=()=>onOk(rd.result,f.type==='image/gif');
+  rd.readAsDataURL(f);
 }
 el.avPick.addEventListener('click',()=>el.avFile.click());
 el.avFile.addEventListener('change',e=>{
@@ -2436,7 +2416,15 @@ el.bannerFile.addEventListener('change',e=>{
   e.target.value='';
 });
 el.bannerRemove.addEventListener('click',()=>{pendingBanner='';refreshBannerPrev();});
-function refreshBannerPrev(){el.bannerPrev.innerHTML=pendingBanner?'<img src="'+esc(pendingBanner)+'" alt="">':'';}
+function refreshBannerPrev(){
+  el.bannerPrev.innerHTML='';
+  if(pendingBanner){
+    const img=document.createElement('img');
+    img.src=pendingBanner;
+    el.bannerPrev.appendChild(img);
+  }
+}
+function refreshAvPrev(){setAv(el.avPrev,Object.assign({},user,{avatar:pendingAvatar}));}
 
 /* ══════════ تعديل الملف ══════════ */
 function openEdit(){
@@ -2450,7 +2438,6 @@ function openEdit(){
   el.bioInput.value=user.bio||'';
   el.editModal.classList.remove('hidden');
 }
-function refreshAvPrev(){setAv(el.avPrev,Object.assign({},user,{avatar:pendingAvatar}));}
 function syncGenderPills(){
   el.gM.classList.toggle('active',editGender==='m');
   el.gF.classList.toggle('active',editGender==='f');
@@ -2486,8 +2473,7 @@ el.editForm.addEventListener('submit',async e=>{
       roomMeta.ownerId=myOwnerId();
       broadcastMesh({t:'meta',id:mid(),meta:roomMeta,ts:Date.now()});
       if(iAmOwner()){
-        pubDir({id:roomCode,name:roomMeta.name,owner:roomMeta.owner,ownerId:roomMeta.ownerId,
-          bg:state.bg.v,sp:state.slots.filter(Boolean).length,ls:roster.size,ts:Date.now()});
+        pubDir({id:roomCode,name:roomMeta.name,owner:roomMeta.owner,ownerId:roomMeta.ownerId,bg:state.bg.v,sp:state.slots.filter(Boolean).length,ls:roster.size,ts:Date.now()});
       }
     }
     const r=roster.get(myPid);if(r)r.user=user;
@@ -2575,8 +2561,7 @@ document.addEventListener('visibilitychange',()=>{
   if(document.visibilityState==='visible'&&inRoom){
     requestWake();publishHere();pruneTick();healthCheck();
     unlockAudio();
-    // أعد محاولة تشغيل الصوت بعد العودة للصفحة
-    setTimeout(retryAllPendingAudio, 300);
+    setTimeout(retryAllPendingAudio,300);
   }
 });
 
