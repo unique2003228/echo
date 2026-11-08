@@ -181,7 +181,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .room-shell.text-only .stage-col { display: none; }
 .room-shell.text-only .chat-col { max-width: 100%; border: none; }
 
-/* Stage */
 .stage-col { display: flex; flex-direction: column; min-height: 0; position: relative; }
 .stage { flex: 1; min-height: 0; overflow: hidden; padding: 12px 8px 8px; display: flex; flex-direction: column; gap: 6px; transition: background .5s; position: relative; }
 
@@ -300,7 +299,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .audio-cta{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:80;min-height:48px;border-radius:99px;padding:0 26px;background:linear-gradient(135deg,#ffe3a3,#ff8f3d);color:#2b1c05;font-family:'Changa';font-weight:800;font-size:.95rem;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 10px 30px rgba(255,143,61,.55);animation:blink 1.2s infinite}
 .audio-cta .ic{width:22px;height:22px;stroke-width:2.2}
 
-/* Chat */
 .chat-col { display: flex; flex-direction: column; min-height: 0; background: rgba(10, 7, 5, 0.4); position: relative; }
 .chat-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px 8px; flex-shrink: 0; border-bottom: 1px solid var(--line); }
 .chat-head .t { font-family: 'Changa'; font-weight: 700; color: var(--gold); font-size: .9rem; display: flex; align-items: center; gap: 6px; }
@@ -831,7 +829,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
         <svg class="ic sm" style="vertical-align:-2px"><use href="#i-x"/></svg> مسح الكل
       </button>
     </div>
-    <div id="dmChatList" style="height:320px;overflow-y:auto;background:rgba(0,0,0,.3);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;margin-bottom:12px;box-shadow:inset 0 2px 10px rgba(0,0,0,.2)"></div>
+    <div id="dmChatList" style="height:320px;overflow-y:auto;background:rgba(0,0,0,.3);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;margin-bottom:12px;box-shadow:inset 0 2px 10px rgba(0,0,0,.2)"></div>
     <form id="dmForm" style="display:flex;gap:8px">
       <input type="text" id="dmInput" placeholder="اكتب رسالة..." autocomplete="off" style="flex:1;min-height:42px">
       <button class="btn gold" type="submit" style="min-height:42px;padding:0 16px"><svg class="ic sm"><use href="#i-send"/></svg></button>
@@ -1010,12 +1008,14 @@ function verifyHandle(u){
 }
 
 function setAv(span,u){
-  span.style.setProperty('--c',u.color);
+  u=u||{};
+  span.style.setProperty('--c',u.color||'#a8977f');
   span.innerHTML='';
-  if(u.avatar){
+  if(u.avatar && typeof u.avatar==='string' && u.avatar.length>20){
     const img=document.createElement('img');
-    img.src=u.avatar;
     img.alt='';
+    img.onerror=()=>{ span.innerHTML=icon('user'); };
+    img.src=u.avatar;
     span.appendChild(img);
   }else{
     span.innerHTML=icon('user');
@@ -1255,7 +1255,6 @@ async function ntfyPoll(topic){
   }
 }
 
-/* ══════════ HELPERS FOR USER PROFILE FETCH ══════════ */
 async function fetchUserProfile(gid){
   if(!gid)return null;
   try{
@@ -1306,6 +1305,7 @@ let pendingTimeouts=[];
 let FK='sada-follows',SK='sada-followers-seen';
 let announcedJoins = new Set();
 let crType = 'voice', crApproval = false, pendingReq = null;
+let globalRefreshInt = null;
 
 function setStorageKeys(){const uk=user?(user.handle||user.gid||user.name):'x';FK='sada-follows:'+uk;SK='sada-followers-seen:'+uk;}
 function safeTimeout(fn,ms){const t=setTimeout(fn,ms);pendingTimeouts.push(t);return t;}
@@ -1341,6 +1341,20 @@ function updateDMUnread() {
     }
   });
 }
+
+function resolveDMUser(u){
+  if(!u) return sanitizeUser({name:'زائر'});
+  if(u.handle && handlesMap.has(u.handle)){
+    const h = handlesMap.get(u.handle);
+    return sanitizeUser(Object.assign({}, u, {
+      gid: u.gid || h.gid,
+      avatar: u.avatar || h.av || '',
+      banner: u.banner || h.bn || ''
+    }));
+  }
+  return u;
+}
+
 function openDMList() {
   dmChatTarget = null;
   document.getElementById('dmChatModal').classList.add('hidden');
@@ -1354,13 +1368,15 @@ function openDMList() {
   }
   keys.forEach(k => {
     const c = dms[k];
-    const u = c.user;
+    const u = resolveDMUser(c.user);
+    if(u) c.user = u;
     const row = document.createElement('div');
     row.className = 'ppl-row';
     row.style.cursor = 'pointer';
     const av = document.createElement('span'); av.className = 'av'; setAv(av, u);
     const col = document.createElement('div'); col.className = 'col';
-    const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = u.name;
+    const nm = document.createElement('span'); nm.className = 'nm';
+    nm.innerHTML = esc(u.name) + (u.handle ? ' <span class="hdl" style="font-size:.62rem;font-family:\'IBM Plex Mono\',monospace;color:var(--muted)">@'+esc(u.handle)+'</span>' : '');
     const sub = document.createElement('span'); sub.className = 'sub';
     sub.textContent = c.messages[c.messages.length - 1]?.text || '';
     col.append(nm, sub);
@@ -1386,8 +1402,10 @@ function openDMList() {
     row.append(av, col, side);
     row.onclick = () => { document.getElementById('dmModal').classList.add('hidden'); openDMChat(u); };
     list.appendChild(row);
+    if(u.gid) mqSub(PROF_U(u.gid), onProfUMQTT);
   });
 }
+
 function openDMChat(targetUser) {
   dmChatTarget = targetUser;
   const key = targetUser.gid || targetUser.name;
@@ -1399,6 +1417,7 @@ function openDMChat(targetUser) {
   document.getElementById('dmChatModal').classList.remove('hidden');
   renderDMChat();
 }
+
 function renderDMChat() {
   const list = document.getElementById('dmChatList');
   list.innerHTML = '';
@@ -1409,21 +1428,60 @@ function renderDMChat() {
     list.innerHTML = '<div class="empty-state" style="padding:20px;font-size:.8rem">ابدأ المحادثة</div>';
     return;
   }
+  
+  const targetU = resolveDMUser(c.user || dmChatTarget);
+  
   c.messages.forEach(m => {
     const isMe = m.from === user.gid;
-    const div = document.createElement('div');
-    div.style.alignSelf = isMe ? 'flex-end' : 'flex-start';
-    div.style.background = isMe ? 'var(--gold)' : 'rgba(255,255,255,.1)';
-    div.style.color = isMe ? '#2b1c05' : '#fff';
-    div.style.padding = '8px 12px';
-    div.style.borderRadius = '12px';
-    div.style.maxWidth = '80%';
-    div.style.fontSize = '.9rem';
-    div.textContent = m.text;
-    list.appendChild(div);
+    const senderU = isMe ? user : targetU;
+    
+    const wrap = document.createElement('div');
+    wrap.style.display = 'flex';
+    wrap.style.flexDirection = isMe ? 'row-reverse' : 'row';
+    wrap.style.alignItems = 'flex-end';
+    wrap.style.gap = '8px';
+    wrap.style.maxWidth = '92%';
+    wrap.style.alignSelf = isMe ? 'flex-end' : 'flex-start';
+    
+    const av = document.createElement('span');
+    av.className = 'av';
+    av.style.cssText = 'width:26px;height:26px;flex-shrink:0;';
+    setAv(av, senderU);
+    
+    const col = document.createElement('div');
+    col.style.cssText = 'display:flex;flex-direction:column;gap:3px;min-width:0;';
+    col.style.alignItems = isMe ? 'flex-end' : 'flex-start';
+    
+    const head = document.createElement('div');
+    head.style.cssText = 'font-size:.7rem;display:flex;gap:6px;align-items:baseline;padding:0 4px;flex-wrap:wrap;';
+    const nm = document.createElement('span');
+    nm.style.cssText = 'font-weight:700;';
+    nm.style.color = senderU.color || 'var(--gold)';
+    nm.textContent = senderU.name;
+    head.appendChild(nm);
+    if(senderU.handle){
+      const hd = document.createElement('span');
+      hd.style.cssText = "color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.62rem;direction:ltr;";
+      hd.textContent = '@' + senderU.handle;
+      head.appendChild(hd);
+    }
+    
+    const bubble = document.createElement('div');
+    bubble.style.background = isMe ? 'var(--gold)' : 'rgba(255,255,255,.08)';
+    bubble.style.color = isMe ? '#2b1c05' : '#fff';
+    bubble.style.padding = '8px 12px';
+    bubble.style.borderRadius = '12px';
+    bubble.style.fontSize = '.9rem';
+    bubble.style.wordBreak = 'break-word';
+    bubble.textContent = m.text;
+    
+    col.append(head, bubble);
+    wrap.append(av, col);
+    list.appendChild(wrap);
   });
   list.scrollTop = list.scrollHeight;
 }
+
 async function sendDM(text) {
   if (!dmChatTarget) return;
   let targetGid = dmChatTarget.gid;
@@ -1462,6 +1520,7 @@ async function sendDM(text) {
   saveDMs();
   renderDMChat();
 }
+
 function onDMMsg(m) {
   if (!m || !m.from) return;
   const key = m.from.gid || m.from.name;
@@ -1659,31 +1718,70 @@ function publishProfile() {
     });
   });
 }
-function onProfMsg(d) {
-  if (!d || !d.gid) return;
+
+function applyProfileToLocal(d){
+  if(!d || !d.gid) return;
   const seen = loadJSON('sada-seen-users', {});
-  const key = d.handle || d.name;
-  if (!seen[key]) seen[key] = { u: {}, last: 0, room: '' };
-  seen[key].u = sanitizeUser(Object.assign({}, seen[key].u, d));
-  seen[key].last = Date.now();
-  saveJSON('sada-seen-users', seen);
-  if (d.handle) {
-     handlesMap.set(d.handle, { gid: d.gid, ts: d.ts, av: d.avatar, bn: d.banner });
+  const key = (d.handle || d.name || '').toLowerCase();
+  if(key){
+    if(!seen[key]) seen[key] = { u: {}, last: 0, room: '' };
+    const prev = seen[key].u || {};
+    seen[key].u = sanitizeUser(Object.assign({}, prev, {
+      name: d.name || prev.name,
+      avatar: d.avatar || prev.avatar,
+      banner: d.banner || prev.banner,
+      handle: d.handle || prev.handle,
+      gid: d.gid
+    }));
+    seen[key].last = Date.now();
+    saveJSON('sada-seen-users', seen);
   }
-  // تحديث قائمة الرسائل بالصور الجديدة
+  if(d.handle) handlesMap.set(d.handle, {gid: d.gid, ts: d.ts || Date.now(), av: d.avatar || '', bn: d.banner || ''});
+  
   Object.keys(dms).forEach(k => {
-    if (dms[k].user && dms[k].user.gid === d.gid) {
+    if(dms[k].user && dms[k].user.gid === d.gid){
       dms[k].user = Object.assign({}, dms[k].user, {
-        name: d.name || dms[k].user.name,
         avatar: d.avatar || dms[k].user.avatar,
         banner: d.banner || dms[k].user.banner,
+        name: d.name || dms[k].user.name,
         handle: d.handle || dms[k].user.handle
       });
     }
   });
   saveDMs();
-  if (!document.getElementById('dmModal').classList.contains('hidden')) openDMList();
+  
+  roster.forEach(r => {
+    if(r.user.gid === d.gid){
+      if(d.avatar) r.user.avatar = d.avatar;
+      if(d.banner) r.user.banner = d.banner;
+      if(d.name) r.user.name = d.name;
+      if(d.handle) r.user.handle = d.handle;
+    }
+  });
+  
+  state.slots.forEach(s => {
+    if(s && s.user.gid === d.gid){
+      if(d.avatar) s.user.avatar = d.avatar;
+      if(d.banner) s.user.banner = d.banner;
+    }
+  });
+  
+  if(pfTargetUser && pfTargetUser.gid === d.gid){
+    onProfileUpdate(d);
+  }
 }
+
+function onProfMsg(d) {
+  if (!d || !d.gid) return;
+  applyProfileToLocal(d);
+  if (!document.getElementById('dmModal').classList.contains('hidden')) openDMList();
+  if (!document.getElementById('dmChatModal').classList.contains('hidden')) renderDMChat();
+}
+
+function onProfUMQTT(d){
+  if(d && d.gid) applyProfileToLocal(d);
+}
+
 function startProfListener() {
   const profES = new EventSource('https://ntfy.sh/' + PROF_T + '/sse');
   profES.onmessage = (e) => {
@@ -1699,6 +1797,37 @@ function startProfListener() {
     try { profES.close(); } catch(e){}
     setTimeout(startProfListener, 5000);
   };
+}
+
+function startGlobalRefresh(){
+  if(globalRefreshInt) return;
+  globalRefreshInt = setSafe(globalRefreshTick, 5000);
+}
+async function globalRefreshTick(){
+  if(!user || !user.gid) return;
+  const gidsToFetch = new Set();
+  
+  if(!el.dmChatModal.classList.contains('hidden') && dmChatTarget && dmChatTarget.gid){
+    gidsToFetch.add(dmChatTarget.gid);
+  }
+  if(!el.dmModal.classList.contains('hidden')){
+    Object.values(dms).forEach(c => { if(c.user && c.user.gid) gidsToFetch.add(c.user.gid); });
+  }
+  if(inRoom){
+    roster.forEach(r => { if(r.user.gid && r.user.gid !== user.gid) gidsToFetch.add(r.user.gid); });
+  }
+  
+  for(const gid of gidsToFetch){
+    if(gid === user.gid) continue;
+    try{
+      const p = await fetchUserProfile(gid);
+      if(p) applyProfileToLocal(p);
+    }catch(e){}
+  }
+  
+  if(!el.dmModal.classList.contains('hidden')) openDMList();
+  if(!el.dmChatModal.classList.contains('hidden')) renderDMChat();
+  if(inRoom){ lastSig=''; renderAll(); }
 }
 
 /* ══════════ سجل اليوزرات ══════════ */
@@ -1869,6 +1998,7 @@ function loginUser(u){
     mqSub(PROF_T, onProfMsg);
     publishProfile();
     setSafe(publishProfile, 300000);
+    startGlobalRefresh();
   }, 1000);
 }
 function openHandleModal(){el.handleInput.value=user.handle||'';el.handleModal.classList.remove('hidden');}
@@ -3279,7 +3409,6 @@ function openProfile(u,isHostUser,pid){
   }
   el.profileModal.classList.remove('hidden');
 
-  // الاشتراك اللحظي ببروفايل هذا الشخص + جلب آخر نسخة
   if(pfSubGid && pfSubGid !== u.gid){ mqUnsub(PROF_U(pfSubGid)); pfSubGid=null; }
   if(u.gid && pfSubGid !== u.gid){
     pfSubGid = u.gid;
@@ -3643,6 +3772,7 @@ if(saved){
         startProfListener();
         mqSub(DM_T + user.gid, onDMMsg);
         mqSub(PROF_T, onProfMsg);
+        startGlobalRefresh();
       }, 1000);
     }
   }catch(e){}
