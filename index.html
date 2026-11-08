@@ -37,7 +37,6 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;back
 ::-webkit-scrollbar-thumb{background:rgba(255,194,75,.16);border-radius:6px}
 ::-webkit-scrollbar-track{background:transparent}
 
-/* ══════════ ROTATE OVERLAY (portrait lock) ══════════ */
 #rotateOverlay{
   display:none;
   position:fixed;
@@ -162,7 +161,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .search-bar input{border:none;background:none;box-shadow:none;min-height:40px;padding:0}
 .rooms-wrap{flex:1;min-height:0;overflow-y:auto;padding:4px 2px}
 
-/* ══════════ ROOMS GRID (2 columns on portrait / mobile) ══════════ */
 .rooms{
   display:grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -383,10 +381,19 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .msg.staff-clickable { cursor: pointer; }
 .msg.staff-clickable:hover .body { background: rgba(255,77,61,.1); border: 1px dashed rgba(255,77,61,.3); }
 
-/* ══════════ CHAT INPUT (textarea + newline) ══════════ */
-#chatForm { display: flex; gap: 8px; padding: 10px 12px; flex-shrink: 0; background: rgba(14, 10, 8, 0.85); border-top: 1px solid var(--line); align-items: flex-end; }
+/* ══════════ CHAT INPUT (robust cross-browser) ══════════ */
+#chatForm {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  flex-shrink: 0;
+  background: rgba(14, 10, 8, 0.85);
+  border-top: 1px solid var(--line);
+  align-items: flex-end;
+}
 #chatInput {
   flex: 1;
+  height: 42px;
   min-height: 42px;
   max-height: 120px;
   border-radius: 21px;
@@ -396,14 +403,25 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
   color: var(--text);
   font-family: inherit;
   font-size: .92rem;
-  line-height: 1.5;
+  line-height: 22px;
   resize: none;
   outline: none;
-  overflow-y: auto;
+  overflow-y: hidden;
   transition: border-color .2s;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,194,75,.4) transparent;
 }
 #chatInput:focus { border-color: rgba(255,194,75,.4); }
 #chatInput:disabled { opacity: .5; }
+#chatInput::-webkit-scrollbar { width: 4px; }
+#chatInput::-webkit-scrollbar-thumb { background: rgba(255,194,75,.4); border-radius: 4px; }
+#chatInput::-webkit-scrollbar-track { background: transparent; }
 #chatForm .btn { min-height: 42px; padding: 0 14px; border-radius: 99px; flex-shrink: 0; }
 #chatForm .btn .ic { width: 18px; height: 18px; }
 
@@ -726,7 +744,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
         </div>
         <ul id="chatList"></ul>
         <form id="chatForm">
-          <textarea id="chatInput" rows="1" maxlength="500" placeholder="اكتب رسالة… (Enter = سطر جديد)" autocomplete="off" enterkeyhint="enter"></textarea>
+          <textarea id="chatInput" rows="1" maxlength="500" placeholder="اكتب رسالة..." autocomplete="off" spellcheck="false"></textarea>
           <button class="btn gold" type="submit" title="إرسال"><svg class="ic"><use href="#i-send"/></svg></button>
         </form>
       </aside>
@@ -1045,14 +1063,20 @@ function setConn(cls,text){el.connChip.className='count conn static '+cls;el.con
 const cleanHandle=h=>String(h||'').toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,16);
 const validHandle=h=>/^[a-z0-9_]{3,16}$/.test(h);
 
-/* ══════════ ORIENTATION LOCK ══════════ */
-(async function lockPortrait(){
+/* ══════════ ORIENTATION LOCK (robust, deferred) ══════════ */
+function tryLockOrientation(){
   try{
-    if(screen.orientation && screen.orientation.lock){
-      await screen.orientation.lock('portrait').catch(()=>{});
+    if(typeof screen !== 'undefined' && screen && screen.orientation && typeof screen.orientation.lock === 'function'){
+      const p = screen.orientation.lock('portrait');
+      if(p && typeof p.catch === 'function') p.catch(()=>{});
     }
   }catch(e){}
-})();
+}
+if(document.readyState === 'complete' || document.readyState === 'interactive'){
+  setTimeout(tryLockOrientation, 150);
+}else{
+  window.addEventListener('DOMContentLoaded', () => setTimeout(tryLockOrientation, 150), {once:true});
+}
 
 /* ══════════ CONFIRM MODAL ══════════ */
 let confirmCallback=null;
@@ -1558,7 +1582,6 @@ function openDMList() {
     if(u.gid) mqSub(PROF_U(u.gid), onProfUMQTT);
   });
   
-  // Fetch fresh profiles for all DM contacts in background
   keys.forEach(k => {
     const c = dms[k];
     if(c.user && c.user.gid){
@@ -1888,12 +1911,10 @@ function makeRectThumb(dataUrl, w=300, h=100, quality=0.6) {
   });
 }
 
-/* ══════════ PROFILE PUBLISH (FIXED SIZES) ══════════ */
 async function publishProfile() {
   if (!user || !user.gid) return;
   const now = Date.now();
   
-  // 1) Full data via MQTT (real-time, unlimited size)
   const fullMsg = {
     gid: user.gid, name: user.name, handle: user.handle,
     avatar: user.avatar || '', banner: user.banner || '',
@@ -1902,7 +1923,6 @@ async function publishProfile() {
   mqPub(PROF_T, fullMsg);
   mqPub(PROF_U(user.gid), fullMsg);
   
-  // 2) Tiny data via ntfy (must be < 4KB, no banner to be safe)
   try {
     const avT = user.avatar ? await makeThumb(user.avatar, 40, 0.5) : '';
     let tinyMsg = {
@@ -1916,7 +1936,6 @@ async function publishProfile() {
     ntfyPost(PROF_U(user.gid), tinyMsg);
   } catch(e) { console.warn('[profile] tiny failed', e); }
   
-  // 3) Index (no image)
   const idx = { gid: user.gid, name: user.name, handle: user.handle, ts: now };
   ntfyPost(IDX_T, idx);
   mqPub(IDX_T, idx);
@@ -1925,7 +1944,6 @@ async function publishProfile() {
 function applyProfileToLocal(d){
   if(!d || !d.gid) return;
   
-  // Update seen-users
   const seen = loadJSON('sada-seen-users', {});
   const key = (d.handle || d.name || '').toLowerCase();
   if(key){
@@ -1939,7 +1957,6 @@ function applyProfileToLocal(d){
     const newBnLen = (d.banner || '').length;
     const prevBnLen = (prev.banner || '').length;
     
-    // Full data always wins. Tiny wins if newer OR (same time + bigger).
     const useAv = d.avatar && (d.full || isNewer || !prev.avatar || newAvLen > prevAvLen);
     const useBn = d.banner && (d.full || isNewer || !prev.banner || newBnLen > prevBnLen);
     
@@ -1955,7 +1972,6 @@ function applyProfileToLocal(d){
     saveJSON('sada-seen-users', seen);
   }
   
-  // Update handlesMap
   if(d.handle){
     const existing = handlesMap.get(d.handle) || {};
     const useAv = d.avatar || existing.av || '';
@@ -1963,7 +1979,6 @@ function applyProfileToLocal(d){
     handlesMap.set(d.handle, { gid: d.gid, ts: Math.max(existing.ts || 0, d.ts || Date.now()), av: useAv, bn: useBn });
   }
   
-  // Update DMs
   Object.keys(dms).forEach(k => {
     if(dms[k].user && dms[k].user.gid === d.gid){
       dms[k].user = Object.assign({}, dms[k].user, {
@@ -1976,7 +1991,6 @@ function applyProfileToLocal(d){
   });
   saveDMs();
   
-  // Update roster
   roster.forEach(r => {
     if(r.user.gid === d.gid){
       if(d.avatar) r.user.avatar = d.avatar;
@@ -1986,7 +2000,6 @@ function applyProfileToLocal(d){
     }
   });
   
-  // Update slots
   state.slots.forEach(s => {
     if(s && s.user.gid === d.gid){
       if(d.avatar) s.user.avatar = d.avatar;
@@ -1994,7 +2007,6 @@ function applyProfileToLocal(d){
     }
   });
   
-  // Update profile modal
   if(pfTargetUser && pfTargetUser.gid === d.gid){
     onProfileUpdate(d);
   }
@@ -2390,7 +2402,6 @@ el.searchInput.addEventListener('input',()=>{
     row.addEventListener('click',()=>openProfile(u,false,null));
     el.searchResults.appendChild(row);
     
-    // Fetch fresh profile in background
     if(u.gid){
       fetchUserProfile(u.gid).then(p => {
         if(p){
@@ -2519,6 +2530,8 @@ function startRoom(code,meta,isCreator,preMic){
   healthInt=setSafe(healthCheck,HEALTH_MS);
   clearInterval(audioWatchInt);
   audioWatchInt=setSafe(audioWatch,3000);
+  
+  setTimeout(autoGrowChat, 150);
 }
 
 function bindPeerEvents(p){
@@ -3306,7 +3319,7 @@ function applyForceMute(pid,m){
 function applyChatBanUI(){
   const banned=state.chatBans.includes(user.name);
   el.chatInput.disabled=banned;
-  el.chatInput.placeholder=banned?'تم منعك من الإرسال':'اكتب رسالة… (Enter = سطر جديد)';
+  el.chatInput.placeholder=banned?'تم منعك من الإرسال':'اكتب رسالة...';
 }
 function hostForceMute(pid,m){broadcastMesh({t:'forceMute',id:mid(),pid,m,ts:Date.now()});applyForceMute(pid,m);renderAll();toast(m?'تم كتم مايكه':'فُتح مايكه');}
 function hostForceDown(pid){broadcastMesh({t:'forceDown',id:mid(),pid,ts:Date.now()});freeSlotLocal(pid);renderAll();toast('أُنزل من المسرح');}
@@ -3488,33 +3501,39 @@ function deleteChatMsg(id) {
 
 function sysLocal(text,warn){appendChat({sys:true,text},warn);}
 
-/* ══════════ CHAT INPUT (textarea + newline) ══════════ */
+/* ══════════ CHAT INPUT (auto-grow + no scrollbar unless multi-line) ══════════ */
 function autoGrowChat(){
   if(!el.chatInput) return;
-  el.chatInput.style.height = 'auto';
-  el.chatInput.style.height = Math.min(el.chatInput.scrollHeight, 120) + 'px';
+  const ta = el.chatInput;
+  // Reset to measure
+  ta.style.height = 'auto';
+  ta.style.overflowY = 'hidden';
+  const sh = ta.scrollHeight;
+  const maxH = 120;
+  const minH = 42;
+  const newH = Math.min(Math.max(sh, minH), maxH);
+  ta.style.height = newH + 'px';
+  // Only show scrollbar if content truly exceeds max height
+  if (sh > maxH) {
+    ta.style.overflowY = 'auto';
+  } else {
+    ta.style.overflowY = 'hidden';
+  }
 }
 
+// Bind input event
 el.chatInput.addEventListener('input', autoGrowChat);
 
+// Keydown: only intercept Ctrl/Cmd+Enter to send. Plain Enter inserts newline (browser default).
 el.chatInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    // Ctrl+Enter or Cmd+Enter → submit
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      if (el.chatForm.requestSubmit) el.chatForm.requestSubmit();
-      else sendChatMessage();
-      return;
-    }
-    // Regular Enter → insert newline
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
     e.preventDefault();
-    e.stopPropagation();
-    const start = el.chatInput.selectionStart;
-    const end = el.chatInput.selectionEnd;
-    const val = el.chatInput.value;
-    el.chatInput.value = val.substring(0, start) + '\n' + val.substring(end);
-    el.chatInput.selectionStart = el.chatInput.selectionEnd = start + 1;
-    autoGrowChat();
+    sendChatMessage();
+    return;
+  }
+  if (e.key === 'Enter') {
+    // Let browser insert newline, then auto-grow after
+    setTimeout(autoGrowChat, 0);
   }
 });
 
@@ -3534,6 +3553,9 @@ el.chatForm.addEventListener('submit',e=>{
   e.preventDefault();
   sendChatMessage();
 });
+
+// Ensure proper initial sizing on load
+setTimeout(autoGrowChat, 200);
 
 /* ══════════ القوائم ══════════ */
 function openPeople(){
@@ -4055,6 +4077,10 @@ if(saved){
     }
   }catch(e){}
 }
+
+// Chat input initial sizing (in case user enters room immediately)
+setTimeout(autoGrowChat, 500);
+setTimeout(autoGrowChat, 1500);
 </script>
 </body>
 </html>
