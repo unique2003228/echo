@@ -229,9 +229,10 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .sw:hover{transform:translateY(-2px)}
 .sw.active{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,194,75,.25)}
 .sw span{position:absolute;bottom:0;inset-inline:0;background:rgba(0,0,0,.55);font-size:.58rem;padding:2px 6px;color:var(--text);font-family:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.audio-cta{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:5;min-height:40px;border-radius:99px;padding:0 20px;
-  background:var(--gold);color:#2b1c05;font-family:'Changa';font-weight:800;font-size:.88rem;border:none;cursor:pointer;
-  display:inline-flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(255,194,75,.4);animation:blink 1.6s infinite}
+.audio-cta{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:80;min-height:48px;border-radius:99px;padding:0 26px;
+  background:linear-gradient(135deg,#ffe3a3,#ff8f3d);color:#2b1c05;font-family:'Changa';font-weight:800;font-size:.95rem;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;box-shadow:0 10px 30px rgba(255,143,61,.55);animation:blink 1.2s infinite}
+.audio-cta .ic{width:22px;height:22px;stroke-width:2.2}
 
 .chat-col{height:100%;min-height:0;display:flex;flex-direction:column;padding:14px 14px 14px 12px;position:relative;
   background:linear-gradient(to left,rgba(0,0,0,.3),rgba(0,0,0,.08))}
@@ -452,7 +453,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
     <div class="room-shell">
       <div class="stage-col">
         <div class="stage bg-1" id="stage">
-          <button class="audio-cta hidden" id="audioBtn" type="button"><svg class="ic sm"><use href="#i-head"/></svg> اضغط لتفعيل الصوت</button>
           <div class="slots" id="slots"></div>
           <div class="stage-ctrls hidden" id="stageCtrls">
             <button class="btn ghost sm" id="muteToggle" type="button"><svg class="ic sm" id="muteIc"><use href="#i-mic"/></svg><span id="muteLbl">كتم صوتي</span></button>
@@ -483,6 +483,11 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
     </div>
   </section>
 </div>
+
+<!-- زر تشغيل الصوت العائم -->
+<button class="audio-cta hidden" id="audioBtn" type="button">
+  <svg class="ic"><use href="#i-head"/></svg> 🔊 اضغط لتشغيل الصوت
+</button>
 
 <div class="modal hidden" id="handleModal">
   <div class="modal-card"><div class="mc-body">
@@ -667,14 +672,12 @@ const icon=(n,cls='')=>'<svg class="ic '+cls+'" aria-hidden="true"><use href="#i
 
 const DIR_T='sada12/dir', ROOM_T=c=>'sada12/r/'+c, HANDLES='sada-handles-v1', PREFIX='sada8-';
 
-/* ══════════ ICE — TURN موثوق + STUN ══════════ */
 const ICE={
   config:{
     iceServers:[
       {urls:'stun:stun.l.google.com:19302'},
       {urls:'stun:stun1.l.google.com:19302'},
       {urls:'stun:stun2.l.google.com:19302'},
-      // TURN — openrelay (best effort) + بديل
       {urls:'turn:openrelay.metered.ca:80',username:'openrelayproject',credential:'openrelayproject'},
       {urls:'turn:openrelay.metered.ca:443',username:'openrelayproject',credential:'openrelayproject'},
       {urls:'turn:openrelay.metered.ca:443?transport=tcp',username:'openrelayproject',credential:'openrelayproject'}
@@ -732,28 +735,157 @@ const identityKey=u=>u.handle?'@'+u.handle:'n:'+u.name;
 function ageOf(b){if(!b)return null;const d=new Date(b),n=new Date();let a=n.getFullYear()-d.getFullYear();const m=n.getMonth()-d.getMonth();if(m<0||(m===0&&n.getDate()<d.getDate()))a--;return(a>=0&&a<120)?a:null;}
 const fmtDate=b=>{try{return new Date(b).toLocaleDateString('ar',{year:'numeric',month:'long',day:'numeric'});}catch(e){return b;}};
 
-/* ══════════ Audio Context — إصلاح iOS/Safari ══════════ */
-let actx=null;
+/* ═══════════════════════════════════════════════════════════
+   ★★★ نظام الصوت — الحل الجذري ★★★
+   - عنصر <audio> مخفي لكل قرين (مسار التشغيل الأساسي)
+   - AudioContext للتحليل فقط (بدون تشغيل)
+   - التقاط أول لمسة لفتح قناة الصوت نهائيًا
+   - إعادة محاولة تلقائية عند كل لمسة
+   ═══════════════════════════════════════════════════════════ */
+
+let actx = null;
+let userActivated = false;
+const peerAudioEls = new Map();   // pid -> HTMLAudioElement
+
+/* فتح قناة الصوت — يُستدعى عند أول تفاعل */
 function unlockAudio(){
-  try{
-    if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();
-    if(actx.state!=='running')actx.resume().catch(()=>{});
-  }catch(e){console.warn('[Sada audio] unlock failed:',e);}
+  try {
+    if (!actx) {
+      actx = new (window.AudioContext || window.webkitAudioContext)();
+      console.log('[Sada audio] AudioContext created, state=', actx.state);
+    }
+    if (actx.state !== 'running') {
+      actx.resume().then(() => {
+        console.log('[Sada audio] AudioContext resumed, state=', actx.state);
+      }).catch(err => console.warn('[Sada audio] resume failed:', err));
+    }
+    userActivated = true;
+    // شغّل كل عناصر الصوت المعلقة
+    retryAllPendingAudio();
+  } catch(e) {
+    console.warn('[Sada audio] unlock failed:', e);
+  }
 }
+
+/* المسجّل الحقيقي على كل لمسة — NOT once:true */
+['click', 'touchstart', 'pointerdown', 'keydown', 'scroll'].forEach(ev => {
+  document.addEventListener(ev, () => {
+    if (!userActivated) {
+      userActivated = true;
+      unlockAudio();
+    }
+  }, { passive: true });
+});
+
 function ensureCtx(){
-  if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){return null;}}
-  if(actx.state!=='running')actx.resume().catch(()=>{});
+  if (!actx) {
+    try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return null; }
+  }
+  if (actx.state !== 'running') {
+    actx.resume().catch(()=>{});
+  }
   return actx;
 }
-['click','touchstart','pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,unlockAudio,{passive:true}));
-setSafe(()=>{
-  if(!inRoom){el.audioBtn.classList.add('hidden');return;}
-  const hasRemotes=remotes.size>0;
-  const needsUnlock=!actx||actx.state!=='running';
-  if(hasRemotes&&needsUnlock)el.audioBtn.classList.remove('hidden');
-  else el.audioBtn.classList.add('hidden');
-},1500);
 
+/* ─── عنصر <audio> لكل قرين ─── */
+function attachAudioElement(pid, stream){
+  if (!stream) return;
+  const tracks = stream.getAudioTracks();
+  console.log('[Sada audio] attach for', pid, 'audio tracks:', tracks.length);
+  if (tracks.length === 0) return;
+
+  // احذف القديم إن وجد
+  removeAudioElement(pid);
+
+  const audio = document.createElement('audio');
+  audio.autoplay = true;
+  audio.setAttribute('playsinline','');
+  audio.setAttribute('webkit-playsinline','');
+  audio.muted = false;
+  audio.volume = 1.0;
+  audio.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;';
+  audio.srcObject = stream;
+  document.body.appendChild(audio);
+  peerAudioEls.set(pid, audio);
+
+  // راقب حالة التشغيل
+  const tryPlay = () => {
+    const p = audio.play();
+    if (p && p.catch) {
+      p.then(() => {
+        console.log('[Sada audio] playing for', pid);
+        updateAudioButton();
+      }).catch(err => {
+        console.warn('[Sada audio] play blocked for', pid, err && err.name);
+        updateAudioButton();
+      });
+    }
+  };
+
+  audio.addEventListener('canplay', tryPlay, { once: true });
+  audio.addEventListener('playing', () => {
+    console.log('[Sada audio] now playing:', pid);
+    updateAudioButton();
+  });
+  audio.addEventListener('pause', () => updateAudioButton());
+  audio.addEventListener('error', e => console.warn('[Sada audio] audio error', pid, e));
+
+  tryPlay();
+  setTimeout(tryPlay, 500);
+  setTimeout(tryPlay, 1500);
+}
+
+function removeAudioElement(pid){
+  const a = peerAudioEls.get(pid);
+  if (!a) return;
+  try { a.pause(); a.srcObject = null; a.remove(); } catch(e){}
+  peerAudioEls.delete(pid);
+  updateAudioButton();
+}
+
+function retryAllPendingAudio(){
+  peerAudioEls.forEach((audio, pid) => {
+    if (audio.paused) {
+      const p = audio.play();
+      if (p && p.catch) {
+        p.then(() => console.log('[Sada audio] resumed:', pid))
+         .catch(err => console.warn('[Sada audio] still blocked:', pid, err && err.name));
+      }
+    }
+  });
+  updateAudioButton();
+}
+
+/* زر الصوت — يظهر فقط عند وجود صوت معلق */
+function updateAudioButton(){
+  if (!inRoom) { el.audioBtn.classList.add('hidden'); return; }
+  let stuck = false;
+  peerAudioEls.forEach(audio => { if (audio.paused) stuck = true; });
+  if (stuck) {
+    el.audioBtn.classList.remove('hidden');
+  } else {
+    el.audioBtn.classList.add('hidden');
+  }
+}
+
+el.audioBtn.addEventListener('click', (e) => {
+  e.preventDefault(); e.stopPropagation();
+  unlockAudio();
+  peerAudioEls.forEach(audio => {
+    audio.muted = false;
+    audio.volume = 1.0;
+    audio.play().catch(err => console.warn('manual play failed:', err));
+  });
+  setTimeout(updateAudioButton, 400);
+});
+
+/* مراقب دوري كل ١ ثانية — يعرض الزر إذا لزم */
+setSafe(() => {
+  if (!inRoom) return;
+  updateAudioButton();
+}, 1200);
+
+/* خلفية الزخرفة */
 for(let i=0;i<26;i++){const s=document.createElement('span');s.style.height=(30+rnd(70))+'%';s.style.animationDuration=(1.1+Math.random()*1.8)+'s';s.style.animationDelay=(-Math.random()*2)+'s';el.amb.appendChild(s);}
 
 /* ══════════ Peer ID ثابت ══════════ */
@@ -1112,7 +1244,7 @@ function renderRooms(){
     const s1=document.createElement('span');s1.className='rc-stat';s1.innerHTML=icon('mic')+(r.sp||0);
     const s2=document.createElement('span');s2.className='rc-stat';s2.innerHTML=icon('users')+(r.ls||0);
     const btn=document.createElement('button');btn.className='btn gold';btn.type='button';btn.innerHTML=icon('head','sm')+' انضم';
-    btn.onclick=()=>startRoom(String(r.id),{name:r.name||'روم',owner:r.owner||'',ownerId:r.ownerId||''},false,null);
+    btn.onclick=()=>{unlockAudio();startRoom(String(r.id),{name:r.name||'روم',owner:r.owner||'',ownerId:r.ownerId||''},false,null);};
     foot.append(s1,s2,btn);
     body.append(h,host,foot);
     inner.append(top,body);card.appendChild(inner);
@@ -1121,6 +1253,7 @@ function renderRooms(){
 }
 el.createForm.addEventListener('submit',async e=>{
   e.preventDefault();
+  unlockAudio(); // ← فتح الصوت عند فتح الروم
   let preMic=null;
   try{preMic=await getMicStream();}catch(err){preMic=null;}
   const code=genCode();
@@ -1244,6 +1377,8 @@ function startRoom(code,meta,isCreator,preMic){
   graceEnd=0;ownerPrompted=false;ownerPidSeen=null;pendingPreMic=preMic||null;lastSig='';
   firstOpen=true;recreateLock=false;
   clearPendingTimeouts();
+  // نظّف عناصر audio القديمة
+  peerAudioEls.forEach((_,pid)=>removeAudioElement(pid));
   el.chatList.innerHTML='';
   const ph=document.createElement('li');ph.className='msg ph';ph.textContent='لا رسائل بعد — ابدأ الحديث';
   el.chatList.appendChild(ph);
@@ -1254,7 +1389,7 @@ function startRoom(code,meta,isCreator,preMic){
   loadHandles();
   renderAll();
   myJoinTs=Date.now();
-  unlockAudio();
+  unlockAudio(); // ← فتح الصوت فورًا
   mqSub(ROOM_T(roomCode),onRoomMsg);
   [300,1500,3000,6000].forEach(t=>safeTimeout(()=>{pubRoom({w:1});publishHere();},t));
   
@@ -1336,23 +1471,40 @@ function onPeerConnection(conn){
 function onPeerCall(call){
   const pid=call.peer;
   if(kicked.has(pid)){try{call.close();}catch(e){}return;}
-  // استبدال دائم
   const ex=callsIn.get(pid);
   if(ex){try{ex.close();}catch(e){}callsIn.delete(pid);}
   callsIn.set(pid,call);
-  // ربط stream قبل الإجابة
-  call.on('stream',s=>addRemote(pid,s));
-  try{
-    // استقبال الصوت إجباريًا حتى لو لم نرسل
-    call.answer(micStream||undefined,{constraints:{mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:false}}});
-  }catch(e){console.warn('[Sada audio] answer failed:',e);}
-  call.on('close',()=>{
-    if(callsIn.get(pid)===call)callsIn.delete(pid);
+  
+  // ★ ربط stream قبل الإجابة — ضروري جدًا
+  call.on('stream', s => {
+    console.log('[Sada audio] incoming stream from', pid, 'tracks:', s.getAudioTracks().length);
+    if (s.getAudioTracks().length > 0) {
+      addRemote(pid, s);
+    } else {
+      s.addEventListener('addtrack', () => {
+        if (s.getAudioTracks().length > 0) addRemote(pid, s);
+      });
+    }
+  });
+  
+  try {
+    // نرسل مايكنا إن وُجد، ونطلب استقبال الصوت دائمًا
+    const answerOpts = { constraints: { mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: false } } };
+    if (micStream) {
+      micStream.getAudioTracks().forEach(t => t.enabled = true);
+      call.answer(micStream, answerOpts);
+    } else {
+      call.answer(undefined, answerOpts);
+    }
+    console.log('[Sada audio] answered call from', pid);
+  } catch(e) { console.warn('[Sada audio] answer failed:', e); }
+  
+  call.on('close', () => {
+    if (callsIn.get(pid) === call) callsIn.delete(pid);
     removeRemote(pid);
   });
-  call.on('error',e=>console.warn('[Sada audio] call error:',e));
-  // راقب ICE
-  watchCallICE(call,pid);
+  call.on('error', e => console.warn('[Sada audio] call error:', e));
+  watchCallICE(call, pid);
 }
 
 function onPeerDisconnected(){
@@ -1413,7 +1565,6 @@ function healthCheck(){
   });
 }
 
-/* ══════════ مراقبة ICE + إصلاح الصوت ══════════ */
 function watchCallICE(call,pid){
   try{
     const pc=call.peerConnection;
@@ -1421,13 +1572,12 @@ function watchCallICE(call,pid){
     pc.oniceconnectionstatechange=()=>{
       const st=pc.iceConnectionState;
       console.log('[Sada ICE]',pid,st);
-      if(st==='failed'){
-        console.warn('[Sada ICE] failed for',pid,'— will retry');
+      if(st==='failed'||st==='closed'){
+        console.warn('[Sada ICE] failed for',pid,'— retry');
         try{call.close();}catch(e){}
         callsIn.delete(pid);
         removeRemote(pid);
-        if(inRoom&&!kicked.has(pid)){
-          const co=callsOut.get(pid);if(co){try{co.close();}catch(e){}callsOut.delete(pid);}
+        if(inRoom&&!kicked.has(pid)&&mySlotIndex()>=0&&micStream){
           setTimeout(()=>{if(inRoom&&!kicked.has(pid))callPeerWithMic(pid);},1200);
         }
       }else if(st==='disconnected'){
@@ -1437,8 +1587,7 @@ function watchCallICE(call,pid){
             try{call.close();}catch(e){}
             callsIn.delete(pid);
             removeRemote(pid);
-            if(inRoom&&!kicked.has(pid)){
-              const co=callsOut.get(pid);if(co){try{co.close();}catch(e){}callsOut.delete(pid);}
+            if(inRoom&&!kicked.has(pid)&&mySlotIndex()>=0&&micStream){
               setTimeout(()=>{if(inRoom&&!kicked.has(pid))callPeerWithMic(pid);},1500);
             }
           }
@@ -1448,31 +1597,32 @@ function watchCallICE(call,pid){
   }catch(e){}
 }
 
-/* ══════════ audioWatch — يفحص كل 3 ثوانٍ ══════════ */
+/* audioWatch — مراقبة من على المسرح وليس لدينا صوتهم */
 function audioWatch(){
   if(!inRoom||!myPid)return;
-  // 1) من على المسرح وليس لدينا له remote → اطلب إعادة مكالمة
   state.slots.filter(Boolean).forEach(s=>{
     if(s.pid===myPid||kicked.has(s.pid))return;
-    if(!remotes.has(s.pid)){
+    // إذا لم يكن لدينا عنصر audio لهذا القرين → اطلب إعادة مكالمة
+    if(!peerAudioEls.has(s.pid)){
       const c=conns.get(s.pid);
       if(c&&c.open){
         try{c.send({t:'reCall',id:mid(),pid:myPid,ts:Date.now()});}catch(e){}
       }
     }
   });
-  // 2) مكالمات ICE حالتها failed أو disconnected → أغلقها
+  // أغلق أي مكالمة ICE حالتها failed
   callsIn.forEach((call,pid)=>{
     try{
       const pc=call.peerConnection;
       if(!pc)return;
-      const st=pc.iceConnectionState;
-      if(st==='failed'){
+      if(pc.iceConnectionState==='failed'){
         console.warn('[Sada audioWatch] closing failed call to',pid);
         try{call.close();}catch(e){}
         callsIn.delete(pid);
         removeRemote(pid);
-        if(!kicked.has(pid))setTimeout(()=>{if(inRoom&&!kicked.has(pid))callPeerWithMic(pid);},1200);
+        if(!kicked.has(pid)&&mySlotIndex()>=0&&micStream){
+          setTimeout(()=>{if(inRoom&&!kicked.has(pid))callPeerWithMic(pid);},1200);
+        }
       }
     }catch(e){}
   });
@@ -1592,44 +1742,61 @@ function onPeerGone(pid){
 }
 function broadcastMesh(o){conns.forEach((c,pid)=>{if(c.open&&!kicked.has(pid)){try{c.send(o);}catch(e){}}});}
 
-/* ══════════ الصوت — مع OfferToReceiveAudio ══════════ */
+/* ══════════ الصوت — إرسال ══════════ */
 function callPeerWithMic(pid){
   if(!micStream||kicked.has(pid))return;
+  // تأكد من تفعيل المسار
+  micStream.getAudioTracks().forEach(t => t.enabled = true);
   const ex=callsOut.get(pid);
   if(ex){try{ex.close();}catch(e){}callsOut.delete(pid);}
   try{
     const call=peer.call(pid,micStream,{
       metadata:{t:'mic'},
-      constraints:{mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:false}},
-      offerToReceiveAudio:1,
-      offerToReceiveVideo:0
+      constraints:{mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:false}}
     });
     callsOut.set(pid,call);
-    call.on('stream',s=>addRemote(pid,s));
+    call.on('stream', s => {
+      console.log('[Sada audio] outgoing stream callback from', pid, 'tracks:', s.getAudioTracks().length);
+      if (s.getAudioTracks().length > 0) addRemote(pid, s);
+    });
     call.on('close',()=>{if(callsOut.get(pid)===call)callsOut.delete(pid);});
     call.on('error',e=>console.warn('[Sada audio] outgoing call error:',e));
     watchCallICE(call,pid);
   }catch(e){console.warn('[Sada audio] call failed:',e);}
 }
-function addRemote(pid,stream){
+
+/* إضافة صوت القادم من قرين */
+function addRemote(pid, stream){
   if(!stream)return;
-  const ctx=ensureCtx();
-  if(!ctx){setTimeout(()=>addRemote(pid,stream),800);return;}
-  removeRemote(pid);
-  const src=ctx.createMediaStreamSource(stream);
-  const gain=ctx.createGain();
-  const s=state.slots.find(x=>x&&x.pid===pid);
-  gain.gain.value=(s&&s.muted)?0:1;
-  const an=ctx.createAnalyser();an.fftSize=256;
-  src.connect(gain);gain.connect(an);an.connect(ctx.destination);
-  remotes.set(pid,{src:src,gain:gain,an:an,data:new Uint8Array(an.frequencyBinCount)});
-  console.log('[Sada audio] remote added:',pid);
-  if(ctx.state!=='running')ctx.resume().catch(()=>{});
+  if(stream.getAudioTracks().length===0){
+    console.warn('[Sada audio] empty stream from', pid);
+    return;
+  }
+  console.log('[Sada audio] addRemote:', pid, 'tracks:', stream.getAudioTracks().length);
+  // 1) عنصر audio — المسار الرئيسي للتشغيل
+  attachAudioElement(pid, stream);
+  // 2) AudioContext — للتحليل فقط (بدون تشغيل)
+  const ctx = ensureCtx();
+  if (ctx) {
+    try {
+      removeRemoteAnalyser(pid);
+      const src = ctx.createMediaStreamSource(stream);
+      const an = ctx.createAnalyser();
+      an.fftSize = 256;
+      src.connect(an); // ← لا نتصل بالـ destination لتجنب ازدواج الصوت
+      remotes.set(pid, { src, an, data: new Uint8Array(an.frequencyBinCount) });
+    } catch(e) { console.warn('[Sada audio] analyser failed:', e); }
+  }
+}
+function removeRemoteAnalyser(pid){
+  const r = remotes.get(pid);
+  if(!r) return;
+  try { r.src.disconnect(); r.an.disconnect(); } catch(e){}
+  remotes.delete(pid);
 }
 function removeRemote(pid){
-  const r=remotes.get(pid);if(!r)return;
-  try{r.src.disconnect();r.gain.disconnect();r.an.disconnect();}catch(e){}
-  remotes.delete(pid);
+  removeAudioElement(pid);
+  removeRemoteAnalyser(pid);
 }
 function drawLevels(){
   if(!inRoom)return;
@@ -1641,11 +1808,6 @@ function drawLevels(){
     pod.style.setProperty('--lvl',v<.07?0:Math.min(1,v));
   });
 }
-el.audioBtn.addEventListener('click',()=>{
-  unlockAudio();
-  if(actx&&actx.state!=='running')actx.resume().catch(()=>{});
-  setTimeout(()=>{if(actx&&actx.state==='running')el.audioBtn.classList.add('hidden');},200);
-});
 
 /* ══════════ المايك ══════════ */
 async function getMicStream(){
@@ -1656,6 +1818,7 @@ async function getMicStream(){
 }
 function initMicAnalyser(stream){
   micTrack=stream.getAudioTracks()[0];
+  if(micTrack) micTrack.enabled = true;
   const ctx=ensureCtx();
   if(!ctx)return;
   const src=ctx.createMediaStreamSource(stream);
@@ -1741,7 +1904,6 @@ function applyMsg(m,pid,conn){
   switch(m.t){
     case 'ping':break;
     case 'reCall':{
-      // Someone needs our audio — re-call them
       if(mySlotIndex()>=0&&micStream){
         const co=callsOut.get(pid);
         if(co){try{co.close();}catch(e){}callsOut.delete(pid);}
@@ -1809,7 +1971,10 @@ function applyMsg(m,pid,conn){
     }
     case 'mute':{
       const s=state.slots.find(x=>x&&x.pid===m.pid);
-      if(s){s.muted=!!m.m;const r=remotes.get(m.pid);if(r)r.gain.gain.value=m.m?0:1;renderAll();}
+      if(s){s.muted=!!m.m;
+        const audio = peerAudioEls.get(m.pid);
+        if(audio) audio.muted = !!m.m;
+        renderAll();}
       break;
     }
     case 'forceMute':{
@@ -1894,7 +2059,8 @@ function freeSlotLocal(pid){
 }
 function applyForceMute(pid,m){
   const s=state.slots.find(x=>x&&x.pid===pid);if(s)s.muted=m;
-  const r=remotes.get(pid);if(r)r.gain.gain.value=m?0:1;
+  const audio = peerAudioEls.get(pid);
+  if(audio) audio.muted = m;
   if(pid===myPid&&micTrack){micTrack.enabled=!m;setMuteBtn(m);}
 }
 function applyChatBanUI(){
@@ -2389,6 +2555,7 @@ function cleanupRoom(){
   callsIn.forEach(c=>{try{c.close();}catch(e){}});
   conns.forEach(c=>{try{c.close();}catch(e){}});
   [...remotes.keys()].forEach(removeRemote);
+  peerAudioEls.forEach((_,pid)=>removeAudioElement(pid));
   stopMicLocal();
   releaseWake();
   mqUnsub(ROOM_T(roomCode));
@@ -2405,7 +2572,12 @@ window.addEventListener('pagehide',()=>{
   if(iAmOwner()||roster.size<=1){mqPub(DIR_T,{id:roomCode,closed:true,ts:Date.now()});ntfyPost(DIR_T,{id:roomCode,closed:true,ts:Date.now()});}
 });
 document.addEventListener('visibilitychange',()=>{
-  if(document.visibilityState==='visible'&&inRoom){requestWake();publishHere();pruneTick();healthCheck();unlockAudio();}
+  if(document.visibilityState==='visible'&&inRoom){
+    requestWake();publishHere();pruneTick();healthCheck();
+    unlockAudio();
+    // أعد محاولة تشغيل الصوت بعد العودة للصفحة
+    setTimeout(retryAllPendingAudio, 300);
+  }
 });
 
 /* ══════════ الإقلاع ══════════ */
