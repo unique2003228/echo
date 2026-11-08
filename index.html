@@ -258,7 +258,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 #lsLabel:hover { color: var(--gold); }
 #lsLabel .ic { width:12px; height:12px; color:var(--gold); }
 
-/* New Background Button - Positioned Bottom Left */
 .bg-fab {
   position: absolute;
   bottom: 12px;
@@ -280,7 +279,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .bg-fab:hover { background: rgba(255, 194, 75, 0.2); }
 .bg-picker {
   position: absolute;
-  bottom: 48px; /* Opens upwards */
+  bottom: 48px;
   left: 12px;
   width: min(440px,calc(100% - 24px));
   z-index: 6;
@@ -325,7 +324,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 #chatForm input { flex: 1; min-height: 40px; border-radius: 99px; padding: 0 14px; background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.1); }
 #chatForm .btn { min-height: 40px; padding: 0 12px; border-radius: 99px; }
 
-/* Context Menu for Message Delete */
 .msg-menu {
   position: fixed;
   background: rgba(30, 22, 18, 0.95);
@@ -384,10 +382,10 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .crop-view img{position:absolute;max-width:none;pointer-events:none;user-select:none;-webkit-user-drag:none}
 .crop-view.crop-banner{ border-radius:14px; border-color:var(--gold); }
 
-/* ** FIX: Make cropModal appear above editModal ** */
 #cropModal { z-index: 85; }
 #micModal { z-index: 85; }
 #reqModal { z-index: 85; }
+#confirmModal { z-index: 90; }
 
 .pf-banner{height:120px;border-radius:18px;overflow:hidden;position:relative;background:radial-gradient(420px 160px at 20% 0%,rgba(255,194,75,.35),transparent 70%),radial-gradient(420px 180px at 85% 100%,rgba(255,77,61,.3),transparent 70%),#170f0b}
 .pf-banner img{width:100%;height:100%;object-fit:cover;display:block}
@@ -437,7 +435,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 #dmChatList::-webkit-scrollbar { width: 6px; }
 #dmChatList::-webkit-scrollbar-thumb { background: rgba(255,194,75,.3); border-radius: 6px; }
 
-/* Update Available Banner */
 .update-banner {
   position: fixed;
   bottom: 24px;
@@ -883,6 +880,18 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
   </div></div>
 </div>
 
+<div class="modal hidden" id="confirmModal">
+  <div class="modal-card"><div class="mc-body">
+    <svg class="big-ic" style="color:var(--red)"><use href="#i-alert"/></svg>
+    <h3 id="confirmTitle">تأكيد</h3>
+    <p id="confirmMsg"></p>
+    <div class="row">
+      <button class="btn danger" id="confirmYes">تأكيد</button>
+      <button class="btn ghost" id="confirmNo">إلغاء</button>
+    </div>
+  </div></div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -903,11 +912,14 @@ const IDS=['authView','lobbyView','roomView','insecure','gWrap','gHint','lobbyAv
 'pfFollowLbl','pfLists','pfDM','pfSep','pfHostRow','pfModToggle','pfMute','pfChatBan','pfKick','pfEdit','pfClose','editModal','editForm','avPrev',
 'avPick','avRemove','avFile','bannerPrev','bannerPick','bannerRemove','bannerFile','gM','gF','gN','birthInput','bioInput',
 'privPill','editCancel','audioBtn','toast','amb','nameInput','dmBtn','dmBtn2','dmUnread','dmUnread2','dmModal','dmList','dmClose',
-'dmChatModal','dmChatTitle','dmChatList','dmForm','dmInput','dmChatClose','createRoomModal','crName','crTypeVoice','crTypeText','crOpen','crApproval','crSubmit','crCancel','reqModal','reqDesc','reqAccept','reqReject','roomShell','approvalRow','msgMenu','msgDeleteBtn'];
+'dmChatModal','dmChatTitle','dmChatList','dmForm','dmInput','dmChatClose','createRoomModal','crName','crTypeVoice','crTypeText','crOpen','crApproval','crSubmit','crCancel','reqModal','reqDesc','reqAccept','reqReject','roomShell','approvalRow','msgMenu','msgDeleteBtn',
+'confirmModal','confirmTitle','confirmMsg','confirmYes','confirmNo'];
 const el={};IDS.forEach(id=>{el[id]=$('#'+id);});
 const icon=(n,cls='')=>'<svg class="ic '+cls+'" aria-hidden="true"><use href="#i-'+n+'"/></svg>';
 
 const DIR_T='sada12/dir', ROOM_T=c=>'sada12/r/'+c, HANDLES='sada-handles-v1', PREFIX='sada8-', PROF_T='sada12/prof', DM_T='sada12/dm/';
+const PROF_U=gid=>'sada12/uprof/'+gid;
+const IDX_T='sada12/idx';
 
 const ICE={
   config:{
@@ -941,6 +953,25 @@ function showView(v){[el.authView,el.lobbyView,el.roomView].forEach(x=>x.classLi
 function setConn(cls,text){el.connChip.className='count conn static '+cls;el.connText.textContent=text;}
 const cleanHandle=h=>String(h||'').toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,16);
 const validHandle=h=>/^[a-z0-9_]{3,16}$/.test(h);
+
+/* ══════════ CONFIRM MODAL ══════════ */
+let confirmCallback=null;
+function showConfirm(title,msg,onYes,yesLabel){
+  el.confirmTitle.textContent=title||'تأكيد';
+  el.confirmMsg.textContent=msg||'';
+  el.confirmYes.textContent=yesLabel||'تأكيد';
+  confirmCallback=onYes;
+  el.confirmModal.classList.remove('hidden');
+}
+el.confirmYes.addEventListener('click',()=>{
+  el.confirmModal.classList.add('hidden');
+  const cb=confirmCallback;confirmCallback=null;
+  if(cb)try{cb();}catch(e){console.error(e);}
+});
+el.confirmNo.addEventListener('click',()=>{
+  el.confirmModal.classList.add('hidden');
+  confirmCallback=null;
+});
 
 function loadBanList(code){ return loadJSON('sada-ban-' + code, []); }
 function saveBanList(code, list){ saveJSON('sada-ban-' + code, list); }
@@ -1224,6 +1255,34 @@ async function ntfyPoll(topic){
   }
 }
 
+/* ══════════ HELPERS FOR USER PROFILE FETCH ══════════ */
+async function fetchUserProfile(gid){
+  if(!gid)return null;
+  try{
+    const msgs=await ntfyPoll(PROF_U(gid));
+    if(!msgs.length)return null;
+    return msgs.reduce((a,b)=>(b.ts||0)>(a.ts||0)?b:a);
+  }catch(e){return null;}
+}
+
+let userIndexCache=[];
+let userIndexTs=0;
+async function fetchUserIndex(force){
+  if(!force && Date.now()-userIndexTs<60000) return userIndexCache;
+  try{
+    const msgs=await ntfyPoll(IDX_T);
+    const m=new Map();
+    msgs.forEach(x=>{
+      if(!x||!x.gid||!x.name)return;
+      const cur=m.get(x.gid);
+      if(!cur||(x.ts||0)>(cur.ts||0))m.set(x.gid,x);
+    });
+    userIndexCache=[...m.values()];
+    userIndexTs=Date.now();
+    return userIndexCache;
+  }catch(e){return userIndexCache;}
+}
+
 function pubDir(obj){if(!mqPub(DIR_T,obj))ntfySlow(DIR_T,obj,15000);}
 function pubRoom(obj){if(inRoom&&!mqPub(ROOM_T(roomCode),obj))ntfySlow(ROOM_T(roomCode),obj,15000);}
 
@@ -1240,6 +1299,7 @@ let hereInt=null,pruneInt=null,lvlInt=null,pingInt=null,graceInt=null,graceEnd=0
 let healthInt=null,firstOpen=true,recreateLock=false;
 let audioWatchInt=null;
 let pendingPreMic=null,lastSig='',pfTargetPid=null,pfTargetUser=null,listKind='',listTarget=null;
+let pfSubGid=null;
 let wakeLock=null,dirMap=new Map(),dirRenderQ=false,ntfyFallbackInt=null;
 let lastDirMsgTime=0;
 let pendingTimeouts=[];
@@ -1310,7 +1370,6 @@ function openDMList() {
       b.style.background = 'var(--red)'; b.style.color = '#fff'; b.textContent = c.unread;
       side.appendChild(b);
     }
-    // زر حذف المحادثة كاملة
     const delBtn = document.createElement('button');
     delBtn.type = 'button';
     delBtn.title = 'حذف المحادثة بالكامل';
@@ -1319,10 +1378,9 @@ function openDMList() {
     delBtn.innerHTML = '<svg class="ic sm"><use href="#i-x"/></svg>';
     delBtn.onclick = (e) => {
       e.stopPropagation();
-      if (!confirm('حذف المحادثة بالكامل مع ' + u.name + '؟')) return;
-      delete dms[k];
-      saveDMs();
-      openDMList();
+      showConfirm('حذف المحادثة', 'حذف المحادثة بالكامل مع ' + u.name + '؟ لا يمكن التراجع.', () => {
+        delete dms[k]; saveDMs(); openDMList();
+      }, 'حذف');
     };
     side.appendChild(delBtn);
     row.append(av, col, side);
@@ -1366,28 +1424,39 @@ function renderDMChat() {
   });
   list.scrollTop = list.scrollHeight;
 }
-function sendDM(text) {
+async function sendDM(text) {
   if (!dmChatTarget) return;
-  const targetGid = dmChatTarget.gid;
-  if (!targetGid) { toast('لا يمكن إرسال رسالة خاصة لهذا الشخص'); return; }
-  
+  let targetGid = dmChatTarget.gid;
+
+  if (!targetGid && dmChatTarget.handle && handlesMap.has(dmChatTarget.handle)) {
+    const rec = handlesMap.get(dmChatTarget.handle);
+    if (rec.gid) { targetGid = rec.gid; dmChatTarget = Object.assign({}, dmChatTarget, { gid: targetGid }); }
+  }
+
+  if (!targetGid) {
+    const idx = await fetchUserIndex();
+    const match = idx.find(m =>
+      (dmChatTarget.name && m.name === dmChatTarget.name) ||
+      (dmChatTarget.handle && m.handle === dmChatTarget.handle)
+    );
+    if (match) { targetGid = match.gid; dmChatTarget = Object.assign({}, dmChatTarget, { gid: targetGid }); }
+  }
+
+  if (!targetGid) { toast('تعذر تحديد هوية الشخص — جرّب فتح الملف مرة أخرى'); return; }
+
   const id = mid();
   const now = Date.now();
-  
   const fromMini = {
-    gid: user.gid,
-    name: user.name,
-    handle: user.handle,
-    color: user.color,
-    avatar: user.avatar ? user.avatar.substring(0, 50000) : ''
+    gid: user.gid, name: user.name, handle: user.handle,
+    color: user.color, avatar: user.avatar ? user.avatar.substring(0, 50000) : ''
   };
-  
   const m = { id, from: fromMini, text, ts: now };
   mqPub(DM_T + targetGid, m);
   ntfyPost(DM_T + targetGid, m);
-  
+
   const key = targetGid;
   if (!dms[key]) dms[key] = { user: dmChatTarget, messages: [] };
+  dms[key].user = dmChatTarget;
   dms[key].messages.push({ id, text, from: user.gid, ts: now });
   dms[key].lastTs = now;
   saveDMs();
@@ -1473,17 +1542,17 @@ el.dmClose.onclick = () => { el.dmModal.classList.add('hidden'); dmChatTarget = 
 el.dmBtn.onclick = openDMList;
 el.dmBtn2.onclick = openDMList;
 
-/* زر مسح كل الرسائل في محادثة مفتوحة */
 document.getElementById('dmClearBtn').onclick = () => {
   if (!dmChatTarget) return;
   const key = dmChatTarget.gid || dmChatTarget.name;
   if (!dms[key]) return;
-  if (!confirm('حذف جميع الرسائل في هذه المحادثة؟ (المحادثة تبقى في القائمة)')) return;
-  dms[key].messages = [];
-  dms[key].lastTs = Date.now();
-  saveDMs();
-  renderDMChat();
-  toast('تم حذف جميع الرسائل');
+  showConfirm('مسح الرسائل', 'حذف جميع الرسائل في هذه المحادثة؟ (المحادثة تبقى في القائمة)', () => {
+    dms[key].messages = [];
+    dms[key].lastTs = Date.now();
+    saveDMs();
+    renderDMChat();
+    toast('تم حذف جميع الرسائل');
+  }, 'مسح');
 };
 
 /* ══════════ المتابعة ══════════ */
@@ -1524,7 +1593,7 @@ function resolveByKey(key){
   if(seen[key])return sanitizeUser(seen[key].u);
   const hu=handlesMap.get(key);
   if(hu&&validHandle(key)){
-    const u=sanitizeUser({name:key,handle:key});
+    const u=sanitizeUser({name:key,handle:key,gid:hu.gid||''});
     if(hu.av)u.avatar=hu.av;
     if(hu.bn)u.banner=hu.bn;
     return u;
@@ -1580,11 +1649,13 @@ function makeRectThumb(dataUrl, w=300, h=100) {
 
 function publishProfile() {
   if (!user || !user.gid) return;
-  makeThumb(user.avatar, 64).then(avThumb => {
-    makeRectThumb(user.banner, 300, 100).then(bnThumb => {
+  makeThumb(user.avatar, 128).then(avThumb => {
+    makeRectThumb(user.banner, 600, 200).then(bnThumb => {
       const d = { gid: user.gid, name: user.name, handle: user.handle, avatar: avThumb, banner: bnThumb, ts: Date.now() };
-      mqPub(PROF_T, d);
-      ntfyPost(PROF_T, d);
+      mqPub(PROF_T, d); ntfyPost(PROF_T, d);
+      mqPub(PROF_U(user.gid), d); ntfyPost(PROF_U(user.gid), d);
+      const idx = { gid: user.gid, name: user.name, handle: user.handle, ts: Date.now() };
+      ntfyPost(IDX_T, idx); mqPub(IDX_T, idx);
     });
   });
 }
@@ -1599,6 +1670,19 @@ function onProfMsg(d) {
   if (d.handle) {
      handlesMap.set(d.handle, { gid: d.gid, ts: d.ts, av: d.avatar, bn: d.banner });
   }
+  // تحديث قائمة الرسائل بالصور الجديدة
+  Object.keys(dms).forEach(k => {
+    if (dms[k].user && dms[k].user.gid === d.gid) {
+      dms[k].user = Object.assign({}, dms[k].user, {
+        name: d.name || dms[k].user.name,
+        avatar: d.avatar || dms[k].user.avatar,
+        banner: d.banner || dms[k].user.banner,
+        handle: d.handle || dms[k].user.handle
+      });
+    }
+  });
+  saveDMs();
+  if (!document.getElementById('dmModal').classList.contains('hidden')) openDMList();
 }
 function startProfListener() {
   const profES = new EventSource('https://ntfy.sh/' + PROF_T + '/sse');
@@ -1627,7 +1711,7 @@ async function loadHandles(){
     for(const d of msgs){
       if(!d||!d.h||!d.gid||!validHandle(d.h))continue;
       const cur=merged.get(d.h);
-      if(!cur||(d.ts||0)<(cur.ts||0))merged.set(d.h,{gid:d.gid,ts:d.ts||0,av:d.av||'',bn:d.bn||''});
+      if(!cur||(d.ts||0)>(cur.ts||0))merged.set(d.h,{gid:d.gid,ts:d.ts||0,av:d.av||'',bn:d.bn||''});
     }
   }catch(e){}
   handlesMap=merged;
@@ -1920,11 +2004,12 @@ el.searchInput.addEventListener('input',()=>{
   arr.forEach(k=>{
     const rec=seen[k];
     const hu=handlesMap.get(k);
-    let u=rec?sanitizeUser(rec.u):sanitizeUser({name:k,handle:validHandle(k)?k:''});
+    let u=rec?sanitizeUser(rec.u):sanitizeUser({name:k,handle:validHandle(k)?k:'',gid:hu&&hu.gid?hu.gid:''});
     if(hu&&validHandle(k)){
       u.handle=k;
+      if(!u.gid&&hu.gid)u.gid=hu.gid;
       if(!u.avatar&&hu.av)u.avatar=hu.av;
-      if(hu.bn)u.banner=hu.bn;
+      if(!u.banner&&hu.bn)u.banner=hu.bn;
     }
     const key=userKey(u);
     const row=document.createElement('button');row.type='button';row.className='ppl-row';
@@ -2578,13 +2663,15 @@ function openMsgMenu(e, msgId) {
 }
 
 document.addEventListener('click', (e) => {
-  if (!el.msgMenu.contains(e.target) && !e.target.closest('.staff-clickable')) {
+  if (!el.msgMenu.contains(e.target)) {
     el.msgMenu.classList.add('hidden');
+    activeMsgIdToDelete = null;
   }
 });
 document.addEventListener('touchstart', (e) => {
-  if (!el.msgMenu.contains(e.target) && !e.target.closest('.staff-clickable')) {
+  if (!el.msgMenu.contains(e.target)) {
     el.msgMenu.classList.add('hidden');
+    activeMsgIdToDelete = null;
   }
 }, {passive: true});
 
@@ -2605,8 +2692,8 @@ function applyMsg(m,pid,conn){
     case 'delChat':{
       if(!senderIsStaff(pid)) break;
       const domId = 'msg-' + m.chatId;
-      const el = document.getElementById(domId);
-      if (el) el.remove();
+      const elx = document.getElementById(domId);
+      if (elx) elx.remove();
       break;
     }
     case 'reCall':{
@@ -2991,8 +3078,16 @@ function appendChat(m,warn){
     if (senderIsStaff(myPid)) {
       li.classList.add('staff-clickable');
       li.title = 'اضغط للحذف';
-      li.addEventListener('contextmenu', (e) => openMsgMenu(e, m.id));
-      li.addEventListener('click', (e) => openMsgMenu(e, m.id));
+      li.addEventListener('contextmenu', (e) => { e.preventDefault(); e.stopPropagation(); openMsgMenu(e, m.id); });
+      li.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (activeMsgIdToDelete === m.id && !el.msgMenu.classList.contains('hidden')) {
+          el.msgMenu.classList.add('hidden');
+          activeMsgIdToDelete = null;
+          return;
+        }
+        openMsgMenu(e, m.id);
+      });
     }
     
     const av=document.createElement('span');av.className='av';setAv(av,u);av.title=u.name;
@@ -3015,8 +3110,8 @@ function appendChat(m,warn){
 
 function deleteChatMsg(id) {
   const domId = 'msg-' + id;
-  const el = document.getElementById(domId);
-  if (el) el.remove();
+  const elx = document.getElementById(domId);
+  if (elx) elx.remove();
   broadcastMesh({t:'delChat', id:mid(), chatId:id, pid:myPid, ts:Date.now()});
 }
 
@@ -3104,6 +3199,22 @@ el.lsLabel.addEventListener('click',openPeople);
 el.peopleClose.addEventListener('click',()=>el.peopleModal.classList.add('hidden'));
 
 /* ══════════ البروفايل ══════════ */
+function onProfileUpdate(d){
+  if(!d||!pfTargetUser||!d.gid||pfTargetUser.gid!==d.gid)return;
+  const merged=sanitizeUser(Object.assign({},pfTargetUser,{
+    name:d.name||pfTargetUser.name,
+    avatar:d.avatar||pfTargetUser.avatar,
+    banner:d.banner||pfTargetUser.banner,
+    handle:d.handle||pfTargetUser.handle
+  }));
+  pfTargetUser=merged;
+  el.pfBanner.innerHTML='';
+  if(merged.banner){const img=document.createElement('img');img.src=merged.banner;el.pfBanner.appendChild(img);}
+  setAv(el.pfAv,merged);
+  el.pfName.textContent=merged.name;
+  rememberUser(merged,roomMeta.name);
+}
+
 function openProfile(u,isHostUser,pid){
   u=verifyHandle(sanitizeUser(u));
   rememberUser(u,roomMeta.name);
@@ -3167,8 +3278,22 @@ function openProfile(u,isHostUser,pid){
     el.pfKick.textContent='طرد';
   }
   el.profileModal.classList.remove('hidden');
+
+  // الاشتراك اللحظي ببروفايل هذا الشخص + جلب آخر نسخة
+  if(pfSubGid && pfSubGid !== u.gid){ mqUnsub(PROF_U(pfSubGid)); pfSubGid=null; }
+  if(u.gid && pfSubGid !== u.gid){
+    pfSubGid = u.gid;
+    mqSub(PROF_U(u.gid), onProfileUpdate);
+    fetchUserProfile(u.gid).then(latest=>{
+      if(!latest || !pfTargetUser || pfTargetUser.gid !== u.gid) return;
+      onProfileUpdate(latest);
+    });
+  }
 }
-el.pfClose.addEventListener('click',()=>el.profileModal.classList.add('hidden'));
+el.pfClose.addEventListener('click',()=>{
+  el.profileModal.classList.add('hidden');
+  if(pfSubGid){mqUnsub(PROF_U(pfSubGid));pfSubGid=null;}
+});
 el.pfEdit.addEventListener('click',()=>{el.profileModal.classList.add('hidden');openEdit();});
 el.hostChip.addEventListener('click',()=>{const oe=ownerEntry();if(oe)openProfile(oe[1].user,true,oe[0]);});
 el.pfFollow.addEventListener('click',()=>{if(pfTargetUser)toggleFollowByKey(userKey(pfTargetUser));});
@@ -3473,6 +3598,7 @@ function cleanupRoom(){
   mqUnsub(ROOM_T(roomCode));
   if(peer){try{peer.destroy();}catch(e){}}
   peer=null;myPid=null;inRoom=false;pendingPreMic=null;pfTargetPid=null;listKind='';ownerPidSeen=null;
+  if(pfSubGid){mqUnsub(PROF_U(pfSubGid));pfSubGid=null;}
   state={slots:Array(8).fill(null),bg:{v:1,ts:0},chatBans:[],mods:[],bans:[]};
   roster.clear();conns.clear();callsOut.clear();callsIn.clear();remotes.clear();
   announcedJoins.clear();
