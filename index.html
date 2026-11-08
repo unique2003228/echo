@@ -172,9 +172,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 @media(max-width:820px){.room-shell{grid-template-columns:1fr;grid-template-rows:minmax(0,2fr) minmax(0,1fr)}}
 .stage-col{display:flex;flex-direction:column;min-height:0;position:relative}
 .stage{flex:1;min-height:0;overflow:hidden;padding:14px;display:flex;flex-direction:column;gap:10px;transition:background .5s;position:relative}
-/* شبكة المسرح - 4x2 افتراضي */
 .slots{flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:8px}
-/* شبكة 2x4 للجوال الطولي */
 @media (max-width: 900px) and (orientation: portrait){
   .slots{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(4,1fr);gap:6px}
   .pod{width:clamp(48px,20vw,90px)}
@@ -669,17 +667,21 @@ const icon=(n,cls='')=>'<svg class="ic '+cls+'" aria-hidden="true"><use href="#i
 
 const DIR_T='sada12/dir', ROOM_T=c=>'sada12/r/'+c, HANDLES='sada-handles-v1', PREFIX='sada8-';
 
+/* ══════════ ICE — TURN موثوق + STUN ══════════ */
 const ICE={
   config:{
     iceServers:[
       {urls:'stun:stun.l.google.com:19302'},
       {urls:'stun:stun1.l.google.com:19302'},
       {urls:'stun:stun2.l.google.com:19302'},
+      // TURN — openrelay (best effort) + بديل
       {urls:'turn:openrelay.metered.ca:80',username:'openrelayproject',credential:'openrelayproject'},
       {urls:'turn:openrelay.metered.ca:443',username:'openrelayproject',credential:'openrelayproject'},
       {urls:'turn:openrelay.metered.ca:443?transport=tcp',username:'openrelayproject',credential:'openrelayproject'}
     ],
-    iceCandidatePoolSize:10
+    iceCandidatePoolSize:10,
+    bundlePolicy:'max-bundle',
+    rtcpMuxPolicy:'require'
   }
 };
 
@@ -730,7 +732,7 @@ const identityKey=u=>u.handle?'@'+u.handle:'n:'+u.name;
 function ageOf(b){if(!b)return null;const d=new Date(b),n=new Date();let a=n.getFullYear()-d.getFullYear();const m=n.getMonth()-d.getMonth();if(m<0||(m===0&&n.getDate()<d.getDate()))a--;return(a>=0&&a<120)?a:null;}
 const fmtDate=b=>{try{return new Date(b).toLocaleDateString('ar',{year:'numeric',month:'long',day:'numeric'});}catch(e){return b;}};
 
-/* ══════════ Audio Context — إصلاح جذري ══════════ */
+/* ══════════ Audio Context — إصلاح iOS/Safari ══════════ */
 let actx=null;
 function unlockAudio(){
   try{
@@ -743,9 +745,7 @@ function ensureCtx(){
   if(actx.state!=='running')actx.resume().catch(()=>{});
   return actx;
 }
-/* افتح الصوت على أي لمسة */
 ['click','touchstart','pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,unlockAudio,{passive:true}));
-/* مراقب الصوت كل ١.٥ ث */
 setSafe(()=>{
   if(!inRoom){el.audioBtn.classList.add('hidden');return;}
   const hasRemotes=remotes.size>0;
@@ -1254,7 +1254,6 @@ function startRoom(code,meta,isCreator,preMic){
   loadHandles();
   renderAll();
   myJoinTs=Date.now();
-  // افتح الصوت مبكرًا
   unlockAudio();
   mqSub(ROOM_T(roomCode),onRoomMsg);
   [300,1500,3000,6000].forEach(t=>safeTimeout(()=>{pubRoom({w:1});publishHere();},t));
@@ -1266,7 +1265,7 @@ function startRoom(code,meta,isCreator,preMic){
   healthInt=setSafe(healthCheck,HEALTH_MS);
   
   clearInterval(audioWatchInt);
-  audioWatchInt=setSafe(audioWatch,4000);
+  audioWatchInt=setSafe(audioWatch,3000);
 }
 
 function bindPeerEvents(p){
@@ -1337,15 +1336,23 @@ function onPeerConnection(conn){
 function onPeerCall(call){
   const pid=call.peer;
   if(kicked.has(pid)){try{call.close();}catch(e){}return;}
-  // **استبدال دائم** — لا نرفض مكالمة جديدة
+  // استبدال دائم
   const ex=callsIn.get(pid);
-  if(ex&&!ex.open){try{ex.close();}catch(e){}callsIn.delete(pid);}
+  if(ex){try{ex.close();}catch(e){}callsIn.delete(pid);}
   callsIn.set(pid,call);
-  // **ربط stream قبل الإجابة** — يمنع فقدان الحدث
+  // ربط stream قبل الإجابة
   call.on('stream',s=>addRemote(pid,s));
-  try{call.answer();}catch(e){console.warn('[Sada audio] answer failed:',e);}
-  call.on('close',()=>{if(callsIn.get(pid)===call)callsIn.delete(pid);});
+  try{
+    // استقبال الصوت إجباريًا حتى لو لم نرسل
+    call.answer(micStream||undefined,{constraints:{mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:false}}});
+  }catch(e){console.warn('[Sada audio] answer failed:',e);}
+  call.on('close',()=>{
+    if(callsIn.get(pid)===call)callsIn.delete(pid);
+    removeRemote(pid);
+  });
   call.on('error',e=>console.warn('[Sada audio] call error:',e));
+  // راقب ICE
+  watchCallICE(call,pid);
 }
 
 function onPeerDisconnected(){
@@ -1406,9 +1413,45 @@ function healthCheck(){
   });
 }
 
-/* **مراقب الصوت** — إذا كان أحد على المسرح ولا نسمعه، نطلب إعادة المكالمة */
+/* ══════════ مراقبة ICE + إصلاح الصوت ══════════ */
+function watchCallICE(call,pid){
+  try{
+    const pc=call.peerConnection;
+    if(!pc)return;
+    pc.oniceconnectionstatechange=()=>{
+      const st=pc.iceConnectionState;
+      console.log('[Sada ICE]',pid,st);
+      if(st==='failed'){
+        console.warn('[Sada ICE] failed for',pid,'— will retry');
+        try{call.close();}catch(e){}
+        callsIn.delete(pid);
+        removeRemote(pid);
+        if(inRoom&&!kicked.has(pid)){
+          const co=callsOut.get(pid);if(co){try{co.close();}catch(e){}callsOut.delete(pid);}
+          setTimeout(()=>{if(inRoom&&!kicked.has(pid))callPeerWithMic(pid);},1200);
+        }
+      }else if(st==='disconnected'){
+        setTimeout(()=>{
+          if(pc.iceConnectionState==='disconnected'){
+            console.warn('[Sada ICE] still disconnected — retry');
+            try{call.close();}catch(e){}
+            callsIn.delete(pid);
+            removeRemote(pid);
+            if(inRoom&&!kicked.has(pid)){
+              const co=callsOut.get(pid);if(co){try{co.close();}catch(e){}callsOut.delete(pid);}
+              setTimeout(()=>{if(inRoom&&!kicked.has(pid))callPeerWithMic(pid);},1500);
+            }
+          }
+        },4000);
+      }
+    };
+  }catch(e){}
+}
+
+/* ══════════ audioWatch — يفحص كل 3 ثوانٍ ══════════ */
 function audioWatch(){
   if(!inRoom||!myPid)return;
+  // 1) من على المسرح وليس لدينا له remote → اطلب إعادة مكالمة
   state.slots.filter(Boolean).forEach(s=>{
     if(s.pid===myPid||kicked.has(s.pid))return;
     if(!remotes.has(s.pid)){
@@ -1417,6 +1460,21 @@ function audioWatch(){
         try{c.send({t:'reCall',id:mid(),pid:myPid,ts:Date.now()});}catch(e){}
       }
     }
+  });
+  // 2) مكالمات ICE حالتها failed أو disconnected → أغلقها
+  callsIn.forEach((call,pid)=>{
+    try{
+      const pc=call.peerConnection;
+      if(!pc)return;
+      const st=pc.iceConnectionState;
+      if(st==='failed'){
+        console.warn('[Sada audioWatch] closing failed call to',pid);
+        try{call.close();}catch(e){}
+        callsIn.delete(pid);
+        removeRemote(pid);
+        if(!kicked.has(pid))setTimeout(()=>{if(inRoom&&!kicked.has(pid))callPeerWithMic(pid);},1200);
+      }
+    }catch(e){}
   });
 }
 
@@ -1534,22 +1592,23 @@ function onPeerGone(pid){
 }
 function broadcastMesh(o){conns.forEach((c,pid)=>{if(c.open&&!kicked.has(pid)){try{c.send(o);}catch(e){}}});}
 
-/* ══════════ الصوت — مكالمات محصّنة ══════════ */
+/* ══════════ الصوت — مع OfferToReceiveAudio ══════════ */
 function callPeerWithMic(pid){
   if(!micStream||kicked.has(pid))return;
   const ex=callsOut.get(pid);
-  if(ex&&ex.open){
-    // موجودة وشغّالة — لا نكرر
-    return;
-  }
   if(ex){try{ex.close();}catch(e){}callsOut.delete(pid);}
   try{
-    const c=peer.call(pid,micStream,{metadata:{t:'mic'}});
-    callsOut.set(pid,c);
-    // استقبال ممكن لتيار عكسي (احتياط)
-    c.on('stream',s=>addRemote(pid,s));
-    c.on('close',()=>{if(callsOut.get(pid)===c)callsOut.delete(pid);});
-    c.on('error',e=>console.warn('[Sada audio] outgoing call error:',e));
+    const call=peer.call(pid,micStream,{
+      metadata:{t:'mic'},
+      constraints:{mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:false}},
+      offerToReceiveAudio:1,
+      offerToReceiveVideo:0
+    });
+    callsOut.set(pid,call);
+    call.on('stream',s=>addRemote(pid,s));
+    call.on('close',()=>{if(callsOut.get(pid)===call)callsOut.delete(pid);});
+    call.on('error',e=>console.warn('[Sada audio] outgoing call error:',e));
+    watchCallICE(call,pid);
   }catch(e){console.warn('[Sada audio] call failed:',e);}
 }
 function addRemote(pid,stream){
@@ -1565,7 +1624,6 @@ function addRemote(pid,stream){
   src.connect(gain);gain.connect(an);an.connect(ctx.destination);
   remotes.set(pid,{src:src,gain:gain,an:an,data:new Uint8Array(an.frequencyBinCount)});
   console.log('[Sada audio] remote added:',pid);
-  // حاول تشغيل الصوت
   if(ctx.state!=='running')ctx.resume().catch(()=>{});
 }
 function removeRemote(pid){
@@ -2255,7 +2313,6 @@ el.editForm.addEventListener('submit',async e=>{
   el.editModal.classList.add('hidden');
   setAv(el.lobbyAv,user);el.lobbyName.textContent=user.name;refreshHandleUI();
   
-  // إذا كان في روم واسمه تغيّر
   if(inRoom&&oldName!==newName){
     const wasOwner=roomMeta.owner===oldName||(roomMeta.ownerId&&roomMeta.ownerId===myOwnerId());
     if(wasOwner){
@@ -2276,7 +2333,6 @@ el.editForm.addEventListener('submit',async e=>{
     broadcastMesh({t:'profile',id:mid(),pid:myPid,user:user,ts:Date.now()});
   }
   
-  // حدّث الصورة المصغرة
   if(user.handle){
     const thumb=user.avatar?await makeThumb(user.avatar,48):'';
     ntfyPost(HANDLES,{h:user.handle,gid:user.gid,ts:Date.now(),av:thumb});
