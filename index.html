@@ -99,7 +99,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .auth-logo .logo-mark{width:72px;height:72px}
 .auth-logo .wordmark{font-size:2.3rem}
 
-/* تنسيق زر جوجل المخصص */
 .google-btn-container { position: relative; width: 100%; max-width: 340px; margin: 0 auto; height: 48px; }
 .google-btn-custom { position: absolute; inset: 0; width: 100%; background: #1a1410; color: var(--gold); border: 1px solid var(--line); font-family: 'Changa', sans-serif; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 12px; pointer-events: none; transition: 0.2s; }
 .google-btn-custom:hover { background: #231a14; }
@@ -166,39 +165,48 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .conn.err .cdot{background:var(--red)}
 .live-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,77,61,.14);border:1px solid rgba(255,77,61,.5);color:var(--red);font-family:'Changa';font-weight:700;font-size:.76rem;padding:4px 12px;border-radius:99px}
 
-.room-shell{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:0;border-radius:26px;overflow:hidden;border:1px solid var(--line);position:relative;background:rgba(16,11,9,.46);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 24px 70px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05)}
+/* تكبير الشات وتحديث المسرح */
+.room-shell{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:0;border-radius:26px;overflow:hidden;border:1px solid var(--line);position:relative;background:rgba(16,11,9,.46);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 24px 70px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05)}
+.room-shell.text-only{grid-template-columns:1fr}
+.room-shell.text-only .stage-col{display:none}
+.room-shell.text-only .chat-col{padding:20px;background:rgba(0,0,0,.15)}
+
 .room-shell::before{content:'';position:absolute;top:0;inset-inline:0;height:1.5px;background:var(--ggrad);opacity:.5;z-index:4;pointer-events:none}
-@media(max-width:820px){.room-shell{grid-template-columns:1fr;grid-template-rows:minmax(0,1.4fr) minmax(0,1.6fr)}}
+@media(max-width:820px){.room-shell{grid-template-columns:1fr;grid-template-rows:minmax(0,1.2fr) minmax(0,1.8fr)}}
 .stage-col{display:flex;flex-direction:column;min-height:0;position:relative}
-.stage{flex:1;min-height:0;overflow:hidden;padding:14px;display:flex;flex-direction:column;gap:10px;transition:background .5s;position:relative}
-.slots{flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:8px}
+.stage{flex:1;min-height:0;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:12px;transition:background .5s;position:relative}
+.slots{flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:12px}
 @media (max-width: 900px) and (orientation: portrait){
-  .slots{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(4,1fr);gap:6px}
+  .slots{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(4,1fr);gap:10px}
 }
-.slot{background:rgba(10,7,5,.28);border:1px solid rgba(245,234,217,.06);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-family:inherit;color:var(--text);position:relative;transition:all .18s;min-height:0;padding:8px}
+.slot{background:rgba(10,7,5,.28);border:1px solid rgba(245,234,217,.06);border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-family:inherit;color:var(--text);position:relative;transition:all .18s;min-height:0;padding:10px}
 .slot:hover{transform:translateY(-2px);border-color:rgba(255,194,75,.4);background:rgba(255,194,75,.04)}
 .slot.occupied{background:linear-gradient(160deg,rgba(255,194,75,.08),rgba(10,7,5,.5));border-color:rgba(255,194,75,.25)}
 .slot.empty{background:rgba(10,7,5,.15);border-style:dashed;border-color:rgba(245,234,217,.12)}
 
-.pod{position:relative;width:clamp(50px,8vw,75px);aspect-ratio:1;--lvl:0}
+.pod{position:relative;width:clamp(75px,11vw,105px);aspect-ratio:1;--lvl:0}
+@media (max-width: 900px) and (orientation: portrait){
+  .pod{width:clamp(65px,22vw,95px)}
+}
 .pod-ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,194,75,.45);box-shadow:0 0 calc(4px + var(--lvl)*26px) rgba(255,194,75,calc(.12 + var(--lvl)*.55)), inset 0 0 16px rgba(255,194,75,.07);background:radial-gradient(circle at 50% 32%, rgba(255,194,75,.10), rgba(10,7,5,.6) 72%);transition:box-shadow .12s}
 .slot.empty .pod-ring{border-style:dashed;border-color:rgba(245,234,217,.2);box-shadow:none;background:rgba(10,7,5,.3)}
 .slot.empty:hover .pod-ring{border-color:var(--gold)}
-.pod .av{position:absolute;inset:6px;width:auto;height:auto}
+.pod .av{position:absolute;inset:8px;width:auto;height:auto}
 .pod .plus{position:absolute;inset:0;display:grid;place-items:center;color:#cbb99d}
-.pod .plus .ic{width:20px;height:20px}
-.micpill{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:22px;height:22px;border-radius:8px;display:grid;place-items:center;background:#1b1512;border:1px solid var(--line);color:var(--green);z-index:3}
+.pod .plus .ic{width:24px;height:24px}
+.micpill{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:#1b1512;border:1px solid var(--line);color:var(--green);z-index:3}
 .micpill.off{color:var(--red)}
-.micpill .ic{width:12px;height:12px}
-.own-tag{position:absolute;top:-6px;inset-inline-start:-4px;width:20px;height:20px;border-radius:6px;display:grid;place-items:center;background:#1b1512;border:1px solid rgba(255,194,75,.5);color:var(--gold);z-index:3}
-.own-tag .ic{width:11px;height:11px}
-.slot .act{position:absolute;top:-5px;inset-inline-end:-5px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#1b1512;border:1px solid var(--line);color:#d8c8ae;cursor:pointer;transition:.15s;z-index:3}
+.micpill .ic{width:14px;height:14px}
+.own-tag{position:absolute;top:-7px;inset-inline-start:-6px;width:22px;height:22px;border-radius:6px;display:grid;place-items:center;background:#1b1512;border:1px solid rgba(255,194,75,.5);color:var(--gold);z-index:3}
+.own-tag .ic{width:12px;height:12px}
+.slot .act{position:absolute;top:-6px;inset-inline-end:-6px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:#1b1512;border:1px solid var(--line);color:#d8c8ae;cursor:pointer;transition:.15s;z-index:3}
 .slot .act:hover{background:var(--red);color:#fff;border-color:var(--red)}
 .slot .act.x:hover{background:#5c4630;border-color:#5c4630}
 .slot .act .ic{width:12px;height:12px}
-.slot .nm{font-size:.72rem;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
-.slot .nm i{font-style:normal;color:var(--gold);font-size:.6rem}
-.slot.empty .lb{font-size:.65rem;color:#cbb99d;opacity:.7}
+.slot .nm{font-size:.78rem;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
+.slot .nm i{font-style:normal;color:var(--gold);font-size:.65rem}
+.slot.empty .lb{font-size:.7rem;color:#cbb99d;opacity:.7}
+
 .stage-ctrls{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;flex-shrink:0}
 .listeners-strip{display:flex;align-items:center;gap:11px;border-top:1px dashed rgba(245,234,217,.12);padding-top:10px;flex-shrink:0;flex-wrap:wrap}
 .ls-avs{display:flex}
@@ -309,7 +317,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 #toast{position:fixed;bottom:22px;inset-inline:0;margin-inline:auto;width:max-content;max-width:88vw;z-index:100;background:rgba(32,24,18,.94);border:1px solid rgba(255,194,75,.5);color:var(--text);padding:11px 22px;border-radius:14px;font-size:.88rem;opacity:0;transform:translateY(16px);transition:.3s;pointer-events:none;box-shadow:0 12px 34px rgba(0,0,0,.5);backdrop-filter:blur(10px)}
 #toast.show{opacity:1;transform:none}
 
-/* رسائل خاصة */
 #dmChatList::-webkit-scrollbar { width: 6px; }
 #dmChatList::-webkit-scrollbar-thumb { background: rgba(255,194,75,.3); border-radius: 6px; }
 </style>
@@ -343,6 +350,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
   <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-9-9c-1.2-2.8.6-6 3.8-6 2 0 3.4 1.2 5.2 3.4C13.8 6.2 15.2 5 17.2 5c3.2 0 5 3.2 3.8 6-2 4.5-9 9-9 9z"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5 10 17.5 19 7"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
 </svg>
 
 <div class="amb" id="amb"></div>
@@ -362,7 +370,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
           <span class="tagline">مساحات صوتية مباشرة</span>
         </div>
         
-        <!-- زر جوجل المخصص -->
         <div class="google-btn-container">
           <button type="button" class="google-btn-custom">
             <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
@@ -441,7 +448,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
       </button>
       <button class="btn danger sm solid" id="leaveBtn" type="button"><svg class="ic sm"><use href="#i-exit"/></svg> مغادرة</button>
     </div>
-    <div class="room-shell">
+    <div class="room-shell" id="roomShell">
       <div class="stage-col">
         <div class="stage bg-1" id="stage">
           <div class="slots" id="slots"></div>
@@ -640,7 +647,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
   </div></div>
 </div>
 
-<!-- الرسائل الخاصة -->
 <div class="modal hidden" id="dmModal">
   <div class="modal-card"><div class="mc-body" style="text-align:right">
     <h3 style="text-align:center;margin-bottom:16px">الرسائل الخاصة</h3>
@@ -658,6 +664,48 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
       <button class="btn gold" type="submit" style="min-height:42px;padding:0 16px"><svg class="ic sm"><use href="#i-send"/></svg></button>
     </form>
     <div class="row" style="margin-top:14px"><button class="btn ghost sm" id="dmChatClose" type="button">رجوع للقائمة</button></div>
+  </div></div>
+</div>
+
+<!-- مودال إنشاء روم -->
+<div class="modal hidden" id="createRoomModal">
+  <div class="modal-card"><div class="mc-body" style="text-align:right">
+    <h3 style="text-align:center">إنشاء روم جديد</h3>
+    <div class="edit-field">
+      <label>اسم الروم</label>
+      <input type="text" id="crName" placeholder="اسم الروم" maxlength="40">
+    </div>
+    <div class="edit-field">
+      <label>نوع الروم</label>
+      <div class="pill-row">
+        <button type="button" class="pill active" id="crTypeVoice">صوتي</button>
+        <button type="button" class="pill" id="crTypeText">شات فقط</button>
+      </div>
+    </div>
+    <div class="edit-field">
+      <label>صلاحية المسرح</label>
+      <div class="pill-row">
+        <button type="button" class="pill active" id="crOpen">مفتوح للكل</button>
+        <button type="button" class="pill" id="crApproval">بموافقة المضيف</button>
+      </div>
+    </div>
+    <div class="row" style="margin-top:16px">
+      <button class="btn gold" id="crSubmit">فتح الروم</button>
+      <button class="btn danger" id="crCancel">إلغاء</button>
+    </div>
+  </div></div>
+</div>
+
+<!-- مودال طلب الصعود للمسرح -->
+<div class="modal hidden" id="reqModal">
+  <div class="modal-card"><div class="mc-body">
+    <svg class="big-ic"><use href="#i-alert"/></svg>
+    <h3>طلب صعود للمسرح</h3>
+    <p id="reqDesc"></p>
+    <div class="row">
+      <button class="btn gold" id="reqAccept">موافق</button>
+      <button class="btn danger" id="reqReject">رفض</button>
+    </div>
   </div></div>
 </div>
 
@@ -681,7 +729,7 @@ const IDS=['authView','lobbyView','roomView','insecure','gWrap','gHint','lobbyAv
 'pfFollowLbl','pfLists','pfDM','pfSep','pfHostRow','pfModToggle','pfMute','pfChatBan','pfKick','pfEdit','pfClose','editModal','editForm','avPrev',
 'avPick','avRemove','avFile','bannerPrev','bannerPick','bannerRemove','bannerFile','gM','gF','gN','birthInput','bioInput',
 'privPill','editCancel','audioBtn','toast','amb','nameInput','dmBtn','dmBtn2','dmUnread','dmUnread2','dmModal','dmList','dmClose',
-'dmChatModal','dmChatTitle','dmChatList','dmForm','dmInput','dmChatClose'];
+'dmChatModal','dmChatTitle','dmChatList','dmForm','dmInput','dmChatClose','createRoomModal','crName','crTypeVoice','crTypeText','crOpen','crApproval','crSubmit','crCancel','reqModal','reqDesc','reqAccept','reqReject','roomShell'];
 const el={};IDS.forEach(id=>{el[id]=$('#'+id);});
 const icon=(n,cls='')=>'<svg class="ic '+cls+'" aria-hidden="true"><use href="#i-'+n+'"/></svg>';
 
@@ -917,7 +965,7 @@ function pubRoom(obj){if(inRoom&&!mqPub(ROOM_T(roomCode),obj))ntfySlow(ROOM_T(ro
 /* ══════════ حالة ══════════ */
 const sessionTs=Date.now();
 let user=null,peer=null,myPid=null,inRoom=false,intentional=false;
-let roomCode=null,roomMeta={name:'',owner:'',ownerId:''},myJoinTs=0;
+let roomCode=null,roomMeta={name:'',owner:'',ownerId:'',type:'voice',requireApproval:false},myJoinTs=0;
 let state={slots:Array(8).fill(null),bg:{v:1,ts:0},chatBans:[],mods:[]};
 let roster=new Map(),conns=new Map(),callsOut=new Map(),callsIn=new Map(),remotes=new Map();
 let kicked=new Set(),seenMsg=new Set(),connFails=new Map();
@@ -930,6 +978,9 @@ let pendingPreMic=null,lastSig='',pfTargetPid=null,pfTargetUser=null,listKind=''
 let wakeLock=null,dirMap=new Map(),dirRenderQ=false,ntfyFallbackInt=null;
 let pendingTimeouts=[];
 let FK='sada-follows',SK='sada-followers-seen';
+let announcedJoins = new Set();
+let crType = 'voice', crApproval = false, pendingReq = null;
+
 function setStorageKeys(){const uk=user?(user.handle||user.gid||user.name):'x';FK='sada-follows:'+uk;SK='sada-followers-seen:'+uk;}
 function safeTimeout(fn,ms){const t=setTimeout(fn,ms);pendingTimeouts.push(t);return t;}
 function clearPendingTimeouts(){pendingTimeouts.forEach(t=>clearTimeout(t));pendingTimeouts=[];}
@@ -1026,7 +1077,6 @@ function sendDM(text) {
   if (!targetGid) { toast('لا يمكن إرسال رسالة خاصة لهذا الشخص'); return; }
   const m = { id: mid(), from: user, text, ts: Date.now() };
   
-  // الإرسال عبر MQTT و ntfy معاً
   mqPub(DM_T + targetGid, m);
   ntfyPost(DM_T + targetGid, m);
   
@@ -1042,7 +1092,6 @@ function onDMMsg(m) {
   const key = m.from.gid || m.from.name;
   if (!dms[key]) dms[key] = { user: m.from, messages: [] };
   
-  // منع التكرار
   if (m.id && dms[key].messages.some(x => x.id === m.id)) return;
   
   dms[key].messages.push({ id: m.id, text: m.text, from: m.from.gid, ts: m.ts });
@@ -1402,22 +1451,55 @@ function renderRooms(){
     const s1=document.createElement('span');s1.className='rc-stat';s1.innerHTML=icon('mic')+(r.sp||0);
     const s2=document.createElement('span');s2.className='rc-stat';s2.innerHTML=icon('users')+(r.ls||0);
     const btn=document.createElement('button');btn.className='btn gold';btn.type='button';btn.innerHTML=icon('head','sm')+' انضم';
-    btn.onclick=()=>{unlockAudio();startRoom(String(r.id),{name:r.name||'روم',owner:r.owner||'',ownerId:r.ownerId||''},false,null);};
+    btn.onclick=()=>{unlockAudio();startRoom(String(r.id),{name:r.name||'روم',owner:r.owner||'',ownerId:r.ownerId||'',type:r.type||'voice',requireApproval:r.requireApproval||false},false,null);};
     foot.append(s1,s2,btn);
     body.append(h,host,foot);
     inner.append(top,body);card.appendChild(inner);
     el.roomsGrid.appendChild(card);
   });
 }
+
+/* ══════════ إنشاء روم ══════════ */
+function syncCrPills() {
+  el.crTypeVoice.classList.toggle('active', crType === 'voice');
+  el.crTypeText.classList.toggle('active', crType === 'text');
+  el.crOpen.classList.toggle('active', !crApproval);
+  el.crApproval.classList.toggle('active', crApproval);
+}
+el.crTypeVoice.onclick = () => { crType = 'voice'; syncCrPills(); };
+el.crTypeText.onclick = () => { crType = 'text'; syncCrPills(); };
+el.crOpen.onclick = () => { crApproval = false; syncCrPills(); };
+el.crApproval.onclick = () => { crApproval = true; syncCrPills(); };
+el.crCancel.onclick = () => el.createRoomModal.classList.add('hidden');
+
 el.createForm.addEventListener('submit',async e=>{
   e.preventDefault();
-  unlockAudio();
-  let preMic=null;
-  try{preMic=await getMicStream();}catch(err){preMic=null;}
-  const code=genCode();
-  startRoom(code,{name:el.roomNameInput.value.trim()||('روم '+user.name),owner:user.name,ownerId:user.gid?('g:'+user.gid):('n:'+user.name)},true,preMic);
-  if(!preMic)toast('افتُتح الروم — اعتلِ المسرح ليصل صوتك');
+  el.crName.value = el.roomNameInput.value.trim();
+  crType = 'voice';
+  crApproval = false;
+  syncCrPills();
+  el.createRoomModal.classList.remove('hidden');
 });
+
+el.crSubmit.addEventListener('click', async () => {
+  const name = el.crName.value.trim();
+  if (!name) { toast('أدخل اسم الروم'); return; }
+  el.createRoomModal.classList.add('hidden');
+  unlockAudio();
+  let preMic = null;
+  if (crType === 'voice') {
+    try { preMic = await getMicStream(); } catch (err) { preMic = null; }
+  }
+  const code = genCode();
+  startRoom(code, {
+    name: name,
+    owner: user.name,
+    ownerId: user.gid ? ('g:' + user.gid) : ('n:' + user.name),
+    type: crType,
+    requireApproval: crApproval
+  }, true, preMic);
+});
+
 el.searchInput.addEventListener('input',()=>{
   const q=el.searchInput.value.trim().toLowerCase().replace(/^@/,'');
   const searching=q.length>0;
@@ -1529,7 +1611,9 @@ function startRoom(code,meta,isCreator,preMic){
   roomMeta={
     name:String((meta&&meta.name)||('روم '+code)).slice(0,40),
     owner:String((meta&&meta.owner)||''),
-    ownerId:String((meta&&meta.ownerId)||'')
+    ownerId:String((meta&&meta.ownerId)||''),
+    type:(meta&&meta.type)||'voice',
+    requireApproval:!!(meta&&meta.requireApproval)
   };
   if(isCreator||!roomMeta.owner){
     roomMeta.owner=user.name;
@@ -1537,8 +1621,10 @@ function startRoom(code,meta,isCreator,preMic){
   }
   state={slots:Array(8).fill(null),bg:{v:1,ts:0},chatBans:[],mods:[]};
   
+  el.roomShell.classList.toggle('text-only', roomMeta.type === 'text');
+  
   roster.clear();conns.clear();callsOut.clear();callsIn.clear();remotes.clear();
-  kicked.clear();seenMsg.clear();connFails.clear();
+  kicked.clear();seenMsg.clear();connFails.clear();announcedJoins.clear();
   graceEnd=0;ownerPrompted=false;ownerPidSeen=null;pendingPreMic=preMic||null;lastSig='';
   firstOpen=true;recreateLock=false;
   clearPendingTimeouts();
@@ -1591,7 +1677,7 @@ function onPeerOpen(id){
       micStream=pendingPreMic;pendingPreMic=null;
       initMicAnalyser(micStream);
       if(!state.slots[0]){
-        const msg={t:'claim',id:mid(),i:0,pid:myPid,user:user,ts:myJoinTs};
+        const msg={t:'claim',id:mid(),i:0,pid:myPid,user:user,ts:myJoinTs,forcedMute:false};
         seenMsg.add(msg.id);
         applyClaim(msg,false);
         broadcastMesh(msg);
@@ -1766,8 +1852,15 @@ function publishHere(){
   const u=Object.assign({},user,{avatar:'',banner:''});
   const msg={pid:myPid,user:u,joinTs:myJoinTs,sess:sessionTs,meta:roomMeta,chatBans:state.chatBans,mods:state.mods,ts:Date.now()};
   pubRoom(msg);
-  if(iAmOwner())pubDir({id:roomCode,name:roomMeta.name,owner:roomMeta.owner,ownerId:roomMeta.ownerId,bg:state.bg.v,sp:state.slots.filter(Boolean).length,ls:roster.size,ts:Date.now()});
+  if(iAmOwner())pubDir({id:roomCode,name:roomMeta.name,owner:roomMeta.owner,ownerId:roomMeta.ownerId,type:roomMeta.type,requireApproval:roomMeta.requireApproval,bg:state.bg.v,sp:state.slots.filter(Boolean).length,ls:roster.size,ts:Date.now()});
 }
+
+function announceJoin(pid, name) {
+  if (announcedJoins.has(pid)) return;
+  announcedJoins.add(pid);
+  sysLocal(esc(name) + ' انضم إلى الروم');
+}
+
 function onRoomMsg(d){
   if(!inRoom||!d)return;
   if(d.w){publishHere();return;}
@@ -1792,13 +1885,18 @@ function onRoomMsg(d){
     roster.set(d.pid,{user:nu,joinTs:d.joinTs||now,seen:now,sess:d.sess||0,lastMsgTs:d.ts||now});
     connFails.delete(d.pid);
     if(nu.name===roomMeta.owner)ownerPidSeen=d.pid;
-    if(d.meta&&d.meta.name&&(!roomMeta.name||roomMeta.name.startsWith('روم ')))roomMeta.name=d.meta.name;
-    if(d.meta&&d.meta.owner&&!roomMeta.owner){roomMeta.owner=d.meta.owner;roomMeta.ownerId=d.meta.ownerId||'';}
-    if(!cur){onPeerSeen(d.pid);rememberFollowers();handleOwnerPresence();renderAll();}
+    if(d.meta){
+      if(d.meta.name&&(!roomMeta.name||roomMeta.name.startsWith('روم ')))roomMeta.name=d.meta.name;
+      if(d.meta.owner&&!roomMeta.owner){roomMeta.owner=d.meta.owner;roomMeta.ownerId=d.meta.ownerId||'';}
+      if(d.meta.type){roomMeta.type=d.meta.type;el.roomShell.classList.toggle('text-only', roomMeta.type==='text');}
+      if(d.meta.requireApproval!==undefined)roomMeta.requireApproval=d.meta.requireApproval;
+    }
+    if(!cur){onPeerSeen(d.pid);rememberFollowers();handleOwnerPresence();renderAll();announceJoin(d.pid,nu.name);}
     else if(userChanged){rememberFollowers();renderAll();}
     else handleOwnerPresence();
   }
 }
+
 function pruneTick(){
   if(!inRoom)return;
   const now=Date.now();let changed=false;
@@ -1858,7 +1956,7 @@ function wireConn(conn,pid){
       if(JSON.stringify(hi).length>2500000)hi.user=Object.assign({},user,{avatar:'',banner:''});
       conn.send(hi);
       let sync={t:'sync',slots:state.slots,bg:state.bg,meta:roomMeta,chatBans:state.chatBans,mods:state.mods};
-      if(JSON.stringify(sync).length>2500000)sync.slots=state.slots.map(s=>s?{pid:s.pid,user:Object.assign({},s.user,{banner:'',avatar:''}),ts:s.ts,muted:s.muted}:null);
+      if(JSON.stringify(sync).length>2500000)sync.slots=state.slots.map(s=>s?{pid:s.pid,user:Object.assign({},s.user,{banner:'',avatar:''}),ts:s.ts,muted:s.muted,forcedMute:s.forcedMute}:null);
       conn.send(sync);
       if(mySlotIndex()>=0&&micStream)callPeerWithMic(pid);
     }catch(e){}
@@ -1874,6 +1972,7 @@ function wireConn(conn,pid){
   });
 }
 function onPeerGone(pid){
+  announcedJoins.delete(pid);
   silentGone(pid);
   const gone=roster.get(pid);
   if(gone)sysLocal('غادر '+gone.user.name+' الروم');
@@ -1955,6 +2054,14 @@ function initMicAnalyser(stream){
 }
 function requestStage(i){
   if(mySlotIndex()>=0){toast('أنت على المسرح بالفعل');return;}
+  if(roomMeta.type==='text')return;
+
+  if(roomMeta.requireApproval&&!isMod(user)&&!iAmOwner()){
+    broadcastMesh({t:'reqSlot',id:mid(),pid:myPid,user:user,slot:i,ts:Date.now()});
+    toast('تم إرسال طلب للمضيف، يرجى الانتظار...');
+    return;
+  }
+
   pendingSlot=i;
   el.micTitle.textContent='الصعود إلى المسرح';
   el.micDesc.textContent='سيطلب المتصفح إذن المايكروفون الآن — اضغط السماح ليصل صوتك للجميع.';
@@ -1968,7 +2075,7 @@ el.micAllow.addEventListener('click',async()=>{
   try{
     micStream=await getMicStream();
     initMicAnalyser(micStream);
-    const msg={t:'claim',id:mid(),i:i,pid:myPid,user:user,ts:Date.now()};
+    const msg={t:'claim',id:mid(),i:i,pid:myPid,user:user,ts:Date.now(),forcedMute:false};
     seenMsg.add(msg.id);
     applyClaim(msg,false);renderAll();
     broadcastMesh(msg);
@@ -1989,6 +2096,7 @@ function stopMicLocal(){
   if(micTrack){try{micTrack.stop();}catch(e){}}
   micStream=null;micTrack=null;micAn=null;micData=null;
   setMuteBtn(false);
+  el.muteToggle.disabled=false;
 }
 function setMuteBtn(m){
   el.muteLbl.textContent=m?'فتح صوتي':'كتم صوتي';
@@ -1997,10 +2105,15 @@ function setMuteBtn(m){
 el.downBtn.addEventListener('click',leaveSlot);
 el.muteToggle.addEventListener('click',()=>{
   if(!micTrack)return;
+  const s=state.slots.find(x=>x&&x.pid===myPid);
+  if(s&&s.forcedMute){
+    toast('لا يمكنك فك الكتم، تم كتمك من قبل الإشراف');
+    return;
+  }
   micTrack.enabled=!micTrack.enabled;
   const m=!micTrack.enabled;
   setMuteBtn(m);
-  const s=state.slots.find(x=>x&&x.pid===myPid);if(s)s.muted=m;
+  if(s)s.muted=m;
   broadcastMesh({t:'mute',id:mid(),pid:myPid,m:m,ts:Date.now()});
   renderAll();
 });
@@ -2037,6 +2150,18 @@ function applyMsg(m,pid,conn){
       }
       break;
     }
+    case 'reqSlot':{
+      if(iAmOwner()){
+        pendingReq = { pid: m.pid, user: m.user, slot: m.slot };
+        el.reqDesc.textContent = m.user.name + ' يطلب الصعود إلى المسرح في خانة رقم ' + (m.slot + 1);
+        el.reqModal.classList.remove('hidden');
+      }
+      break;
+    }
+    case 'grantSlot':{
+      if(m.pid===myPid){ requestStage(m.slot); }
+      break;
+    }
     case 'hi':{
       let nu=verifyHandle(sanitizeUser(m.user));
       rememberUser(nu,roomMeta.name);
@@ -2046,13 +2171,19 @@ function applyMsg(m,pid,conn){
         const dup=[...roster.entries()].find(([p,r])=>p!==pid&&identityKey(r.user)===identityKey(nu)&&Date.now()-r.seen>STALE_MS);
         if(dup){silentGone(dup[0]);roster.delete(dup[0]);}
         onPeerSeen(pid);
+        announceJoin(pid, nu.name);
       }else{
         if(!nu.avatar&&cur.user.avatar)nu.avatar=cur.user.avatar;
         if(!nu.banner&&cur.user.banner)nu.banner=cur.user.banner;
         cur.user=nu;cur.seen=Date.now();cur.sess=m.sess||cur.sess;
       }
       if(nu.name===roomMeta.owner)ownerPidSeen=pid;
-      if(m.meta&&m.meta.name&&(!roomMeta.name||roomMeta.name.startsWith('روم ')))roomMeta.name=m.meta.name;
+      if(m.meta){
+        if(m.meta.name&&(!roomMeta.name||roomMeta.name.startsWith('روم ')))roomMeta.name=m.meta.name;
+        if(m.meta.owner&&!roomMeta.owner){roomMeta.owner=m.meta.owner;roomMeta.ownerId=m.meta.ownerId||'';}
+        if(m.meta.type){roomMeta.type=m.meta.type;el.roomShell.classList.toggle('text-only', roomMeta.type==='text');}
+        if(m.meta.requireApproval!==undefined)roomMeta.requireApproval=m.meta.requireApproval;
+      }
       dedupeRoster();
       renderAll();break;
     }
@@ -2061,14 +2192,20 @@ function applyMsg(m,pid,conn){
         if(m.meta.name)roomMeta.name=m.meta.name;
         if(m.meta.owner)roomMeta.owner=m.meta.owner;
         if(m.meta.ownerId)roomMeta.ownerId=m.meta.ownerId;
+        if(m.meta.type){roomMeta.type=m.meta.type;el.roomShell.classList.toggle('text-only', roomMeta.type==='text');}
+        if(m.meta.requireApproval!==undefined)roomMeta.requireApproval=m.meta.requireApproval;
         lastSig='';renderAll();
       }
       break;
     }
     case 'sync':{
-      if(m.meta&&m.meta.name&&(!roomMeta.name||roomMeta.name.startsWith('روم ')))roomMeta.name=m.meta.name;
-      if(m.meta&&m.meta.owner&&!roomMeta.owner){roomMeta.owner=m.meta.owner;roomMeta.ownerId=m.meta.ownerId||'';}
-      (m.slots||[]).forEach((s,i)=>{if(i<8&&s)applyClaim({i:i,pid:s.pid,user:s.user,ts:s.ts,muted:s.muted},true);});
+      if(m.meta){
+        if(m.meta.name&&(!roomMeta.name||roomMeta.name.startsWith('روم ')))roomMeta.name=m.meta.name;
+        if(m.meta.owner&&!roomMeta.owner){roomMeta.owner=m.meta.owner;roomMeta.ownerId=m.meta.ownerId||'';}
+        if(m.meta.type){roomMeta.type=m.meta.type;el.roomShell.classList.toggle('text-only', roomMeta.type==='text');}
+        if(m.meta.requireApproval!==undefined)roomMeta.requireApproval=m.meta.requireApproval;
+      }
+      (m.slots||[]).forEach((s,i)=>{if(i<8&&s)applyClaim({i:i,pid:s.pid,user:s.user,ts:s.ts,muted:s.muted,forcedMute:s.forcedMute},true);});
       if(m.bg&&m.bg.ts>state.bg.ts)state.bg=m.bg;
       if(senderIsOwner(pid)){
         if(m.chatBans&&Array.isArray(m.chatBans)){
@@ -2164,17 +2301,17 @@ function applyClaim(m,fromSync){
   const mu=sanitizeUser(m.user);
   const cur=state.slots[m.i];
   if(!cur){
-    state.slots[m.i]={pid:m.pid,user:mu,ts:m.ts,muted:!!m.muted};
+    state.slots[m.i]={pid:m.pid,user:mu,ts:m.ts,muted:!!m.muted,forcedMute:!!m.forcedMute};
     if(!fromSync)sysLocal('اعتلى '+mu.name+' المسرح');
   }else if(cur.pid===m.pid){
-    cur.user=mu;cur.ts=Math.max(cur.ts,m.ts);cur.muted=!!m.muted;
+    cur.user=mu;cur.ts=Math.max(cur.ts,m.ts);cur.muted=!!m.muted;cur.forcedMute=!!m.forcedMute;
   }else if(identityKey(cur.user)===identityKey(mu)){
-    state.slots[m.i]={pid:m.pid,user:mu,ts:m.ts,muted:!!m.muted};
+    state.slots[m.i]={pid:m.pid,user:mu,ts:m.ts,muted:!!m.muted,forcedMute:!!m.forcedMute};
     removeRemote(cur.pid);
     const co=callsOut.get(cur.pid);if(co){try{co.close();}catch(e){}callsOut.delete(cur.pid);}
   }else if(m.ts<cur.ts-800){
     if(cur.pid===myPid)yieldSlot();
-    state.slots[m.i]={pid:m.pid,user:mu,ts:m.ts,muted:!!m.muted};
+    state.slots[m.i]={pid:m.pid,user:mu,ts:m.ts,muted:!!m.muted,forcedMute:!!m.forcedMute};
   }
 }
 function mySlotIndex(){return state.slots.findIndex(s=>s&&s.pid===myPid);}
@@ -2192,10 +2329,21 @@ function freeSlotLocal(pid){
   sysLocal('أُنزل '+u.name+' من المسرح');
 }
 function applyForceMute(pid,m){
-  const s=state.slots.find(x=>x&&x.pid===pid);if(s)s.muted=m;
+  const s=state.slots.find(x=>x&&x.pid===pid);
+  if(s){s.muted=m;s.forcedMute=m;}
   const audio=peerAudioEls.get(pid);
   if(audio)audio.muted=m;
-  if(pid===myPid&&micTrack){micTrack.enabled=!m;setMuteBtn(m);}
+  if(pid===myPid&&micTrack){
+    micTrack.enabled=!m;
+    el.muteToggle.disabled=m;
+    if(m){
+      el.muteLbl.textContent='مكتوم من الإشراف';
+      el.muteIc.innerHTML='<use href="#i-mic-off"/>';
+    }else{
+      setMuteBtn(false);
+      el.muteToggle.disabled=false;
+    }
+  }
 }
 function applyChatBanUI(){
   const banned=state.chatBans.includes(user.name);
@@ -2220,12 +2368,26 @@ function hostKick(pid){
   toast('تم طرد '+r.user.name+' من الروم');
 }
 
+el.reqAccept.addEventListener('click', () => {
+  if (!pendingReq) return;
+  const msg = { t: 'grantSlot', id: mid(), pid: pendingReq.pid, slot: pendingReq.slot, ts: Date.now() };
+  broadcastMesh(msg);
+  const c = conns.get(pendingReq.pid);
+  if (c && c.open) try{c.send(msg);}catch(e){}
+  el.reqModal.classList.add('hidden');
+  pendingReq = null;
+});
+el.reqReject.addEventListener('click', () => {
+  el.reqModal.classList.add('hidden');
+  pendingReq = null;
+});
+
 /* ══════════ العرض ══════════ */
 function computeSig(){
   return JSON.stringify([
-    roomMeta.name,roomMeta.owner,roomMeta.ownerId,state.bg.v,state.chatBans,
+    roomMeta.name,roomMeta.owner,roomMeta.ownerId,roomMeta.type,roomMeta.requireApproval,state.bg.v,state.chatBans,
     state.mods.map(m=>m.name).join(','),
-    state.slots.map(s=>s?(s.pid+(s.muted?'m':'')):0),
+    state.slots.map(s=>s?(s.pid+(s.muted?'m':'')+(s.forcedMute?'f':'')):0),
     [...roster.values()].map(r=>r.user.name+'|'+r.user.color+'|'+(r.user.avatar?r.user.avatar.length:0)+'|'+r.user.handle).sort(),
     ownerPresent(),iAmOwner()
   ]);
@@ -2262,7 +2424,7 @@ function renderStage(){
         '<span class="pod">'
         +'<span class="pod-ring"></span>'
         +'<span class="av"></span>'
-        +'<span class="micpill'+(s.muted?' off':'')+'">'+icon(s.muted?'mic-off':'mic')+'</span>'
+        +'<span class="micpill'+(s.muted?' off':'')+'">'+icon(s.forcedMute?'lock':(s.muted?'mic-off':'mic'))+'</span>'
         +(isHostUser?'<span class="own-tag" title="مضيف الروم">'+icon('star')+'</span>':'')
         +(senderIsStaff(myPid)&&s.pid!==myPid?'<span class="act" data-act="down0" title="إنزاله">'+icon('down')+'</span>':'')
         +(s.pid===myPid?'<span class="act x" data-act="down" title="النزول">'+icon('x')+'</span>':'')
@@ -2714,6 +2876,7 @@ function leaveRoom(){
     }
   }catch(e){}
   try{cleanupRoom();}catch(e){inRoom=false;if(peer){try{peer.destroy();}catch(_){}}peer=null;myPid=null;}
+  el.roomShell.classList.remove('text-only');
   showView(el.lobbyView);
   enterLobbyKeep();
 }
@@ -2740,6 +2903,7 @@ function cleanupRoom(){
   peer=null;myPid=null;inRoom=false;pendingPreMic=null;pfTargetPid=null;listKind='';ownerPidSeen=null;
   state={slots:Array(8).fill(null),bg:{v:1,ts:0},chatBans:[],mods:[]};
   roster.clear();conns.clear();callsOut.clear();callsIn.clear();remotes.clear();
+  announcedJoins.clear();
   el.bgPicker.classList.add('hidden');el.stageCtrls.classList.add('hidden');el.audioBtn.classList.add('hidden');
 }
 async function requestWake(){try{if('wakeLock' in navigator&&!wakeLock)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}}
