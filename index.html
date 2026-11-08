@@ -517,7 +517,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
     <div class="room-shell" id="roomShell">
       <div class="stage-col">
         <div class="stage bg-1" id="stage">
-          <!-- زر تغيير الخلفية المصغر -->
           <button class="bg-fab hidden" id="bgBtn" type="button"><svg class="ic sm"><use href="#i-bg"/></svg></button>
           <div class="bg-picker hidden" id="bgPicker">
             <div class="card-tag"><svg class="ic sm"><use href="#i-bg"/></svg> اختر الخلفية</div>
@@ -1030,13 +1029,23 @@ mqConnect();
 const ntfyLast={};
 function ntfyPost(topic,obj){fetch('https://ntfy.sh/'+topic,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(obj)}).catch(()=>{});}
 function ntfySlow(topic,obj,min){const n=Date.now();if(n-(ntfyLast[topic]||0)<min)return;ntfyLast[topic]=n;ntfyPost(topic,obj);}
+
 async function ntfyPoll(topic){
-  const r=await fetch('https://ntfy.sh/'+topic+'/json?poll=1',{cache:'no-store'});
-  const txt=await r.text();let msgs=[];
-  try{const j=JSON.parse(txt);msgs=Array.isArray(j)?j:[j];}
-  catch(e){msgs=txt.split('\n').filter(Boolean).map(l=>{try{return JSON.parse(l);}catch(_){return null;}}).filter(Boolean);}
-  return msgs.map(m=>{try{return JSON.parse(m.message);}catch(e){return null;}}).filter(Boolean);
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000); // 4 seconds timeout to prevent hanging
+    const r = await fetch('https://ntfy.sh/'+topic+'/json?poll=1',{cache:'no-store', signal: controller.signal});
+    clearTimeout(timeoutId);
+    const txt = await r.text();
+    let msgs=[];
+    try{const j=JSON.parse(txt);msgs=Array.isArray(j)?j:[j];}
+    catch(e){msgs=txt.split('\n').filter(Boolean).map(l=>{try{return JSON.parse(l);}catch(_){return null;}}).filter(Boolean);}
+    return msgs.map(m=>{try{return JSON.parse(m.message);}catch(e){return null;}}).filter(Boolean);
+  } catch(e) {
+    return []; // Return empty on timeout/error
+  }
 }
+
 function pubDir(obj){if(!mqPub(DIR_T,obj))ntfySlow(DIR_T,obj,20000);}
 function pubRoom(obj){if(inRoom&&!mqPub(ROOM_T(roomCode),obj))ntfySlow(ROOM_T(roomCode),obj,20000);}
 
@@ -1317,7 +1326,7 @@ function makeThumb(dataUrl,size=48){
   return new Promise(resolve=>{
     if(!dataUrl){resolve('');return;}
     const img=new Image();
-    img.crossOrigin = "Anonymous"; // Fix CORS
+    img.crossOrigin = "Anonymous"; 
     img.onload=()=>{
       try{
         const c=document.createElement('canvas');c.width=size;c.height=size;
@@ -1326,9 +1335,9 @@ function makeThumb(dataUrl,size=48){
         const sx=(img.naturalWidth-s)/2, sy=(img.naturalHeight-s)/2;
         ctx.drawImage(img,sx,sy,s,s,0,0,size,size);
         resolve(c.toDataURL('image/jpeg',0.6));
-      }catch(e){resolve(dataUrl);} // Fallback to original if CORS fails
+      }catch(e){resolve(dataUrl);} 
     };
-    img.onerror=()=>resolve(dataUrl); // Fallback
+    img.onerror=()=>resolve(dataUrl); 
     img.src=dataUrl;
   });
 }
@@ -1479,11 +1488,17 @@ async function onGoogle(resp){
   try{
     const payload=JSON.parse(atob(resp.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
     const gid=String(hash(payload.sub||payload.email||''));
-    await loadHandles();
+    
+    // ** تم إزالة الانتظار هنا لحل مشكلة التعليق **
+    loadHandles(); // يتم التحميل في الخلفية بدون تعليق
+    
     let handle='';
     handlesMap.forEach((v,h)=>{if(v.gid===gid&&!handle)handle=h;});
     loginUser({name:String(payload.name||'مستخدم').slice(0,16),avatar:payload.picture||'',gid:gid,handle:handle});
-  }catch(e){toast('تعذر دخول قوقل');}
+  }catch(e){
+    console.error(e);
+    toast('تعذر دخول قوقل');
+  }
 }
 function loginUser(u){
   let extra={};
@@ -1495,12 +1510,11 @@ function loginUser(u){
     try{profileSaved=JSON.parse(localStorage.getItem('sada-profile-'+u.gid)||'{}');}catch(e){}
   }
   
-  // ** IMPORTANT: Priority for persistent data **
   user=sanitizeUser({
     name: profileSaved.name || extra.name || u.name || 'مستخدم',
     gid: profileSaved.gid || extra.gid || u.gid || '',
     handle: profileSaved.handle || extra.handle || u.handle || '',
-    avatar: profileSaved.avatar || extra.avatar || u.avatar || '', // <--- Fixed
+    avatar: profileSaved.avatar || extra.avatar || u.avatar || '', 
     banner: profileSaved.banner || extra.banner || '',
     gender: profileSaved.gender || extra.gender || '',
     birth: profileSaved.birth || extra.birth || '',
@@ -1741,7 +1755,6 @@ function silentGone(pid){
 function startRoom(code,meta,isCreator,preMic){
   if(typeof Peer==='undefined'){toast('تعذر تحميل مكتبة الاتصال');return;}
   
-  // Ban check before entering
   if (!isCreator) {
     const bans = loadBanList(code);
     if (bans.some(b => (user.gid && b.gid === user.gid) || (!user.gid && b.name === user.name))) {
@@ -2011,7 +2024,6 @@ function onRoomMsg(d){
   if(!d.pid||d.pid===myPid||kicked.has(d.pid))return;
   let nu=verifyHandle(sanitizeUser(d.user));
   
-  // Ban check - don't add banned users to roster
   if (isUserBannedInRoom(nu, roomCode)) {
     return;
   }
@@ -2321,7 +2333,6 @@ function applyMsg(m,pid,conn){
     case 'hi':{
       let nu=verifyHandle(sanitizeUser(m.user));
       
-      // Ban check - reject connection immediately
       if (isUserBannedInRoom(nu, roomCode)) {
         try { conn.send({t:'bannedYou', id:mid()}); } catch(e){}
         try { conn.close(); } catch(e){}
@@ -2390,7 +2401,6 @@ function applyMsg(m,pid,conn){
         applyChatBanUI();
       }
       
-      // Check if self got banned via sync
       if (isUserBannedInRoom(user, roomCode)) {
         toast('أنت محظور من هذا البث');
         bannedExit = true;
@@ -2428,7 +2438,6 @@ function applyMsg(m,pid,conn){
     case 'kick':{
       if(!senderIsStaff(pid))break;
       
-      // Update ban list from message
       if (m.bans && Array.isArray(m.bans)) {
         state.bans = m.bans;
         saveBanList(roomCode, m.bans);
@@ -2557,7 +2566,6 @@ function hostKick(pid){
   if(!r)return;
   const targetUser = r.user;
   
-  // Persist ban
   const bans = loadBanList(roomCode);
   if(!bans.some(b => (b.gid && b.gid === targetUser.gid) || (!targetUser.gid && b.name === targetUser.name))) {
     bans.push({ gid: targetUser.gid, name: targetUser.name });
@@ -2565,10 +2573,8 @@ function hostKick(pid){
   }
   state.bans = bans;
   
-  // Broadcast kick with full ban list
   broadcastMesh({t:'kick',id:mid(),pid,name:targetUser.name,bans:state.bans,ts:Date.now()});
   
-  // Cleanup connection
   const c = conns.get(pid); if (c) { try { c.close(); } catch(e){} conns.delete(pid); }
   const co = callsOut.get(pid); if (co) { try { co.close(); } catch(e){} callsOut.delete(pid); }
   const ci = callsIn.get(pid); if (ci) { try { ci.close(); } catch(e){} callsIn.delete(pid); }
