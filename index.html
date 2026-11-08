@@ -382,6 +382,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .crop-view{width:240px;height:240px;margin:0 auto 14px;border-radius:50%;overflow:hidden;position:relative;border:3px solid var(--gold);box-shadow:0 0 0 6px rgba(255,194,75,.12),0 16px 40px rgba(0,0,0,.5);background:#000;touch-action:none;cursor:grab}
 .crop-view:active{cursor:grabbing}
 .crop-view img{position:absolute;max-width:none;pointer-events:none;user-select:none;-webkit-user-drag:none}
+.crop-view.crop-banner{ border-radius:14px; border-color:var(--gold); }
 
 /* ** FIX: Make cropModal appear above editModal ** */
 #cropModal { z-index: 85; }
@@ -827,7 +828,12 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 
 <div class="modal hidden" id="dmChatModal">
   <div class="modal-card"><div class="mc-body" style="text-align:right;padding:18px">
-    <h3 id="dmChatTitle" style="text-align:center;margin-bottom:12px;font-size:1.1rem"></h3>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
+      <h3 id="dmChatTitle" style="font-size:1.1rem;flex:1;text-align:right;margin:0"></h3>
+      <button id="dmClearBtn" type="button" class="mini" style="color:var(--red);border-color:rgba(255,77,61,.45);background:rgba(255,77,61,.08);white-space:nowrap">
+        <svg class="ic sm" style="vertical-align:-2px"><use href="#i-x"/></svg> مسح الكل
+      </button>
+    </div>
     <div id="dmChatList" style="height:320px;overflow-y:auto;background:rgba(0,0,0,.3);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;margin-bottom:12px;box-shadow:inset 0 2px 10px rgba(0,0,0,.2)"></div>
     <form id="dmForm" style="display:flex;gap:8px">
       <input type="text" id="dmInput" placeholder="اكتب رسالة..." autocomplete="off" style="flex:1;min-height:42px">
@@ -1289,17 +1295,36 @@ function openDMList() {
   keys.forEach(k => {
     const c = dms[k];
     const u = c.user;
-    const row = document.createElement('button'); row.className = 'ppl-row';
+    const row = document.createElement('div');
+    row.className = 'ppl-row';
+    row.style.cursor = 'pointer';
     const av = document.createElement('span'); av.className = 'av'; setAv(av, u);
     const col = document.createElement('div'); col.className = 'col';
     const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = u.name;
-    const sub = document.createElement('span'); sub.className = 'sub'; sub.textContent = c.messages[c.messages.length - 1]?.text || '';
+    const sub = document.createElement('span'); sub.className = 'sub';
+    sub.textContent = c.messages[c.messages.length - 1]?.text || '';
     col.append(nm, sub);
-    const side = document.createElement('div'); side.className = 'side';
+    const side = document.createElement('div'); side.className = 'side'; side.style.gap = '6px';
     if (c.unread) {
-      const b = document.createElement('span'); b.className = 'host-tag'; b.style.background = 'var(--red)'; b.style.color = '#fff'; b.textContent = c.unread;
+      const b = document.createElement('span'); b.className = 'host-tag';
+      b.style.background = 'var(--red)'; b.style.color = '#fff'; b.textContent = c.unread;
       side.appendChild(b);
     }
+    // زر حذف المحادثة كاملة
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.title = 'حذف المحادثة بالكامل';
+    delBtn.className = 'mini';
+    delBtn.style.cssText = 'padding:6px 8px;border:1px solid rgba(255,77,61,.4);color:var(--red);background:transparent;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center';
+    delBtn.innerHTML = '<svg class="ic sm"><use href="#i-x"/></svg>';
+    delBtn.onclick = (e) => {
+      e.stopPropagation();
+      if (!confirm('حذف المحادثة بالكامل مع ' + u.name + '؟')) return;
+      delete dms[k];
+      saveDMs();
+      openDMList();
+    };
+    side.appendChild(delBtn);
     row.append(av, col, side);
     row.onclick = () => { document.getElementById('dmModal').classList.add('hidden'); openDMChat(u); };
     list.appendChild(row);
@@ -1447,6 +1472,19 @@ el.dmChatClose.onclick = () => {
 el.dmClose.onclick = () => { el.dmModal.classList.add('hidden'); dmChatTarget = null; };
 el.dmBtn.onclick = openDMList;
 el.dmBtn2.onclick = openDMList;
+
+/* زر مسح كل الرسائل في محادثة مفتوحة */
+document.getElementById('dmClearBtn').onclick = () => {
+  if (!dmChatTarget) return;
+  const key = dmChatTarget.gid || dmChatTarget.name;
+  if (!dms[key]) return;
+  if (!confirm('حذف جميع الرسائل في هذه المحادثة؟ (المحادثة تبقى في القائمة)')) return;
+  dms[key].messages = [];
+  dms[key].lastTs = Date.now();
+  saveDMs();
+  renderDMChat();
+  toast('تم حذف جميع الرسائل');
+};
 
 /* ══════════ المتابعة ══════════ */
 const myFollows=()=>loadJSON(FK,[]);
@@ -3087,7 +3125,15 @@ function openProfile(u,isHostUser,pid){
   el.pfModBadge.classList.toggle('hidden',!isMod(u)||isHostUser);
   el.pfRows.innerHTML='';
   if(u.gender){const r=document.createElement('div');r.className='pf-row';r.innerHTML=icon('user')+(u.gender==='m'?'ذكر':'أنثى');el.pfRows.appendChild(r);}
-  if(u.birth){const a=ageOf(u.birth);const r=document.createElement('div');r.className='pf-row';r.innerHTML=icon('cal')+fmtDate(u.birth)+(a!=null?' — '+a+' سنة':'');el.pfRows.appendChild(r);}
+  if(u.birth){
+    const a=ageOf(u.birth);
+    if(a!=null){
+      const r=document.createElement('div');
+      r.className='pf-row';
+      r.innerHTML=icon('cal') + a + ' سنة';
+      el.pfRows.appendChild(r);
+    }
+  }
   if(!u.gender&&!u.birth){const r=document.createElement('div');r.className='pf-row';r.textContent='لا توجد تفاصيل';el.pfRows.appendChild(r);}
   el.pfBio.textContent=u.bio;
   el.pfBio.classList.toggle('hidden',!u.bio);
@@ -3172,12 +3218,36 @@ el.pfKick.addEventListener('click',()=>{
 });
 
 /* ══════════ الصور ══════════ */
-let cropState={zoom:1,tx:0,ty:0,base:1,natW:1,natH:1,V:240};
-function openCropper(dataUrl){
+let cropState={zoom:1,tx:0,ty:0,base:1,natW:1,natH:1,VW:240,VH:240,isBanner:false};
+
+function openCropper(dataUrl, isBanner){
+  cropState.isBanner = !!isBanner;
+  el.cropView.classList.toggle('crop-banner', cropState.isBanner);
+  
+  if (cropState.isBanner) {
+    const availW = Math.max(180, Math.min(320, window.innerWidth - 92));
+    cropState.VW = Math.round(availW);
+    cropState.VH = Math.round(availW * 0.32);
+    el.cropView.style.width = cropState.VW + 'px';
+    el.cropView.style.height = cropState.VH + 'px';
+  } else {
+    cropState.VW = 240;
+    cropState.VH = 240;
+    el.cropView.style.width = '240px';
+    el.cropView.style.height = '240px';
+  }
+  
+  const h3 = el.cropModal.querySelector('h3');
+  const p = el.cropModal.querySelector('p');
+  if (h3) h3.textContent = cropState.isBanner ? 'قص البانر' : 'قص الصورة';
+  if (p) p.textContent = cropState.isBanner
+    ? 'اسحب الصورة داخل الإطار لاختيار الجزء — قرّب وبعّد بالشريط.'
+    : 'اسحب الصورة داخل الدائرة واختر الجزء — قرّب وبعّد بالشريط.';
+
   const img=el.cropImg;
   img.onload=()=>{
     cropState.natW=img.naturalWidth;cropState.natH=img.naturalHeight;
-    cropState.base=Math.max(cropState.V/cropState.natW,cropState.V/cropState.natH);
+    cropState.base=Math.max(cropState.VW/cropState.natW,cropState.VH/cropState.natH);
     cropState.zoom=1;cropState.tx=0;cropState.ty=0;
     el.cropZoom.value=1;
     applyCrop();
@@ -3190,8 +3260,8 @@ function applyCrop(){
   const h=cropState.natH*cropState.base*cropState.zoom;
   el.cropImg.style.width=w+'px';
   el.cropImg.style.height=h+'px';
-  el.cropImg.style.left=((cropState.V-w)/2+cropState.tx)+'px';
-  el.cropImg.style.top=((cropState.V-h)/2+cropState.ty)+'px';
+  el.cropImg.style.left=((cropState.VW-w)/2+cropState.tx)+'px';
+  el.cropImg.style.top=((cropState.VH-h)/2+cropState.ty)+'px';
 }
 el.cropZoom.addEventListener('input',()=>{cropState.zoom=parseFloat(el.cropZoom.value)||1;applyCrop();});
 (function cropDrag(){
@@ -3216,11 +3286,21 @@ el.cropSave.addEventListener('click',()=>{
     const scale=w/cropState.natW;
     const left=parseFloat(el.cropImg.style.left)||0;
     const top=parseFloat(el.cropImg.style.top)||0;
-    const sx=(-left)/scale, sy=(-top)/scale, sw=cropState.V/scale, sh=cropState.V/scale;
-    const c=document.createElement('canvas');c.width=256;c.height=256;
-    c.getContext('2d').drawImage(img,sx,sy,sw,sh,0,0,256,256);
-    pendingAvatar=c.toDataURL('image/jpeg',0.82);
-    refreshAvPrev();
+    const sx=(-left)/scale, sy=(-top)/scale;
+    const sw=cropState.VW/scale, sh=cropState.VH/scale;
+    
+    if (cropState.isBanner) {
+      const c=document.createElement('canvas'); c.width=800; c.height=260;
+      c.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, 800, 260);
+      pendingBanner = c.toDataURL('image/jpeg', 0.78);
+      refreshBannerPrev();
+      toast('تم قص البانر');
+    } else {
+      const c=document.createElement('canvas'); c.width=256; c.height=256;
+      c.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, 256, 256);
+      pendingAvatar = c.toDataURL('image/jpeg', 0.82);
+      refreshAvPrev();
+    }
   }catch(e){toast('تعذر قص الصورة');}
   el.cropModal.classList.add('hidden');
 });
@@ -3244,18 +3324,8 @@ el.bannerPick.addEventListener('click',()=>el.bannerFile.click());
 el.bannerFile.addEventListener('change',e=>{
   const f=e.target.files&&e.target.files[0];if(!f)return;
   readImgFile(f,(data,isGif)=>{
-    if(isGif){pendingBanner=data;refreshBannerPrev();return;}
-    const img=new Image();
-    img.onload=()=>{
-      const W=800,H=260;
-      const c=document.createElement('canvas');c.width=W;c.height=H;
-      const sc=Math.max(W/img.naturalWidth,H/img.naturalHeight);
-      const dw=img.naturalWidth*sc,dh=img.naturalHeight*sc;
-      c.getContext('2d').drawImage(img,(W-dw)/2,(H-dh)/2,dw,dh);
-      pendingBanner=c.toDataURL('image/jpeg',0.72);
-      refreshBannerPrev();
-    };
-    img.src=data;
+    if(isGif){pendingBanner=data;refreshBannerPrev();toast('بانر GIF جاهز — احفظ ليتحرك عند الجميع');return;}
+    openCropper(data, true);
   });
   e.target.value='';
 });
