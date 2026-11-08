@@ -258,11 +258,11 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 #lsLabel:hover { color: var(--gold); }
 #lsLabel .ic { width:12px; height:12px; color:var(--gold); }
 
-/* New Background Button */
+/* New Background Button - Positioned Bottom Left */
 .bg-fab {
   position: absolute;
-  top: 8px;
-  left: 8px;
+  bottom: 12px;
+  left: 12px;
   z-index: 5;
   width: 32px;
   height: 32px;
@@ -278,7 +278,19 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
   transition: 0.2s;
 }
 .bg-fab:hover { background: rgba(255, 194, 75, 0.2); }
-.bg-picker{position:absolute;top:46px;left:8px;width:min(440px,calc(100% - 16px));z-index:6;padding:14px;border-radius:18px;background:rgba(20,14,11,.92);backdrop-filter:blur(20px);border:1px solid var(--line);box-shadow:0 18px 50px rgba(0,0,0,.55)}
+.bg-picker {
+  position: absolute;
+  bottom: 48px; /* Opens upwards */
+  left: 12px;
+  width: min(440px,calc(100% - 24px));
+  z-index: 6;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(20,14,11,.92);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--line);
+  box-shadow: 0 18px 50px rgba(0,0,0,.55);
+}
 .card-tag{font-family:'Changa';font-weight:700;color:var(--gold);margin-bottom:10px;font-size:.86rem;display:flex;align-items:center;gap:8px}
 .swatches{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
 @media(max-width:700px){.swatches{grid-template-columns:repeat(4,1fr)}}
@@ -312,6 +324,38 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 #chatForm { display: flex; gap: 8px; padding: 10px 12px; flex-shrink: 0; background: rgba(14, 10, 8, 0.85); border-top: 1px solid var(--line); }
 #chatForm input { flex: 1; min-height: 40px; border-radius: 99px; padding: 0 14px; background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.1); }
 #chatForm .btn { min-height: 40px; padding: 0 12px; border-radius: 99px; }
+
+/* Context Menu for Message Delete */
+.msg-menu {
+  position: fixed;
+  background: rgba(30, 22, 18, 0.95);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.6);
+  padding: 6px;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  min-width: 150px;
+  animation: popIn 0.15s ease-out;
+}
+.msg-menu button {
+  width: 100%;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  text-align: right;
+  color: var(--red);
+  font-family: inherit;
+  font-size: .85rem;
+  cursor: pointer;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.msg-menu button:hover {
+  background: rgba(255, 77, 61, 0.1);
+}
 
 .bg-1{background-color:#0b1120;background-image:radial-gradient(2px 2px at 18% 25%,#ffffffaa 40%,transparent 45%),radial-gradient(1.5px 1.5px at 68% 15%,#ffffff88 40%,transparent 45%),radial-gradient(2px 2px at 85% 55%,#ffffff77 40%,transparent 45%),radial-gradient(620px 300px at 70% 115%,rgba(45,80,140,.5),transparent)}
 .bg-2{background-image:radial-gradient(circle at 50% 125%,#ffd98a 0%,#ff7a4d 32%,#7a2d3e 68%,#2a1220 100%)}
@@ -517,6 +561,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
     <div class="room-shell" id="roomShell">
       <div class="stage-col">
         <div class="stage bg-1" id="stage">
+          <!-- الزر الآن أسفل يسار -->
           <button class="bg-fab hidden" id="bgBtn" type="button"><svg class="ic sm"><use href="#i-bg"/></svg></button>
           <div class="bg-picker hidden" id="bgPicker">
             <div class="card-tag"><svg class="ic sm"><use href="#i-bg"/></svg> اختر الخلفية</div>
@@ -547,6 +592,13 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
       </aside>
     </div>
   </section>
+</div>
+
+<!-- قائمة حذف الرسالة -->
+<div id="msgMenu" class="msg-menu hidden">
+  <button id="msgDeleteBtn">
+    <svg class="ic sm"><use href="#i-x"/></svg> حذف الرسالة
+  </button>
 </div>
 
 <button class="audio-cta hidden" id="audioBtn" type="button">
@@ -794,7 +846,7 @@ const IDS=['authView','lobbyView','roomView','insecure','gWrap','gHint','lobbyAv
 'pfFollowLbl','pfLists','pfDM','pfSep','pfHostRow','pfModToggle','pfMute','pfChatBan','pfKick','pfEdit','pfClose','editModal','editForm','avPrev',
 'avPick','avRemove','avFile','bannerPrev','bannerPick','bannerRemove','bannerFile','gM','gF','gN','birthInput','bioInput',
 'privPill','editCancel','audioBtn','toast','amb','nameInput','dmBtn','dmBtn2','dmUnread','dmUnread2','dmModal','dmList','dmClose',
-'dmChatModal','dmChatTitle','dmChatList','dmForm','dmInput','dmChatClose','createRoomModal','crName','crTypeVoice','crTypeText','crOpen','crApproval','crSubmit','crCancel','reqModal','reqDesc','reqAccept','reqReject','roomShell','approvalRow'];
+'dmChatModal','dmChatTitle','dmChatList','dmForm','dmInput','dmChatClose','createRoomModal','crName','crTypeVoice','crTypeText','crOpen','crApproval','crSubmit','crCancel','reqModal','reqDesc','reqAccept','reqReject','roomShell','approvalRow','msgMenu','msgDeleteBtn'];
 const el={};IDS.forEach(id=>{el[id]=$('#'+id);});
 const icon=(n,cls='')=>'<svg class="ic '+cls+'" aria-hidden="true"><use href="#i-'+n+'"/></svg>';
 
@@ -1176,40 +1228,35 @@ function sendDM(text) {
   const id = mid();
   const now = Date.now();
   
-  makeThumb(user.avatar || '', 48).then(avThumb => {
-    const fromMini = {
-      gid: user.gid,
-      name: user.name,
-      handle: user.handle,
-      color: user.color,
-      avatar: avThumb || ''
-    };
-    const m = { id, from: fromMini, text, ts: now };
-    
-    mqPub(DM_T + targetGid, m);
-    ntfyPost(DM_T + targetGid, m);
-    
-    const key = targetGid;
-    if (!dms[key]) dms[key] = { user: dmChatTarget, messages: [] };
-    dms[key].messages.push({ id, text, from: user.gid, ts: now });
-    dms[key].lastTs = now;
-    saveDMs();
-    renderDMChat();
-  });
+  // ** Send immediately without waiting for thumbnail **
+  const fromMini = {
+    gid: user.gid,
+    name: user.name,
+    handle: user.handle,
+    color: user.color,
+    avatar: user.avatar ? user.avatar.substring(0, 50000) : '' // Truncate to avoid ntfy limits, or rely on cached thumb
+  };
+  
+  const m = { id, from: fromMini, text, ts: now };
+  mqPub(DM_T + targetGid, m);
+  ntfyPost(DM_T + targetGid, m);
+  
+  const key = targetGid;
+  if (!dms[key]) dms[key] = { user: dmChatTarget, messages: [] };
+  dms[key].messages.push({ id, text, from: user.gid, ts: now });
+  dms[key].lastTs = now;
+  saveDMs();
+  renderDMChat();
 }
 function onDMMsg(m) {
   if (!m || !m.from) return;
   const key = m.from.gid || m.from.name;
   if (!dms[key]) dms[key] = { user: m.from, messages: [] };
-  if (!dms[key].user || !dms[key].user.avatar) {
-    dms[key].user = m.from; 
-  }
   
   if (m.id && dms[key].messages.some(x => x.id === m.id)) return;
   
   dms[key].messages.push({ id: m.id, text: m.text, from: m.from.gid, ts: m.ts });
   dms[key].lastTs = m.ts;
-  if (dms[key].messages.length > 100) dms[key].messages = dms[key].messages.slice(-100);
   
   const modalOpen = !document.getElementById('dmChatModal').classList.contains('hidden');
   const isViewing = modalOpen && dmChatTarget && dmChatTarget.gid === m.from.gid;
@@ -1220,6 +1267,8 @@ function onDMMsg(m) {
   }
   
   saveDMs();
+  updateDMUnread(); // Ensure it updates
+  
   if (isViewing) renderDMChat();
 }
 function startDMListener() {
@@ -1253,6 +1302,17 @@ setSafe(() => {
   if (!user || !user.gid) return;
   if (!dmES || dmES.readyState === 2) startDMListener();
 }, 45000);
+
+// ** Fallback Polling every 10s to ensure no missed messages **
+setSafe(async () => {
+  if (!user || !user.gid) return;
+  if (dmES && dmES.readyState === 1) return; // SSE is open
+  
+  try {
+    const msgs = await ntfyPoll(DM_T + user.gid);
+    for (const m of msgs) onDMMsg(m);
+  } catch(e) {}
+}, 10000);
 
 el.dmForm.addEventListener('submit', e => {
   e.preventDefault();
@@ -2335,6 +2395,50 @@ el.micErrClose.addEventListener('click',()=>el.micErrModal.classList.add('hidden
 function senderIsOwner(pid){const r=roster.get(pid);return !!r&&(r.user.name===roomMeta.owner||(roomMeta.ownerId&&r.user.gid&&('g:'+r.user.gid)===roomMeta.ownerId));}
 function senderIsStaff(pid){const r=roster.get(pid);return !!r&&(isMod(r.user)||senderIsOwner(pid));}
 
+// ** Context Menu for Chat Deletion **
+let activeMsgIdToDelete = null;
+function openMsgMenu(e, msgId) {
+  e.preventDefault();
+  e.stopPropagation();
+  activeMsgIdToDelete = msgId;
+  el.msgMenu.classList.remove('hidden');
+  
+  let clientX = e.clientX, clientY = e.clientY;
+  if (e.touches && e.touches.length > 0) {
+    clientX = e.touches[0].clientX;
+    clientY = e.touches[0].clientY;
+  }
+  
+  const menuW = 160;
+  const menuH = 50;
+  let left = clientX;
+  let top = clientY;
+  if (left + menuW > window.innerWidth) left = window.innerWidth - menuW - 10;
+  if (top + menuH > window.innerHeight) top = window.innerHeight - menuH - 10;
+  
+  el.msgMenu.style.left = left + 'px';
+  el.msgMenu.style.top = top + 'px';
+}
+
+document.addEventListener('click', (e) => {
+  if (!el.msgMenu.contains(e.target) && !e.target.closest('.staff-clickable')) {
+    el.msgMenu.classList.add('hidden');
+  }
+});
+document.addEventListener('touchstart', (e) => {
+  if (!el.msgMenu.contains(e.target) && !e.target.closest('.staff-clickable')) {
+    el.msgMenu.classList.add('hidden');
+  }
+}, {passive: true});
+
+el.msgDeleteBtn.addEventListener('click', () => {
+  if (activeMsgIdToDelete) {
+    deleteChatMsg(activeMsgIdToDelete);
+    activeMsgIdToDelete = null;
+  }
+  el.msgMenu.classList.add('hidden');
+});
+
 function applyMsg(m,pid,conn){
   if(!m||kicked.has(pid))return;
   touch(pid);
@@ -2731,12 +2835,8 @@ function appendChat(m,warn){
     if (senderIsStaff(myPid)) {
       li.classList.add('staff-clickable');
       li.title = 'اضغط للحذف';
-      li.onclick = (e) => {
-        e.stopPropagation();
-        if (confirm('هل تريد حذف هذه الرسالة؟')) {
-          deleteChatMsg(m.id);
-        }
-      };
+      li.addEventListener('contextmenu', (e) => openMsgMenu(e, m.id));
+      li.addEventListener('click', (e) => openMsgMenu(e, m.id));
     }
     
     const av=document.createElement('span');av.className='av';setAv(av,u);av.title=u.name;
