@@ -25,7 +25,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
-body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:var(--text);height:100dvh;display:flex;flex-direction:column}
+body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:var(--text);height:calc(var(--vh,1vh)*100);display:flex;flex-direction:column}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background-image:radial-gradient(rgba(255,194,75,.05) 1px,transparent 1.4px);background-size:30px 30px}
 body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:
@@ -66,7 +66,12 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;back
 }
 
 button, a, input, textarea, .slot, .room-card, .ppl-row, .pill, .sw, .msg {
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 #authView, #lobbyView, #roomView { animation: fadeInView 0.4s ease-out; }
 @keyframes fadeInView { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
@@ -95,9 +100,11 @@ h1,h2,h3{font-family:'Changa'}
 .banner .ic{color:var(--red);flex-shrink:0}
 .banner code{direction:ltr;display:inline-block;background:#00000040;padding:0 7px;border-radius:6px;font-family:'IBM Plex Mono';font-size:.76rem}
 
-.btn{font-family:'Changa';font-size:1rem;font-weight:700;border:none;border-radius:12px;cursor:pointer;padding:0 20px;min-height:46px;transition:transform .15s,box-shadow .2s,filter .2s;display:inline-flex;align-items:center;justify-content:center;gap:8px}
-.btn:hover:not(:disabled){transform:translateY(-2px)}
+.btn{font-family:'Changa';font-size:1rem;font-weight:700;border:none;border-radius:12px;cursor:pointer;padding:0 20px;min-height:46px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
 .btn:active:not(:disabled){transform:scale(.97)}
+@media (hover: hover) and (pointer: fine){
+  .btn:hover:not(:disabled){transform:translateY(-2px)}
+}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .btn.primary{background:linear-gradient(180deg,#ff6a55,#e83a28);color:#fff;box-shadow:0 8px 22px rgba(255,77,61,.28),inset 0 1px 0 rgba(255,255,255,.25)}
 .btn.gold{background:linear-gradient(180deg,#ffe3a3,#f0a63c);color:#2b1c05;box-shadow:0 8px 22px rgba(240,166,60,.3),inset 0 1px 0 rgba(255,255,255,.6)}
@@ -109,13 +116,13 @@ h1,h2,h3{font-family:'Changa'}
 .btn.sm{min-height:36px;font-size:.84rem;padding:0 13px;border-radius:10px}
 .btn.icon{width:46px;padding:0}
 .btn.sm.icon{width:36px}
-input[type=text],input[type=date]{width:100%;background:rgba(10,7,5,.55);border:1px solid var(--line);border-radius:12px;color:var(--text);font-family:inherit;font-size:.95rem;padding:11px 15px;outline:none;transition:.2s;min-height:46px;color-scheme:dark}
+input[type=text],input[type=date]{width:100%;background:rgba(10,7,5,.55);border:1px solid var(--line);border-radius:12px;color:var(--text);font-family:inherit;font-size:.95rem;padding:11px 15px;outline:none;min-height:46px;color-scheme:dark}
 input:focus,textarea:focus{border-color:rgba(255,194,75,.5);box-shadow:0 0 0 3px rgba(255,194,75,.12)}
 input:disabled{opacity:.5}
 input::placeholder,textarea::placeholder{color:#6d5c48}
 textarea{width:100%;background:rgba(10,7,5,.55);border:1px solid var(--line);border-radius:12px;color:var(--text);font-family:inherit;font-size:.92rem;padding:11px 15px;outline:none;resize:none;height:76px;line-height:1.8}
 input[type=range]{width:100%;accent-color:var(--gold);height:30px}
-.av{width:42px;height:42px;border-radius:50%;display:inline-grid;place-items:center;flex-shrink:0;cursor:pointer;overflow:hidden;background:color-mix(in srgb, var(--c) 20%, #120d0a);border:2px solid var(--c);color:var(--c);transition:transform .15s}
+.av{width:42px;height:42px;border-radius:50%;display:inline-grid;place-items:center;flex-shrink:0;cursor:pointer;overflow:hidden;background:color-mix(in srgb, var(--c) 20%, #120d0a);border:2px solid var(--c);color:var(--c)}
 .av:hover{transform:scale(1.07)}
 .av .ic{width:55%;height:55%;pointer-events:none}
 .av img{width:100%;height:100%;border-radius:50%;object-fit:cover;pointer-events:none}
@@ -133,7 +140,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .auth-logo .wordmark{font-size:2.3rem}
 
 .google-btn-container { position: relative; width: 100%; max-width: 340px; margin: 0 auto; height: 48px; }
-.google-btn-custom { position: absolute; inset: 0; width: 100%; background: #1a1410; color: var(--gold); border: 1px solid var(--line); font-family: 'Changa', sans-serif; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 12px; pointer-events: none; transition: 0.2s; }
+.google-btn-custom { position: absolute; inset: 0; width: 100%; background: #1a1410; color: var(--gold); border: 1px solid var(--line); font-family: 'Changa', sans-serif; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 12px; pointer-events: none; }
 .google-btn-custom:hover { background: #231a14; }
 #gWrap { position: absolute; inset: 0; opacity: 0.01; z-index: 10; pointer-events: auto; overflow: hidden; border-radius: 12px; }
 #gWrap iframe { width: 100% !important; height: 100% !important; }
@@ -145,7 +152,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .brand-block{display:flex;align-items:center;gap:12px}
 .brand-block .wordmark{font-size:1.75rem}
 .spacer{flex:1}
-.user-chip{display:flex;align-items:center;gap:10px;background:var(--glass);border:1px solid var(--line);border-radius:99px;padding:4px 16px 4px 5px;cursor:pointer;transition:.2s;backdrop-filter:blur(10px)}
+.user-chip{display:flex;align-items:center;gap:10px;background:var(--glass);border:1px solid var(--line);border-radius:99px;padding:4px 16px 4px 5px;cursor:pointer;backdrop-filter:blur(10px)}
 .user-chip:hover{border-color:rgba(255,194,75,.4);box-shadow:0 6px 20px rgba(0,0,0,.35)}
 .user-chip .av{width:32px;height:32px;cursor:inherit}
 .user-chip .nm{font-weight:700;font-size:.88rem;display:flex;flex-direction:column;line-height:1.15}
@@ -173,7 +180,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
   }
 }
 
-.room-card{position:relative;border-radius:22px;padding:1px;cursor:default;background:linear-gradient(160deg,rgba(255,194,75,.45),rgba(255,194,75,.05) 42%,rgba(255,77,61,.25));transition:transform .22s,box-shadow .22s;overflow:hidden}
+.room-card{position:relative;border-radius:22px;padding:1px;cursor:default;background:linear-gradient(160deg,rgba(255,194,75,.45),rgba(255,194,75,.05) 42%,rgba(255,77,61,.25));overflow:hidden}
 .room-card:hover{transform:translateY(-4px);box-shadow:0 18px 44px rgba(0,0,0,.5),0 0 34px rgba(255,194,75,.1)}
 .rc-inner{border-radius:21px;overflow:hidden;background:rgba(14,10,8,.93);height:100%;display:flex;flex-direction:column}
 .rc-top{height:96px;position:relative;overflow:hidden;flex-shrink:0}
@@ -212,12 +219,12 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .room-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:2px 4px;flex-shrink:0}
 .title-box{display:flex;flex-direction:column;gap:3px;min-width:0}
 .title-box h2{font-size:1.12rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
-.host-chip{display:inline-flex;align-items:center;gap:6px;font-size:.7rem;color:var(--muted);background:none;border:none;cursor:pointer;font-family:inherit;padding:0;transition:.2s;min-width:0}
+.host-chip{display:inline-flex;align-items:center;gap:6px;font-size:.7rem;color:var(--muted);background:none;border:none;cursor:pointer;font-family:inherit;padding:0;min-width:0}
 .host-chip:hover{color:var(--gold)}
 .host-chip .av{width:18px;height:18px;border-width:1.5px}
 .host-chip b{color:#d8c8ae;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px}
 .host-chip.away b{color:var(--gold)}
-.count{display:inline-flex;align-items:center;gap:7px;font-size:.8rem;color:#d8c8ae;background:rgba(10,7,5,.5);border:1px solid var(--line);padding:6px 12px;border-radius:99px;cursor:pointer;transition:.2s;font-family:inherit;backdrop-filter:blur(8px)}
+.count{display:inline-flex;align-items:center;gap:7px;font-size:.8rem;color:#d8c8ae;background:rgba(10,7,5,.5);border:1px solid var(--line);padding:6px 12px;border-radius:99px;cursor:pointer;font-family:inherit;backdrop-filter:blur(8px)}
 .count:hover{border-color:rgba(255,194,75,.4)}
 .count .ic{width:14px;height:14px;color:var(--gold)}
 .count.static{cursor:default}
@@ -381,7 +388,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .msg.staff-clickable { cursor: pointer; }
 .msg.staff-clickable:hover .body { background: rgba(255,77,61,.1); border: 1px dashed rgba(255,77,61,.3); }
 
-/* ══════════ CHAT INPUT (robust cross-browser) ══════════ */
 #chatForm {
   display: flex;
   gap: 8px;
@@ -407,10 +413,8 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
   resize: none;
   outline: none;
   overflow-y: hidden;
-  transition: border-color .2s;
   display: block;
   width: 100%;
-  box-sizing: border-box;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -507,7 +511,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .list-tabs{display:flex;gap:8px;justify-content:center;margin:10px 0 4px}
 .list-tabs .pill{flex:0 0 auto;padding:8px 18px}
 .ppl{max-height:min(52vh,400px);overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-top:10px}
-.ppl-row{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:14px;padding:9px 12px;cursor:pointer;transition:.2s;width:100%;font-family:inherit;color:var(--text);text-align:right}
+.ppl-row{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:14px;padding:9px 12px;cursor:pointer;width:100%;font-family:inherit;color:var(--text);text-align:right}
 .ppl-row:hover{border-color:rgba(255,194,75,.35);background:rgba(255,194,75,.05);transform:translateY(-1px)}
 .ppl-row .av{width:36px;height:36px}
 .ppl-row .col{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
@@ -518,12 +522,12 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .edit-field{text-align:right;margin-bottom:14px}
 .edit-field label{display:block;font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:7px}
 .pill-row{display:flex;gap:8px}
-.pill{flex:1;background:rgba(10,7,5,.5);border:1px solid var(--line);color:var(--muted);border-radius:99px;padding:10px 0;font-family:'Changa';font-weight:700;cursor:pointer;transition:.2s;font-size:.9rem}
+.pill{flex:1;background:rgba(10,7,5,.5);border:1px solid var(--line);color:var(--muted);border-radius:99px;padding:10px 0;font-family:'Changa';font-weight:700;cursor:pointer;font-size:.9rem}
 .pill.active{background:rgba(255,194,75,.15);border-color:var(--gold);color:var(--gold)}
 .avpick{display:flex;align-items:center;gap:12px}
 .avpick .av{width:62px;height:62px}
 .avpick .col{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
-.mini{font-size:.72rem;color:var(--muted);background:none;border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer;font-family:inherit;transition:.2s}
+.mini{font-size:.72rem;color:var(--muted);background:none;border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer;font-family:inherit}
 .mini:hover{border-color:var(--gold);color:var(--gold)}
 .banner-prev{height:74px;border-radius:12px;overflow:hidden;border:1px solid var(--line);position:relative;background:radial-gradient(300px 90px at 20% 0%,rgba(255,194,75,.3),transparent 70%),#170f0b}
 .banner-prev img{width:100%;height:100%;object-fit:cover}
@@ -566,7 +570,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
   font-weight: 700;
   cursor: pointer;
   font-size: .82rem;
-  transition: .2s;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -1009,6 +1012,14 @@ const GRACE_SECONDS=150, HEARTBEAT_MS=3000, HEALTH_MS=3000, PRUNE_MS=20000, PING
 const MAXIMG=4000000;
 const NTFY_MAX_BODY=3800;
 
+/* ══════════ viewport height fix (Brave / mobile) ══════════ */
+function setVh(){
+  document.documentElement.style.setProperty('--vh',(window.innerHeight*0.01)+'px');
+}
+setVh();
+window.addEventListener('resize',setVh);
+window.addEventListener('orientationchange',()=>setTimeout(setVh,150));
+
 const $=s=>document.querySelector(s);
 const IDS=['authView','lobbyView','roomView','insecure','gWrap','gHint','lobbyAv','lobbyName','lobbyHandle','userChip','logoutBtn',
 'searchInput','roomsWrap','searchWrap','searchResults','noSearch','roomsGrid','noRooms','dirErr','openCreateBtn',
@@ -1054,7 +1065,10 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 const genCode=()=>{const A='abcdefghjkmnpqrstuvwxyz23456789';let s='';for(let i=0;i<5;i++)s+=A[rnd(A.length)];return s;};
 const mid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
 const loadJSON=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v;}catch(e){return d;}};
-const saveJSON=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+const saveJSON=(k,v)=>{
+  try{localStorage.setItem(k,JSON.stringify(v));return true;}
+  catch(e){console.error('[saveJSON] failed',k,e);return false;}
+};
 function setSafe(fn,ms){return setInterval(()=>{try{fn();}catch(e){console.error('[sada]',e);}},ms);}
 let toastT=null;
 function toast(m){el.toast.textContent=m;el.toast.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.toast.classList.remove('show'),2800);}
@@ -1063,7 +1077,26 @@ function setConn(cls,text){el.connChip.className='count conn static '+cls;el.con
 const cleanHandle=h=>String(h||'').toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,16);
 const validHandle=h=>/^[a-z0-9_]{3,16}$/.test(h);
 
-/* ══════════ ORIENTATION LOCK (robust, deferred) ══════════ */
+/* ══════════ avatar helpers ══════════ */
+const isValidDataUrl = (s) => {
+  if (!s || typeof s !== 'string') return false;
+  if (!s.startsWith('data:image/')) return false;
+  const parts = s.split(',');
+  return parts.length === 2 && parts[1].length > 100;
+};
+const preferBestAvatar = (a, b) => {
+  const aOk = a && (isValidDataUrl(a) || a.startsWith('https://'));
+  const bOk = b && (isValidDataUrl(b) || b.startsWith('https://'));
+  if (!aOk) return bOk ? b : '';
+  if (!bOk) return a;
+  const aCustom = isValidDataUrl(a);
+  const bCustom = isValidDataUrl(b);
+  if (aCustom && !bCustom) return a;
+  if (bCustom && !aCustom) return b;
+  return a.length >= b.length ? a : b;
+};
+
+/* ══════════ ORIENTATION LOCK ══════════ */
 function tryLockOrientation(){
   try{
     if(typeof screen !== 'undefined' && screen && screen.orientation && typeof screen.orientation.lock === 'function'){
@@ -1117,8 +1150,8 @@ function sanitizeUser(u){
   const birth=/^\d{4}-\d{2}-\d{2}$/.test(u.birth||'')?u.birth:'';
   const bio=String(u.bio||'').slice(0,120);
   const okImg=v=>typeof v==='string'&&(v.startsWith('data:image/')||v.startsWith('https://'));
-  const avatar=okImg(u.avatar)?u.avatar.slice(0,5500000):'';
-  const banner=okImg(u.banner)?u.banner.slice(0,5500000):'';
+  const avatar=okImg(u.avatar)&&u.avatar.length<5500000?u.avatar:'';
+  const banner=okImg(u.banner)&&u.banner.length<5500000?u.banner:'';
   const fw=Array.isArray(u.fw)?u.fw.map(x=>String(x).slice(0,20)).slice(0,40):[];
   const priv=!!u.priv;
   const handle=validHandle(u.handle)?u.handle:'';
@@ -1476,6 +1509,7 @@ let FK='sada-follows',SK='sada-followers-seen';
 let announcedJoins = new Set();
 let crType = 'voice', crApproval = false, pendingReq = null;
 let globalRefreshInt = null;
+let lastDMPollTs = 0;
 
 function setStorageKeys(){const uk=user?(user.handle||user.gid||user.name):'x';FK='sada-follows:'+uk;SK='sada-followers-seen:'+uk;}
 function safeTimeout(fn,ms){const t=setTimeout(fn,ms);pendingTimeouts.push(t);return t;}
@@ -1515,6 +1549,7 @@ function updateDMUnread() {
 function resolveDMUser(u){
   if(!u) return sanitizeUser({name:'زائر'});
   u = Object.assign({}, u);
+  if (u.avatar && !isValidDataUrl(u.avatar) && !u.avatar.startsWith('https://')) u.avatar = '';
   if(!u.gid && u.handle && handlesMap.has(u.handle)){
     const h = handlesMap.get(u.handle);
     if(h.gid) u.gid = h.gid;
@@ -1531,6 +1566,7 @@ function resolveDMUser(u){
 }
 
 function openDMList() {
+  if (user && user.gid) pollDMsForce();
   dmChatTarget = null;
   document.getElementById('dmChatModal').classList.add('hidden');
   document.getElementById('dmModal').classList.remove('hidden');
@@ -1598,6 +1634,7 @@ function openDMList() {
 }
 
 function openDMChat(targetUser) {
+  if (user && user.gid) pollDMsForce();
   dmChatTarget = targetUser;
   const key = targetUser.gid || targetUser.name;
   if (!dms[key]) dms[key] = { user: targetUser, messages: [] };
@@ -1708,9 +1745,12 @@ async function sendDM(text) {
 
   const id = mid();
   const now = Date.now();
+  const avatarForDM = isValidDataUrl(user.avatar) && user.avatar.length < 45000
+    ? user.avatar
+    : (user.avatar && user.avatar.startsWith('https://') ? user.avatar : '');
   const fromMini = {
     gid: user.gid, name: user.name, handle: user.handle,
-    color: user.color, avatar: user.avatar ? user.avatar.substring(0, 50000) : ''
+    color: user.color, avatar: avatarForDM
   };
   const m = { id, from: fromMini, text, ts: now };
   mqPub(DM_T + targetGid, m);
@@ -1780,15 +1820,34 @@ setSafe(() => {
   if (!dmES || dmES.readyState === 2) startDMListener();
 }, 45000);
 
-setSafe(async () => {
+/* ══════════ DM polling — always runs, never skipped ══════════ */
+async function pollDMsForce() {
   if (!user || !user.gid) return;
-  if (dmES && dmES.readyState === 1) return;
-  
+  const now = Date.now();
+  const sinceSec = lastDMPollTs > 0 ? Math.max(Math.ceil((now - lastDMPollTs) / 1000) + 5, 10) : 43200;
+  lastDMPollTs = now;
   try {
-    const msgs = await ntfyPoll(DM_T + user.gid);
-    for (const m of msgs) onDMMsg(m);
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 4000);
+    const r = await fetch('https://ntfy.sh/' + DM_T + user.gid + '/json?poll=1&since=' + sinceSec + 's', {cache:'no-store', signal: controller.signal});
+    clearTimeout(tid);
+    const txt = await r.text();
+    let msgs = [];
+    try { const j = JSON.parse(txt); msgs = Array.isArray(j) ? j : [j]; } catch(e) {
+      msgs = txt.split('\n').filter(Boolean).map(l => { try { return JSON.parse(l); } catch(_) { return null; } }).filter(Boolean);
+    }
+    for (const m of msgs) {
+      try {
+        const obj = JSON.parse(m.message);
+        if (obj && obj.from) onDMMsg(obj);
+      } catch(e) {}
+    }
   } catch(e) {}
-}, 10000);
+}
+setSafe(() => {
+  if (!user || !user.gid) return;
+  pollDMsForce();
+}, 5000);
 
 el.dmForm.addEventListener('submit', e => {
   e.preventDefault();
@@ -1943,6 +2002,12 @@ async function publishProfile() {
 
 function applyProfileToLocal(d){
   if(!d || !d.gid) return;
+  
+  // حماية صورة المستخدم المخصصة من صورة قوقل
+  if (user && d.gid === user.gid) {
+    if (isValidDataUrl(user.avatar) && !isValidDataUrl(d.avatar)) d.avatar = user.avatar;
+    if (isValidDataUrl(user.banner) && !isValidDataUrl(d.banner)) d.banner = user.banner;
+  }
   
   const seen = loadJSON('sada-seen-users', {});
   const key = (d.handle || d.name || '').toLowerCase();
@@ -2209,12 +2274,15 @@ function loginUser(u){
     try{profileSaved=JSON.parse(localStorage.getItem('sada-profile-'+u.gid)||'{}');}catch(e){}
   }
   
+  const mergedAv = preferBestAvatar(extra.avatar, profileSaved.avatar) || u.avatar || '';
+  const mergedBn = preferBestAvatar(extra.banner, profileSaved.banner) || u.banner || '';
+  
   user=sanitizeUser({
     name: profileSaved.name || extra.name || u.name || 'مستخدم',
     gid: profileSaved.gid || extra.gid || u.gid || '',
     handle: profileSaved.handle || extra.handle || u.handle || '',
-    avatar: profileSaved.avatar || extra.avatar || u.avatar || '', 
-    banner: profileSaved.banner || extra.banner || '',
+    avatar: mergedAv, 
+    banner: mergedBn,
     gender: profileSaved.gender || extra.gender || '',
     birth: profileSaved.birth || extra.birth || '',
     bio: profileSaved.bio || extra.bio || '',
@@ -3501,11 +3569,10 @@ function deleteChatMsg(id) {
 
 function sysLocal(text,warn){appendChat({sys:true,text},warn);}
 
-/* ══════════ CHAT INPUT (auto-grow + no scrollbar unless multi-line) ══════════ */
+/* ══════════ CHAT INPUT (auto-grow) ══════════ */
 function autoGrowChat(){
   if(!el.chatInput) return;
   const ta = el.chatInput;
-  // Reset to measure
   ta.style.height = 'auto';
   ta.style.overflowY = 'hidden';
   const sh = ta.scrollHeight;
@@ -3513,7 +3580,6 @@ function autoGrowChat(){
   const minH = 42;
   const newH = Math.min(Math.max(sh, minH), maxH);
   ta.style.height = newH + 'px';
-  // Only show scrollbar if content truly exceeds max height
   if (sh > maxH) {
     ta.style.overflowY = 'auto';
   } else {
@@ -3521,10 +3587,8 @@ function autoGrowChat(){
   }
 }
 
-// Bind input event
 el.chatInput.addEventListener('input', autoGrowChat);
 
-// Keydown: only intercept Ctrl/Cmd+Enter to send. Plain Enter inserts newline (browser default).
 el.chatInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
     e.preventDefault();
@@ -3532,7 +3596,6 @@ el.chatInput.addEventListener('keydown', (e) => {
     return;
   }
   if (e.key === 'Enter') {
-    // Let browser insert newline, then auto-grow after
     setTimeout(autoGrowChat, 0);
   }
 });
@@ -3554,7 +3617,6 @@ el.chatForm.addEventListener('submit',e=>{
   sendChatMessage();
 });
 
-// Ensure proper initial sizing on load
 setTimeout(autoGrowChat, 200);
 
 /* ══════════ القوائم ══════════ */
@@ -4042,6 +4104,7 @@ window.addEventListener('pagehide',()=>{
 document.addEventListener('visibilitychange',()=>{
   if(document.visibilityState==='visible') {
     checkForUpdate();
+    if (user && user.gid) pollDMsForce();
     if (inRoom) {
       requestWake();publishHere();pruneTick();healthCheck();
       unlockAudio();
@@ -4078,7 +4141,6 @@ if(saved){
   }catch(e){}
 }
 
-// Chat input initial sizing (in case user enters room immediately)
 setTimeout(autoGrowChat, 500);
 setTimeout(autoGrowChat, 1500);
 </script>
