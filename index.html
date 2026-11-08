@@ -1432,20 +1432,30 @@ function startHandleKeepalive(){
 async function claimHandle(raw){
   const h=cleanHandle(raw);
   if(!validHandle(h)){toast('اليوزر غير صالح: حروف إنجليزية صغيرة/أرقام/_ (3–16)');return false;}
-  try{await loadHandles();}catch(e){}
+  
+  // ** Check local map first (fast) **
   const ex=handlesMap.get(h);
-  if(ex){
-    if(ex.gid===user.gid){user.handle=h;saveJSON('sada-user',user);afterHandle();return true;}
+  if(ex && ex.gid !== user.gid){
     toast('اليوزر @'+h+' محجوز لشخص آخر');return false;
   }
-  const thumb=user.avatar?await makeThumb(user.avatar,48):'';
-  const bn=user.banner?await makeRectThumb(user.banner,300,100):'';
-  ntfyPost(HANDLES,{h:h,gid:user.gid,ts:Date.now(),av:thumb,bn:bn});
-  handlesMap.set(h,{gid:user.gid,ts:Date.now(),av:thumb,bn:bn});
-  const local=loadJSON('sada-handles-seen',{});local[h]={gid:user.gid,ts:Date.now(),av:thumb,bn:bn};saveJSON('sada-handles-seen',local);
-  user.handle=h;saveJSON('sada-user',user);
+  
+  // ** Save immediately and proceed **
+  user.handle=h;
+  saveJSON('sada-user',user);
+  if(user.gid) saveJSON('sada-profile-'+user.gid, user);
+  
   afterHandle();
-  publishProfile();
+  
+  // ** Do network operations in background **
+  makeThumb(user.avatar, 48).then(thumb => {
+    makeRectThumb(user.banner, 300, 100).then(bn => {
+      ntfyPost(HANDLES,{h:h,gid:user.gid,ts:Date.now(),av:thumb,bn:bn});
+      handlesMap.set(h,{gid:user.gid,ts:Date.now(),av:thumb,bn:bn});
+      const local=loadJSON('sada-handles-seen',{});local[h]={gid:user.gid,ts:Date.now(),av:thumb,bn:bn};saveJSON('sada-handles-seen',local);
+      publishProfile();
+    });
+  });
+  
   return true;
 }
 function afterHandle(){
@@ -1462,7 +1472,9 @@ function refreshHandleUI(){
 }
 el.handleClaim.addEventListener('click',async()=>{
   if(!user||!user.gid){toast('الحساب عبر قوقل فقط');return;}
-  await claimHandle(el.handleInput.value);
+  const h = el.handleInput.value.trim();
+  if(!h) { toast('اكتب اليوزر أولاً'); return; }
+  await claimHandle(h);
 });
 
 /* ══════════ الدخول ══════════ */
@@ -1484,22 +1496,44 @@ el.handleClaim.addEventListener('click',async()=>{
   };
   tryInit();
 })();
+
 async function onGoogle(resp){
   try{
     const payload=JSON.parse(atob(resp.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
     const gid=String(hash(payload.sub||payload.email||''));
     
-    // ** تم إزالة الانتظار هنا لحل مشكلة التعليق **
-    loadHandles(); // يتم التحميل في الخلفية بدون تعليق
-    
+    // ** Login instantly with basic data **
     let handle='';
     handlesMap.forEach((v,h)=>{if(v.gid===gid&&!handle)handle=h;});
     loginUser({name:String(payload.name||'مستخدم').slice(0,16),avatar:payload.picture||'',gid:gid,handle:handle});
+    
+    // ** Load handles in background **
+    setTimeout(async () => {
+      await loadHandles();
+      // If we found a handle remotely, update it silently
+      if(!user.handle){
+        let foundHandle='';
+        handlesMap.forEach((v,h)=>{if(v.gid===gid&&!foundHandle)foundHandle=h;});
+        if(foundHandle){
+          user.handle=foundHandle;
+          saveJSON('sada-user',user);
+          if(user.gid) saveJSON('sada-profile-'+user.gid, user);
+          refreshHandleUI();
+          if(!el.handleModal.classList.contains('hidden')){
+            el.handleModal.classList.add('hidden');
+            toast('تم استرجاع يوزرك @'+user.handle);
+            startHandleKeepalive();
+          }
+        }
+      }
+    }, 2000);
+    
   }catch(e){
     console.error(e);
     toast('تعذر دخول قوقل');
   }
 }
+
 function loginUser(u){
   let extra={};
   const saved=localStorage.getItem('sada-user');
@@ -1531,13 +1565,17 @@ function loginUser(u){
   enterLobby();
   if(!user.handle)openHandleModal();
   else startHandleKeepalive();
-  loadDMs();
-  startDMListener();
-  startProfListener();
-  mqSub(DM_T + user.gid, onDMMsg);
-  mqSub(PROF_T, onProfMsg);
-  publishProfile();
-  setSafe(publishProfile, 300000);
+  
+  // ** Load heavy data in background **
+  setTimeout(() => {
+    loadDMs();
+    startDMListener();
+    startProfListener();
+    mqSub(DM_T + user.gid, onDMMsg);
+    mqSub(PROF_T, onProfMsg);
+    publishProfile();
+    setSafe(publishProfile, 300000);
+  }, 1000);
 }
 function openHandleModal(){el.handleInput.value=user.handle||'';el.handleModal.classList.remove('hidden');}
 el.logoutBtn.addEventListener('click',()=>{
@@ -3176,11 +3214,14 @@ if(saved){
       user.fw=myFollows().slice(0,40);
       enterLobby();
       if(user.handle)startHandleKeepalive();else openHandleModal();
-      loadDMs();
-      startDMListener();
-      startProfListener();
-      mqSub(DM_T + user.gid, onDMMsg);
-      mqSub(PROF_T, onProfMsg);
+      
+      setTimeout(() => {
+        loadDMs();
+        startDMListener();
+        startProfListener();
+        mqSub(DM_T + user.gid, onDMMsg);
+        mqSub(PROF_T, onProfMsg);
+      }, 1000);
     }
   }catch(e){}
 }
