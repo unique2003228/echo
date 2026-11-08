@@ -382,6 +382,12 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 .crop-view{width:240px;height:240px;margin:0 auto 14px;border-radius:50%;overflow:hidden;position:relative;border:3px solid var(--gold);box-shadow:0 0 0 6px rgba(255,194,75,.12),0 16px 40px rgba(0,0,0,.5);background:#000;touch-action:none;cursor:grab}
 .crop-view:active{cursor:grabbing}
 .crop-view img{position:absolute;max-width:none;pointer-events:none;user-select:none;-webkit-user-drag:none}
+
+/* ** FIX: Make cropModal appear above editModal ** */
+#cropModal { z-index: 85; }
+#micModal { z-index: 85; }
+#reqModal { z-index: 85; }
+
 .pf-banner{height:120px;border-radius:18px;overflow:hidden;position:relative;background:radial-gradient(420px 160px at 20% 0%,rgba(255,194,75,.35),transparent 70%),radial-gradient(420px 180px at 85% 100%,rgba(255,77,61,.3),transparent 70%),#170f0b}
 .pf-banner img{width:100%;height:100%;object-fit:cover;display:block}
 .pf-banner::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(24,17,13,.95),transparent 60%)}
@@ -429,6 +435,53 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
 
 #dmChatList::-webkit-scrollbar { width: 6px; }
 #dmChatList::-webkit-scrollbar-thumb { background: rgba(255,194,75,.3); border-radius: 6px; }
+
+/* Update Available Banner */
+.update-banner {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 200;
+  background: linear-gradient(135deg, #ffe9b8, #ffc24b 45%, #ff8f3d);
+  color: #2b1c05;
+  padding: 12px 20px;
+  border-radius: 99px;
+  font-family: 'Changa', sans-serif;
+  font-weight: 800;
+  font-size: .9rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 12px 40px rgba(255,143,61,.65), 0 0 0 4px rgba(255,194,75,.15);
+  cursor: pointer;
+  animation: updateSlideIn .5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  max-width: calc(100vw - 48px);
+}
+.update-banner:hover { transform: translateY(-3px); }
+.update-banner .ic { width: 22px; height: 22px; stroke-width: 2.4; }
+.update-banner .reload-btn {
+  background: #2b1c05;
+  color: #ffe9b8;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 99px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: .82rem;
+  transition: .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.update-banner .reload-btn:hover { background: #1a1104; }
+@keyframes updateSlideIn {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@media (max-width: 500px) {
+  .update-banner { bottom: 12px; right: 12px; left: 12px; padding: 10px 16px; font-size: .82rem; justify-content: space-between; }
+}
 </style>
 </head>
 <body>
@@ -561,7 +614,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
     <div class="room-shell" id="roomShell">
       <div class="stage-col">
         <div class="stage bg-1" id="stage">
-          <!-- الزر الآن أسفل يسار -->
           <button class="bg-fab hidden" id="bgBtn" type="button"><svg class="ic sm"><use href="#i-bg"/></svg></button>
           <div class="bg-picker hidden" id="bgPicker">
             <div class="card-tag"><svg class="ic sm"><use href="#i-bg"/></svg> اختر الخلفية</div>
@@ -594,7 +646,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:30px}
   </section>
 </div>
 
-<!-- قائمة حذف الرسالة -->
 <div id="msgMenu" class="msg-menu hidden">
   <button id="msgDeleteBtn">
     <svg class="ic sm"><use href="#i-x"/></svg> حذف الرسالة
@@ -939,6 +990,69 @@ const identityKey=u=>u.handle?'@'+u.handle:'n:'+u.name;
 function ageOf(b){if(!b)return null;const d=new Date(b),n=new Date();let a=n.getFullYear()-d.getFullYear();const m=n.getMonth()-d.getMonth();if(m<0||(m===0&&n.getDate()<d.getDate()))a--;return(a>=0&&a<120)?a:null;}
 const fmtDate=b=>{try{return new Date(b).toLocaleDateString('ar',{year:'numeric',month:'long',day:'numeric'});}catch(e){return b;}};
 
+/* ══════════ UPDATE DETECTION ══════════ */
+let APP_LAST_MODIFIED = null;
+let APP_CONTENT_LENGTH = null;
+let pendingUpdateAvailable = false;
+let updateBannerShown = false;
+
+(async function captureInitialState() {
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.set('_t', Date.now());
+    const res = await fetch(url.toString(), { method: 'HEAD', cache: 'no-store', credentials: 'omit' });
+    APP_LAST_MODIFIED = res.headers.get('Last-Modified');
+    APP_CONTENT_LENGTH = res.headers.get('Content-Length');
+  } catch(e) {}
+})();
+
+async function checkForUpdate() {
+  if (updateBannerShown || !navigator.onLine) return;
+  if (!APP_LAST_MODIFIED && !APP_CONTENT_LENGTH) {
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('_t', Date.now());
+      const res = await fetch(url.toString(), { method: 'HEAD', cache: 'no-store', credentials: 'omit' });
+      APP_LAST_MODIFIED = res.headers.get('Last-Modified');
+      APP_CONTENT_LENGTH = res.headers.get('Content-Length');
+    } catch(e) {}
+    return;
+  }
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.set('_t', Date.now());
+    const res = await fetch(url.toString(), { method: 'HEAD', cache: 'no-store', credentials: 'omit' });
+    const lm = res.headers.get('Last-Modified');
+    const cl = res.headers.get('Content-Length');
+    let changed = false;
+    if (APP_LAST_MODIFIED && lm) changed = (lm !== APP_LAST_MODIFIED);
+    else if (APP_CONTENT_LENGTH && cl) changed = (cl !== APP_CONTENT_LENGTH);
+    if (changed) {
+      pendingUpdateAvailable = true;
+      if (!inRoom) showUpdateBanner();
+    }
+  } catch(e) {}
+}
+
+function showUpdateBanner() {
+  if (updateBannerShown || !pendingUpdateAvailable) return;
+  updateBannerShown = true;
+  const banner = document.createElement('div');
+  banner.className = 'update-banner';
+  banner.innerHTML = `<svg class="ic"><use href="#i-alert"/></svg>
+    <span>تحديث جديد متوفر</span>
+    <button class="reload-btn" type="button">تحديث</button>`;
+  banner.querySelector('.reload-btn').onclick = (e) => {
+    e.stopPropagation();
+    const url = new URL(window.location.href);
+    url.searchParams.set('_t', Date.now());
+    window.location.href = url.toString();
+  };
+  document.body.appendChild(banner);
+}
+
+setSafe(checkForUpdate, 60000);
+
 /* ══════════ الصوت ══════════ */
 let actx=null;
 let userActivated=false;
@@ -1080,12 +1194,18 @@ function mqUnsub(topic){mqCbs.delete(topic);}
 mqConnect();
 const ntfyLast={};
 function ntfyPost(topic,obj){fetch('https://ntfy.sh/'+topic,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(obj)}).catch(()=>{});}
-function ntfySlow(topic,obj,min){const n=Date.now();if(n-(ntfyLast[topic]||0)<min)return;ntfyLast[topic]=n;ntfyPost(topic,obj);}
+function ntfySlow(topic,obj,min){
+  const key = topic + ':' + (obj.id || obj.pid || '');
+  const n = Date.now();
+  if(n-(ntfyLast[key]||0) < min) return;
+  ntfyLast[key] = n;
+  ntfyPost(topic, obj);
+}
 
 async function ntfyPoll(topic){
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000); // 4 seconds timeout to prevent hanging
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
     const r = await fetch('https://ntfy.sh/'+topic+'/json?poll=1',{cache:'no-store', signal: controller.signal});
     clearTimeout(timeoutId);
     const txt = await r.text();
@@ -1094,12 +1214,12 @@ async function ntfyPoll(topic){
     catch(e){msgs=txt.split('\n').filter(Boolean).map(l=>{try{return JSON.parse(l);}catch(_){return null;}}).filter(Boolean);}
     return msgs.map(m=>{try{return JSON.parse(m.message);}catch(e){return null;}}).filter(Boolean);
   } catch(e) {
-    return []; // Return empty on timeout/error
+    return [];
   }
 }
 
-function pubDir(obj){if(!mqPub(DIR_T,obj))ntfySlow(DIR_T,obj,20000);}
-function pubRoom(obj){if(inRoom&&!mqPub(ROOM_T(roomCode),obj))ntfySlow(ROOM_T(roomCode),obj,20000);}
+function pubDir(obj){if(!mqPub(DIR_T,obj))ntfySlow(DIR_T,obj,15000);}
+function pubRoom(obj){if(inRoom&&!mqPub(ROOM_T(roomCode),obj))ntfySlow(ROOM_T(roomCode),obj,15000);}
 
 /* ══════════ حالة ══════════ */
 const sessionTs=Date.now();
@@ -1115,6 +1235,7 @@ let healthInt=null,firstOpen=true,recreateLock=false;
 let audioWatchInt=null;
 let pendingPreMic=null,lastSig='',pfTargetPid=null,pfTargetUser=null,listKind='',listTarget=null;
 let wakeLock=null,dirMap=new Map(),dirRenderQ=false,ntfyFallbackInt=null;
+let lastDirMsgTime=0;
 let pendingTimeouts=[];
 let FK='sada-follows',SK='sada-followers-seen';
 let announcedJoins = new Set();
@@ -1228,13 +1349,12 @@ function sendDM(text) {
   const id = mid();
   const now = Date.now();
   
-  // ** Send immediately without waiting for thumbnail **
   const fromMini = {
     gid: user.gid,
     name: user.name,
     handle: user.handle,
     color: user.color,
-    avatar: user.avatar ? user.avatar.substring(0, 50000) : '' // Truncate to avoid ntfy limits, or rely on cached thumb
+    avatar: user.avatar ? user.avatar.substring(0, 50000) : ''
   };
   
   const m = { id, from: fromMini, text, ts: now };
@@ -1267,7 +1387,7 @@ function onDMMsg(m) {
   }
   
   saveDMs();
-  updateDMUnread(); // Ensure it updates
+  updateDMUnread();
   
   if (isViewing) renderDMChat();
 }
@@ -1303,10 +1423,9 @@ setSafe(() => {
   if (!dmES || dmES.readyState === 2) startDMListener();
 }, 45000);
 
-// ** Fallback Polling every 10s to ensure no missed messages **
 setSafe(async () => {
   if (!user || !user.gid) return;
-  if (dmES && dmES.readyState === 1) return; // SSE is open
+  if (dmES && dmES.readyState === 1) return;
   
   try {
     const msgs = await ntfyPoll(DM_T + user.gid);
@@ -1493,20 +1612,17 @@ async function claimHandle(raw){
   const h=cleanHandle(raw);
   if(!validHandle(h)){toast('اليوزر غير صالح: حروف إنجليزية صغيرة/أرقام/_ (3–16)');return false;}
   
-  // ** Check local map first (fast) **
   const ex=handlesMap.get(h);
   if(ex && ex.gid !== user.gid){
     toast('اليوزر @'+h+' محجوز لشخص آخر');return false;
   }
   
-  // ** Save immediately and proceed **
   user.handle=h;
   saveJSON('sada-user',user);
   if(user.gid) saveJSON('sada-profile-'+user.gid, user);
   
   afterHandle();
   
-  // ** Do network operations in background **
   makeThumb(user.avatar, 48).then(thumb => {
     makeRectThumb(user.banner, 300, 100).then(bn => {
       ntfyPost(HANDLES,{h:h,gid:user.gid,ts:Date.now(),av:thumb,bn:bn});
@@ -1562,15 +1678,12 @@ async function onGoogle(resp){
     const payload=JSON.parse(atob(resp.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
     const gid=String(hash(payload.sub||payload.email||''));
     
-    // ** Login instantly with basic data **
     let handle='';
     handlesMap.forEach((v,h)=>{if(v.gid===gid&&!handle)handle=h;});
     loginUser({name:String(payload.name||'مستخدم').slice(0,16),avatar:payload.picture||'',gid:gid,handle:handle});
     
-    // ** Load handles in background **
     setTimeout(async () => {
       await loadHandles();
-      // If we found a handle remotely, update it silently
       if(!user.handle){
         let foundHandle='';
         handlesMap.forEach((v,h)=>{if(v.gid===gid&&!foundHandle)foundHandle=h;});
@@ -1626,7 +1739,6 @@ function loginUser(u){
   if(!user.handle)openHandleModal();
   else startHandleKeepalive();
   
-  // ** Load heavy data in background **
   setTimeout(() => {
     loadDMs();
     startDMListener();
@@ -1649,6 +1761,7 @@ function enterLobby(){
   refreshHandleUI();
   startDirPolling();
   updateDMUnread();
+  if (pendingUpdateAvailable) setTimeout(showUpdateBanner, 500);
 }
 el.userChip.addEventListener('click',()=>openProfile(user,false,null));
 
@@ -1657,11 +1770,15 @@ let dirSubbed=false;
 function startDirPolling(){
   if(!dirSubbed){dirSubbed=true;mqSub(DIR_T,onDirMsg);}
   clearInterval(ntfyFallbackInt);
-  ntfyFallbackInt=setSafe(()=>{if(!mqOK)pollDirNtfy();},15000);
+  ntfyFallbackInt = setSafe(() => {
+    if(!mqOK || Date.now() - lastDirMsgTime > 5000) pollDirNtfy();
+  }, 5000);
   pollDirNtfy();
 }
 function onDirMsg(d){
   if(!d||!d.id)return;
+  lastDirMsgTime = Date.now();
+  d._receivedAt = Date.now();
   if(d.closed){dirMap.delete(d.id);}
   else dirMap.set(d.id,d);
   queueDirRender();
@@ -1679,7 +1796,10 @@ function queueDirRender(){
 }
 function renderRooms(){
   const now=Date.now();
-  const rooms=[...dirMap.values()].filter(d=>!d.closed&&now-(d.ts||0)<30000).sort((a,b)=>(b.ls||0)-(a.ls||0)).slice(0,12);
+  const rooms=[...dirMap.values()]
+    .filter(d=>!d.closed && (now - (d._receivedAt || now)) < 60000)
+    .sort((a,b)=>(b.ls||0)-(a.ls||0))
+    .slice(0,12);
   el.roomsGrid.innerHTML='';
   el.noRooms.classList.toggle('hidden',rooms.length>0);
   el.dirErr.style.display=mqOK?'none':'inline';
@@ -2395,7 +2515,6 @@ el.micErrClose.addEventListener('click',()=>el.micErrModal.classList.add('hidden
 function senderIsOwner(pid){const r=roster.get(pid);return !!r&&(r.user.name===roomMeta.owner||(roomMeta.ownerId&&r.user.gid&&('g:'+r.user.gid)===roomMeta.ownerId));}
 function senderIsStaff(pid){const r=roster.get(pid);return !!r&&(isMod(r.user)||senderIsOwner(pid));}
 
-// ** Context Menu for Chat Deletion **
 let activeMsgIdToDelete = null;
 function openMsgMenu(e, msgId) {
   e.preventDefault();
@@ -2702,7 +2821,6 @@ function hostChatBan(name,on){
   applyChatBanUI();renderAll();toast(on?'مُنِع من الإرسال':'سُمح له بالإرسال');
 }
 
-// Kick + Ban
 function hostKick(pid){
   const r=roster.get(pid);
   if(!r)return;
@@ -3261,7 +3379,10 @@ function leaveRoom(){
   bannedExit=false;
   enterLobbyKeep();
 }
-function enterLobbyKeep(){startDirPolling();}
+function enterLobbyKeep(){
+  startDirPolling();
+  if (pendingUpdateAvailable) setTimeout(showUpdateBanner, 500);
+}
 el.leaveBtn.addEventListener('click',e=>{e.preventDefault();leaveRoom();});
 document.addEventListener('click',e=>{
   if(e.target&&e.target.closest&&e.target.closest('#leaveBtn'))leaveRoom();
@@ -3294,10 +3415,15 @@ window.addEventListener('pagehide',()=>{
   if(iAmOwner()||roster.size<=1){mqPub(DIR_T,{id:roomCode,closed:true,ts:Date.now()});ntfyPost(DIR_T,{id:roomCode,closed:true,ts:Date.now()});}
 });
 document.addEventListener('visibilitychange',()=>{
-  if(document.visibilityState==='visible'&&inRoom){
-    requestWake();publishHere();pruneTick();healthCheck();
-    unlockAudio();
-    setTimeout(retryAllPendingAudio,300);
+  if(document.visibilityState==='visible') {
+    checkForUpdate();
+    if (inRoom) {
+      requestWake();publishHere();pruneTick();healthCheck();
+      unlockAudio();
+      setTimeout(retryAllPendingAudio,300);
+    } else {
+      pollDirNtfy();
+    }
   }
 });
 
